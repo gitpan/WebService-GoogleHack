@@ -4,6 +4,6 @@ basedir::  # Give path to List of Adjectives,dont forget the forward slash at th
 
 taggerdir:: #please give path to the brill tagger
 
-key:: 	#give key to google access
+key::  	#give key to google access
 
-wsdl::		#give path to wsdl file
+wsdl::	#give path to wsdl file

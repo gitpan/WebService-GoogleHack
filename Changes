@@ -20,3 +20,14 @@ mRevision history for Perl extension WebService::GoogleHack.
      * Google-Hack now	 requires the use of the Brill-Tagger if you are using the sentiment classification functions(Please refer to INSTALL file for more information on installing the Brill-Tagger).
 
      * Updated the base  line algorithm function, wordClusterInPage to be soley based on frequency.
+
+0.09 2005-03-13	      
+     * Algorithm2 of Google-Hack is released in this version. This is a step better than the Algorithm1.
+		  - Accepts more than 2 terms
+		  - Has 3 relatedness scores
+		  - Accepts unigrams and 2-word collocation as input
+		  - Results also contain 2-word collocations
+		  - A score cutoff is also included along with frequency cutoff
+		  - A bigram cutoff is also included.
+
+		  

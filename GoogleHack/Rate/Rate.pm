@@ -181,7 +181,7 @@ Boston, MA  02111-1307, USA.
 
 package WebService::GoogleHack::Rate;
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 use strict;
 
@@ -251,6 +251,95 @@ sub measureSemanticRelatedness
 
 } 
  
+sub relatednessScore2
+{
+
+#   log(w1w2/(w1+w2))
+#
+#
+#
+    my $searchInfo = shift;
+    my $searchString=shift;
+ #   my $searchString2=shift; 
+    my $context=shift;
+    my $temp_string1="\"".$searchString." AND ".$context."\"";    
+  #  $temp_string2=$searchString2." AND ".$context; 
+    my $pmi=0;
+  
+    require WebService::GoogleHack::Search;
+    
+    my $results1=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString);
+    my $result_counte=$results1->{NumResults}; 
+    
+    my $results3=WebService::GoogleHack::Search::searchPhrase($searchInfo, $temp_string1);
+    
+    my $result_count1=$results3->{NumResults};
+    
+    my $results5=WebService::GoogleHack::Search::searchPhrase($searchInfo, $context);
+    
+    my $result_counti=$results5->{NumResults};
+    
+    my $denom=$result_counte + $result_counti;
+
+    if($denom==0 || $result_count1==0)
+    {
+	$pmi=0.0;
+    }
+    else
+    {
+    $pmi=sprintf("%.4f",$pmi);
+    $pmi=log(($result_count1) / $denom)/log(2);
+    }   
+
+    return $pmi;
+
+} 
+
+sub relatednessScore1
+{
+# log(hits(w1)) + log(hits(w2)) - log(hits(w1w2))
+    my $searchInfo = shift;
+    my $searchString=shift;
+ #   my $searchString2=shift; 
+    my $context=shift;
+    my $temp_string1="\"".$searchString." AND ".$context."\"";    
+  #  $temp_string2=$searchString2." AND ".$context; 
+    my $score=0;
+    my $w1=0;
+    my $w2=0;
+    my $w1w2=0;
+    
+    require WebService::GoogleHack::Search;
+    
+    my $results1=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString);
+
+    if($results1->{NumResults}!=0)
+    {
+	$w1=log($results1->{NumResults})/log(2);
+    }
+
+    my $results2=WebService::GoogleHack::Search::searchPhrase($searchInfo, $temp_string1);
+
+    if($results2->{NumResults}!=0)
+    {
+	$w1w2=log($results1->{NumResults})/log(2);
+    }
+
+    my $results3=WebService::GoogleHack::Search::searchPhrase($searchInfo, $context);
+    
+    if($results3->{NumResults}!=0)
+    {
+	$w2=log($results1->{NumResults})/log(2);
+    }
+
+   $score=$w1 + $w2 - $w1w2; 
+   $score=sprintf("%.4f",$score);
+
+    return $score;
+
+} 
+
+
 sub predictSemanticOrientation
 {   
     my $this=shift;

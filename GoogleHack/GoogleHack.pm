@@ -576,7 +576,7 @@ has to be stored.
 
 returns : Returns nothing.
 
-=head2 __PACKAGE__->getWordsInPage(searchTerms,numResults,frequencyCutoff,iteration,numberofSearchTerms,trace_file_path)
+=head2 __PACKAGE__->getWordsInPage(searchTerms,numResults,frequencyCutoff,iteration,numberofSearchTerms,bigrams,trace_file_path)
 
 Purpose:Given a set of search temrs, this function will retreive the resulting 
 URLs from Google, it will then follow those links, and retrieve the text from there.  
@@ -617,6 +617,13 @@ I<number>.  The current iteration number.
 B<numberofSearchTerms> 
 
 I<number>.  The number of search terms in the initial set.
+
+=item *
+
+B<bigrams> 
+
+I<number>.  The bigram cutoff.Set to 0 to exclude bigrams.
+
 
 =item *
 
@@ -667,8 +674,72 @@ I<number>.  The number of iterations that you want the function to search and bu
 =item *
 
 B<path_to_data_directory>.
-pwd
-ls
+
+I<string>.   The location where the file containing the retreived information 
+has to be stored.
+
+=back
+
+returns : Returns an html or text version of the results.
+
+=head2 __PACKAGE__->Algorithm2(searchTerms,numResults,frequencyCutoff,bigramCutoff,numIterations,scoreType,scoreCutOff,path_to_data_directory, html)
+
+Purpose:Given two or more words, this function tries to find a set of related words. This is the Google-Hack baseline algorithm 1.
+
+=over 4
+
+=item *
+
+B<searchTerms> 
+
+I<string>.  The array of search terms (Can only be a word).
+=item *
+
+B<numResults> 
+
+I<number>.  The number of web pages results to be looked at.
+
+=item *
+
+B<numResults> 
+
+I<number>.  The number of web pages results to be looked at.
+
+
+=item *
+
+B<frequencyCutoff> 
+
+I<number>.  Words occuring less than the frequencyCutoff would be excluded from results.
+
+=item *
+
+B<bigramCutoff> 
+
+I<number>. Bigrams occuring less than the bigramCutoff would be excluded from results.
+
+=item *
+
+B<numIterations> 
+
+I<number>.  The number of iterations that you want the function to search and build cluster on.
+
+=item *
+
+B<scoreType>
+
+I<number>.  Takes on the values 1,2 or 3 indicating the relatedness measure to be used.
+
+=item *
+
+B<scoreCutOff> 
+
+I<number>. Words and Bigrams with relatedness score greater than the scoreCutOff would be excluded from results.
+
+
+=item *
+
+B<path_to_data_directory>.
 
 I<string>.   The location where the file containing the retreived information 
 has to be stored.
@@ -798,7 +869,7 @@ Boston, MA  02111-1307, USA.
 
 package WebService::GoogleHack;
 
-our $VERSION = '0.08';
+our $VERSION = '0.09';
 
 use SOAP::Lite;
 use Set::Scalar;
@@ -1870,6 +1941,7 @@ sub getWordsInPage
     my $cutOff=shift; #the cutoff -- remnove words which occur less than cutoff
     my $iterations=shift;
     my $numSearchTerms=shift;
+    my $bigram=shift;
     my $trace_file=shift;  #output to tracefile
     my $stoplist_location=$searchInfo->{'basedir'}."Datafiles/stoplist.txt";
     my %searchHash=();
@@ -2056,35 +2128,71 @@ $count++;$searchStrings[$i]
 	$context=~tr/a-zA-z.!?/ /cs;
 	$context=~tr/[|]|^|_|-|&|\#|\@|~|\'/ /s;
 	$context=~s/\s+/ /g;
+	$_=$context;
+
+	if($bigram >= 1)
+	{
+	    while(/(\s*)(((\s|\w|\d)+)(.|\!|\?))/g)
+	    {
+		@bwords=();
+		@bwords=split(/\s/, $3);
+		for(my $i=0;$i<=$#bwords ;$i++)
+		{	
+		    if(!exists $stop_list{"$bwords[$i]"})	
+		    {
+			$temp=$i+$tsize;
+			
+			for(my $j=$i+1; $j<$temp;$j++)
+			{
+			    if($j<($#bwords+1))
+			    {
+				if( !exists $stop_list{"$bwords[$j]"})		   
+				{
+				    $str="$bwords[$i] $bwords[$j]";
+				    #t    print "\n Bigram is $str";
+				    $matrix{"$permutations[$count]"}->{"$str"}++ if exists $matrix{"$permutations[$count]"}->{"$str"};
+				    $frequencyMatrix{"$str"}++ if exists $frequencyMatrix{"$str"};
+
+				    $matrix{"$permutations[$count]"}->{"$str"}=1 if !exists $matrix{"$permutations[$count]"}->{"$str"};
+				    $frequencyMatrix{"$str"}=1  if !exists  $frequencyMatrix{"$str"};
+				}
+			    }
+			}
+		    }
+		}
+#		$data[$index++] =;
+	    }
+	    
+	}
 
 	@words = split(/\s+|\,|\?|\./, $context);	
 	
-	foreach my $word (@words)
+    foreach my $word (@words)
+    {
+	#$word=~s/[\"!;:\'\`\{\(\}\)\[\]\s\=\+\-\/0-9\|\&\$%]//g;
+	$word=~s/[^\w]//g;
+	if($word ne "")
 	{
-	    #$word=~s/[\"!;:\'\`\{\(\}\)\[\]\s\=\+\-\/0-9\|\&\$%]//g;
-	    $word=~s/[^\w]//g;
-	    if($word ne "")
-	    {
-		if ((!exists $stop_list{"$word"}) && (!exists $searchHash{"$word"}))
-		    #    if ((!exists $stop_list{"$word"}))
-		{  
-		    $matrix{"$permutations[$count]"}->{"$word"}++ if exists $matrix{"$permutations[$count]"}->{"$word"};
-		    $frequencyMatrix{"$word"}++ if exists $frequencyMatrix{"$word"};
-		    
-		    $matrix{"$permutations[$count]"}->{"$word"}=1 if !exists $matrix{"$permutations[$count]"}->{"$word"};
-		    $frequencyMatrix{"$word"}=1  if !exists  $frequencyMatrix{"$word"};
-		}
+	    if ((!exists $stop_list{"$word"}) && (!exists $searchHash{"$word"}))
+		#    if ((!exists $stop_list{"$word"}))
+	    {  
+		$matrix{"$permutations[$count]"}->{"$word"}++ if exists $matrix{"$permutations[$count]"}->{"$word"};
+		$frequencyMatrix{"$word"}++ if exists $frequencyMatrix{"$word"};
+		
+		$matrix{"$permutations[$count]"}->{"$word"}=1 if !exists $matrix{"$permutations[$count]"}->{"$word"};
+		$frequencyMatrix{"$word"}=1  if !exists  $frequencyMatrix{"$word"};
 	    }
-	    
-	    
 	}
 	
-	$count++;
+       	
     }
     
-    $count=0;
-    
-    
+    $count++;
+}
+
+$count=0;
+
+
 #removing words below cutff
 
 for my $word ( keys %matrix ) {
@@ -2094,6 +2202,25 @@ for my $word ( keys %matrix ) {
     my $k=0;
 
     for my $context ( keys %{ $matrix{$word} } ) {
+
+
+	if($bigram >= 1)
+	{
+	    my @tem=split(/\s+/,$context);
+	    
+	    if(($#tem+1) > 1)
+	    {
+		
+		if($matrix{$word}{$context} >= $bigram)
+		{
+		    print "\n $context, $matrix{$word}{$context}";		
+		    $$varname[$k++]=$context;
+		}
+		
+		
+	    }
+	    
+	}
 	
 	if($matrix{$word}{$context} >= $cutOff)
 	{
@@ -2154,7 +2281,6 @@ for(my $i=0;$i<$count; $i++)
     return %cluster;
     
 }
-
 
 
 sub wordClusterInPage
@@ -2261,6 +2387,195 @@ sub wordClusterInPage
  #   unde
 }
 
+sub Algorithm2
+{
+    my $searchInfo = shift;
+    my $ref_searchStrings = shift;  
+    my $numResults=shift;
+    my $cutOff=shift;   
+    my $bigramCutOff=shift;
+    my $iterations=shift;
+    my $scoreType=shift;  
+    my $scoreCutOff=shift;
+    my $trace_file=shift;
+    my $html=shift;
+    my %htmlresults=();
+    my $numSearchTerms=0;
+
+
+    my @searchTerms=@{$ref_searchStrings};
+
+    my $numTerms=$#searchTerms+1;
+
+
+    print "\n numberof terms $numTerms\n";
+
+    %results=WebService::GoogleHack::getWordsInPage($searchInfo, $ref_searchStrings, $numResults,$cutOff,0,$numTerms,$bigramCutOff,$trace_file);
+
+    if(!defined($scoreCutOff))
+    {
+	$scoreCutOff=40;
+    }
+
+
+    print "\nScoreType is $scoreType, ScoreCutOff $scoreCutOff\n";
+
+  
+
+    my $htmlContent="";
+    my $fileContent="";
+
+    my $Relatedness=0;
+    my $tempScore="";
+
+    $htmlContent.="<TABLE><TR><TD> <B> Result Set 1 </B> </TD></TR>";
+    $fileContent="\n Result Set 1 \n";
+
+    while( ($Key, $Value) = each(%results) ){     
+	$Relatedness="";
+  	$tempScore=0;
+
+	foreach my $term (@searchTerms)
+	{
+	    require WebService::GoogleHack::Rate;	print "\n $term, $Key";
+	   # $Relatedness = WebService::GoogleHack::Rate::measureSemanticRelatedness($searchInfo,$term,$Key); 
+	    if($scoreType == 1)
+	    {
+		print "\n In score 1";
+		$Relatedness = WebService::GoogleHack::Rate::relatednessScore1($searchInfo,$term,$Key); 
+	    }
+	    elsif($scoreType == 2)
+	    {
+		$Relatedness = WebService::GoogleHack::Rate::relatednessScore2($searchInfo,$term,$Key); 
+	    }
+	    else
+	    {
+		$Relatedness = WebService::GoogleHack::Rate::relatednessScore3($searchInfo,$term,$Key); 
+	    }
+
+	    $tempScore+=$Relatedness;	 
+	}
+
+	$tempScore=$tempScore/$numTerms;
+
+	if(($scoreType == 3) || ($scoreType == 3))
+	{
+	    $tempScore=abs($tempScore);
+	}
+	
+	$tempScore=sprintf("%.2f",$tempScore);
+
+	if($tempScore < $scoreCutOff)
+	{
+	    $cluster{"$Key"}=$results{"$Key"};
+	    $htmlResults{"$Key"}=$tempScore;
+	}
+    }
+    
+
+    foreach my $key (sort  { $htmlResults{$a} <=> $htmlResults{$b} } (keys(%htmlResults))) {
+	$htmlContent.="<TR><TD>$key : $htmlResults{$key}, </TD><TD>$cluster{$key} </TD></TR>";   	
+	$fileContent.="\n $key : $htmlResults{$key}";   	
+    }
+
+    $htmlContent.="\n</TABLE>\n";
+    $fileContent.="\n ";
+
+    print "\n Got done with first round";
+
+    for(my $i=1; $i < $iterations; $i++)
+    {
+	print "\n I am now in $i round";
+	@searchStrings=();
+	
+    	foreach my $term (@searchTerms)
+	{
+	    push(@searchStrings, $term);
+	}
+
+	for my $word ( keys %cluster) {
+	   
+	 
+	    if($cluster{"$word"} > 0)
+	    {		
+		print "\n key is $word";
+		push(@searchStrings,$word);
+		$numSearchTerms++;
+	    }
+	}
+
+
+	%cluster=();
+	%cluster=WebService::GoogleHack::getWordsInPage($this, \@searchStrings, $numResults,$cutOff,$i,$numTerms,$bigramCutOff,$trace_file);
+
+	my $k=$i+1;
+	$htmlContent.="\n<br><TABLE><TR><TD> <B> Result Set $k </B> </TD></TR>";
+	$fileContent.="\n Result Set $k \n";
+	
+	$Relatedness="No Score";
+	$tempScore=0;
+
+	while( ($Key, $Value) = each(%cluster) ){
+#jumbo     
+	    $Relatedness="";
+	    $tempScore=0;
+	    
+	    foreach my $term (@searchTerms)
+	    {
+		print "\n $term, $Key";
+		#$Relatedness = measureSemanticRelatedness($searchInfo,$term,$Key);   
+		if($scoreType == 1)
+		{
+		    $Relatedness = WebService::GoogleHack::Rate::relatednessScore1($searchInfo,$term,$Key); 
+		}
+		elsif($scoreType == 2)
+		{
+		    $Relatedness = WebService::GoogleHack::Rate::relatednessScore2($searchInfo,$term,$Key); 
+		}
+		else
+		{
+		    $Relatedness = WebService::GoogleHack::Rate::relatednessScore3($searchInfo,$term,$Key); 
+		}
+		
+		$tempScore+=$Relatedness;	 		
+		#$tempScore.=$Relatedness.",\n";
+	    }
+
+	    $tempScore=$tempScore/$numTerms;
+	    $tempScore=abs($tempScore);
+	    $tempScore=sprintf("%.2f",$tempScore);	
+	    
+	    $htmlContent.="\n<TR><TD>$Key:$tempScore, </TD><TD>$cluster{$Key}</TD></TR>";
+	    $fileContent.="\n$Key";
+	    $results{"$Key"}=$cluster{"$Key"}  if !exists $results{"$Key"};;
+
+	}	
+
+        $htmlContent.="\n\n</TABLE><BR><BR>";  
+	$fileContent.="\n\n";
+	
+    }
+
+    $htmlContent.=$global_url;  
+    $fileContent.=$global_url;
+
+    if($trace_file ne "")
+    {
+	open(DAT,">$trace_file") || die("Cannot Open $trace_file to write");
+	print DAT $fileContent;	
+	close(DAT);      
+    }
+
+    
+    if($html eq "true")
+    {
+	return $htmlContent;
+    }
+    else
+    {
+	return $fileContent;
+    }
+}
 
 sub predictWordSentiment
 {
