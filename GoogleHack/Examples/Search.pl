@@ -43,7 +43,7 @@
 =head1 DESCRIPTION
 
 The examples in this module are meant to serve as a means of introducing to the user how to
-use Google-Hack to use the search method, and retrieve the results.
+use GoogleHack to use the search method, and retrieve the results.
 
 =head1 AUTHOR
 

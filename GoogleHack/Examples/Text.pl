@@ -1,9 +1,9 @@
 #!/usr/local/bin/perl
 =head1 NAME 
 
-Text - This is a perl program that gives the example use of the 
-Google-Hack Text functions which manipulate the text retrieved
-from the web.
+	Text - This is a perl program that gives the example use of the 
+	Google-Hack Text functions which manipulate the text retrieved
+	from the web.
 
 =head1 SYNOPSIS
 

@@ -28,7 +28,7 @@
 	#Now call measureSemanticRelatedness function like this to find the 
 	#relatedness measure between the words "knife" and "cut":
 
-	$Relatedness = $rate-> measureSemanticRelatedness("knife", "cut");
+	$Relatedness = $rate-> measureSemanticRelatedness1("knife", "cut");
 
 	#The variable $Relatedness will now contain the results of your query.
  
@@ -50,7 +50,7 @@ Ted Pedersen, E<lt>tpederse@d.umn.eduE<gt>
 
 =head1 SEE ALSO
 
-WebService::GoogleHack home page - http://google-hack.sourceforge.net
+GoogleHack home page - http://google-hack.sourceforge.net
 
 Pratheepan Raveendranathan - http://www.d.umn.edu/~rave0029/research
 
@@ -83,6 +83,12 @@ Boston, MA  02111-1307, USA.
 
 
 use WebService::GoogleHack;
+use strict;
+
+#Create an Object of type WebService::GoogleHack
+
+my $rate = new WebService::GoogleHack;
+
 
 #######################################################################
 # Preferred initialization method
@@ -95,7 +101,7 @@ use WebService::GoogleHack;
 # Make sure to pass the ENTIRE path to the configuration file
 # Config file should be in WebService/GoogleHack/Datafiles/
 #######################################################################
-$PATHCONFIGFILE="../Datafiles/initconfig.txt";
+my $PATHCONFIGFILE="../Datafiles/initconfig.txt";
 
 $rate->initConfig("$PATHCONFIGFILE");
 
@@ -107,8 +113,9 @@ $rate->printConfig();
 # the two words. This relatedness is a measure of calculated using the PMI
 # formula.
 
-$Relatedness = $rate-> measureSemanticRelatedness("knife", "cut");
+my $Relatedness = $rate-> measureSemanticRelatedness1("knife", "cut");
 
+print "\n The measure is $Relatedness";
 #predict the semantic orientation of the given review file, and use the word 
 #"excellent" to denote a positive semantic orientation and the word "bad" to 
 #denote a negative semanctic orientation.
@@ -121,12 +128,13 @@ $Relatedness = $rate-> measureSemanticRelatedness("knife", "cut");
 # An example REVIEW FILE is given in the Webservice/GoogleHack/Datafiles 
 #######################################################################
 
-$PATHREVIEWFILE="";
+my $PATHREVIEWFILE="/home/vold/47/rave0029/WebService/GoogleHack/Datafiles/review.txt";
 
 #output would be written to the file trace.txt
 
-$rate->predictSemanticOrientation("$PATHREVIEWFILE","excellent","bad","trace,txt");
+my $output=$rate->predictSemanticOrientation("$PATHREVIEWFILE","excellent","bad","trace,txt");
 
+print $output;
 
 
 

@@ -1,5 +1,6 @@
 #!/usr/local/bin/perl 
 
+
 =head1 NAME 
 
 WebService::GoogleHack - Perl package that ties together all GoogleHack modules. Use this package to access all the functionality of Google-Hack.
@@ -53,10 +54,11 @@ Some of the features are:
 
     * Given a paragraph find if the paragraph has a positive or negative semantic orientation.
          
-    * Given a set of words along with a positively oriented word such as "excellent" and a negatively oriented  word such as "poor", find if the word has a positive or negative semantic orientation.
+    * Given a set of words along with a positively oriented word such as "excellent" and a negatively oriented 
+      word such as "poor", find if the word has a positive or negative semantic orientation.
 
-    * Given a set of phrases along with a positively oriented word such  as "excellent" and a negatively oriented word such as "poor",  
-      predict if the given phrases are positive or negative in sentiment.
+    * Given a set of phrases along with a positively oriented word such  as "excellent" and a negatively oriented word 
+      such as "poor", predict if the given phrases are positive or negative in sentiment.
 
     * Given two or more words finds a set of related words. 
 
@@ -251,6 +253,324 @@ I<string>.   The location of the trace file. If a file_name is given, the result
 =back
 
 Returns : the PMI measure and the prediction which is 0 or 1.
+
+=head2 __PACKAGE__->getWordsInPage(searchTerms,numResults,frequencyCutoff,iteration,
+                    numberofSearchTerms,bigrams,trace_file_path)
+
+Purpose:Given a set of search terms, this function will retreive the resulting 
+URLs from Google, it will then follow those links, and retrieve the text from there.  
+Once all the text is collected, the function finds the intersecting or co-occurring words
+between the top N results. This function is basically used by the function Algorithm1.
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchTerms> 
+
+I<string>.  An array which contains each search term (It can only be a word not phrase).
+
+=item *
+
+B<numResults> 
+
+I<number>.  The number of web pages results to be looked at.
+
+=item *
+
+B<frequencyCutoff> 
+
+I<number>.  Words occuring less than the frequencyCutoff would be excluded from results.
+
+
+=item *
+
+B<iteration> 
+
+I<number>.  The current iteration number.
+
+=item *
+
+B<numberofSearchTerms> 
+
+I<number>.  The number of search terms in the initial set.
+
+=item *
+
+B<bigrams> 
+
+I<number>.  The bigram cutoff.Set to 0 to exclude bigrams.
+
+
+=item *
+
+B<trace_file_path>.
+
+I<string>.   The location of the trace file.
+
+=back
+
+returns : Returns nothing.
+
+=head2 __PACKAGE__->Algorithm1(searchTerms,numResults,frequencyCutoff,numIterations,
+                    path_to_data_directory, html)
+
+Purpose:Given two or more words, this function tries to find a set of related words. 
+This is the Google-Hack baseline algorithm 1. For example, given the two words gun and pistol, 
+an example of an expanded set of related words would be, 
+
+{laser,paintball, case,bullet, machine gun, rifle} etc.
+
+  The features of Initial Approach (Algorithm 1) is given below
+
+                  - Frequency Based
+ 
+                  - Accepts only 2 terms
+
+                  - Results also contain only unigrams
+		
+                  - A frequency cutoff is used
+		
+                  - Stop words and web stop words are removed.
+
+=over 4
+
+=item *
+
+B<searchTerms> 
+
+I<string>.  The array of search terms (Can only be a word).
+=item *
+
+B<numResults> 
+
+I<number>.  The number of web pages results to be looked at.
+
+=item *
+
+B<frequencyCutoff> 
+
+I<number>.  Words occuring less than the frequencyCutoff would be excluded from results.
+
+=item *
+
+B<numIterations> 
+
+I<number>.  The number of iterations that you want the function to search and build cluster on.
+
+=item *
+
+B<path_to_data_directory>.
+
+I<string>.   The location where the file containing the retreived information 
+has to be stored.
+
+=item *
+
+B<html_flag>.
+
+I<bool>. If set to "true" then the results returned by the algorithm is in HTML format. If not "true", the
+results are in plain text format.  
+
+=back
+
+returns : Returns an html or text version of the results.
+
+=head2 __PACKAGE__->Algorithm2(searchTerms,numResults,frequencyCutoff,bigramCutoff,
+                    numIterations,scoreType,scoreCutOff,path_to_data_directory, html)
+
+Purpose:Given two or more words, this function tries to find a set of related words. 
+This is the Google-Hack algorithm 2.
+
+   The features of Second Approach (Algorithm 2) is given below
+
+                  - Accepts more than 2 terms
+
+		  - Has 3 relatedness scores
+		
+                  - Accepts unigrams and 2-word collocation as input
+		
+                  - Results also contain 2-word collocations
+		
+                  - A score cutoff is also included along with frequency cutoff
+		
+                  - A bigram cutoff is also included.
+
+                  - Stop words and web stop words are removed.
+
+                  - Stop phrases and web stop phrases are removed.
+
+
+=over 4
+
+=item *
+
+B<searchTerms> 
+
+I<string>.  The array of search terms (Can only be a word).
+=item *
+
+B<numResults> 
+
+I<number>.  The number of web pages results to be looked at.
+
+=item *
+
+B<numResults> 
+
+I<number>.  The number of web pages results to be looked at.
+
+
+=item *
+
+B<frequencyCutoff> 
+
+I<number>.  Words occuring less than the frequencyCutoff would be excluded from results.
+
+=item *
+
+B<bigramCutoff> 
+
+I<number>. Bigrams occuring less than the bigramCutoff would be excluded from results.
+
+=item *
+
+B<numIterations> 
+
+I<number>.  The number of iterations that you want the function to search and build cluster on.
+
+=item *
+
+B<scoreType>
+
+I<number>.  Takes on the values 1,2 or 3 indicating the relatedness measure to be used.
+
+=item *
+
+B<scoreCutOff> 
+
+I<number>. Words and Bigrams with relatedness score greater than the scoreCutOff would be excluded from results.
+
+=item *
+
+B<path_to_data_directory>.
+
+I<string>.   The location where the file containing the retreived information 
+has to be stored.
+
+=item *
+
+B<html_flag>.
+
+I<bool>. If set to "true" then the results returned by the algorithm is in HTML format. If not "true", the
+results are in plain text format.  
+
+
+=back
+
+returns : Returns an html or text version of the results.
+
+=head2 __PACKAGE__->predictWordSentiment(infile,positive_inference,
+                    negative_inference,htmlFlag,traceFile)
+
+Purpose:Given an file containing text, this function tries to find the positive and negative words.
+The formula used to calculate the sentiment of a word is based on 
+          the PMI-IR formula given in Peter Turney's paper.
+
+              (hits(word AND "excellent") hits (poor))
+
+         log2 ----------------------------------------
+
+              (hits(word AND "poor") hits (excellent))
+
+
+For more information refer the paper, "Thumbs Up or Thumbs Down? Semantic Orientation Applied to Unsupervised Classification of Reviews" By Peter Turney.
+
+
+=over 4
+
+=item *
+
+B<infile> 
+
+I<string>. The input file
+
+=item *
+
+B<positive_inference> 
+
+I<string>. A positive word such as "Excellent"
+
+=item *
+
+B<negative_inference>.
+
+I<string>. A negative word such as "Bad"
+
+=item *
+
+B<htmlFlag>.
+
+I<string>. Set to "true" if you want the results to be HTML formatted
+
+B<tracefile>.
+
+I<string>. Set to a file if you want the results to be written to the given filename.
+
+=back
+
+returns : Returns an html or text version of the results.
+
+=head2 __PACKAGE__->predictPhraseSentiment(infile,positive_inference,negative_inference,htmlFlag,traceFile)
+
+Purpose:Given an file containing text, this function tries to find the positive and negative phrases. 
+The formula used to calculate the sentiment of a phrase is based on the PMI-IR formula given in Peter Turney's paper.
+
+              (hits(phrase AND "excellent") hits (poor))
+
+         log2 ------------------------------------------
+     
+              (hits(phrase AND "poor") hits (excellent))
+
+For more information refer the paper, "Thumbs Up or Thumbs Down? Semantic Orientation Applied to Unsupervised Classification 
+of Reviews" By Peter Turney.
+
+
+=over 4
+
+=item *
+
+B<infile> 
+
+I<string>. The input file
+
+=item *
+
+B<positive_inference> 
+
+I<string>. A positive word such as "Excellent"
+
+=item *
+
+B<negative_inference>.
+
+I<string>. A negative word such as "Bad"
+
+=item *
+
+B<htmlFlag>.
+
+I<string>. Set to "true" if you want the results to be HTML formatted
+
+B<tracefile>.
+
+I<string>. Set to a file if you want the results to be written to the given filename.
+
+=back
+
+returns : Returns an html or text version of the results.
 
 =head2 __PACKAGE__->phraseSpelling(searchString)
 
@@ -566,317 +886,6 @@ has to be stored.
 
 returns : Returns nothing.
 
-=head2 __PACKAGE__->getWordsInPage(searchTerms,numResults,frequencyCutoff,iteration,numberofSearchTerms,bigrams,trace_file_path)
-
-Purpose:Given a set of search terms, this function will retreive the resulting 
-URLs from Google, it will then follow those links, and retrieve the text from there.  
-Once all the text is collected, the function finds the intersecting or co-occurring words
-between the top N results. This function is basically used by the function Algorithm1.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<searchTerms> 
-
-I<string>.  An array which contains each search term (It can only be a word not phrase).
-
-=item *
-
-B<numResults> 
-
-I<number>.  The number of web pages results to be looked at.
-
-=item *
-
-B<frequencyCutoff> 
-
-I<number>.  Words occuring less than the frequencyCutoff would be excluded from results.
-
-
-=item *
-
-B<iteration> 
-
-I<number>.  The current iteration number.
-
-=item *
-
-B<numberofSearchTerms> 
-
-I<number>.  The number of search terms in the initial set.
-
-=item *
-
-B<bigrams> 
-
-I<number>.  The bigram cutoff.Set to 0 to exclude bigrams.
-
-
-=item *
-
-B<trace_file_path>.
-
-I<string>.   The location of the trace file.
-
-=back
-
-returns : Returns nothing.
-
-=head2 __PACKAGE__->Algorithm1(searchTerms,numResults,frequencyCutoff,numIterations,path_to_data_directory, html)
-
-Purpose:Given two or more words, this function tries to find a set of related words. This is the Google-Hack baseline algorithm 1.
-For example, given the two words gun and pistol, an example of an nexpanded set of related words would be, 
-
-{laser,paintball, case,bullet, machine gun, rifle} etc.
-
-  The features of Initial Approach (Algorithm 1) is given below
-
-                  - Frequency Based
- 
-                  - Accepts only 2 terms
-
-                  - Results also contain only unigrams
-		
-                  - A frequency cutoff is used
-		
-                  - Stop words and web stop words are removed.
-
-=over 4
-
-=item *
-
-B<searchTerms> 
-
-I<string>.  The array of search terms (Can only be a word).
-=item *
-
-B<numResults> 
-
-I<number>.  The number of web pages results to be looked at.
-
-=item *
-
-B<frequencyCutoff> 
-
-I<number>.  Words occuring less than the frequencyCutoff would be excluded from results.
-
-=item *
-
-B<numIterations> 
-
-I<number>.  The number of iterations that you want the function to search and build cluster on.
-
-=item *
-
-B<path_to_data_directory>.
-
-I<string>.   The location where the file containing the retreived information 
-has to be stored.
-
-=item *
-
-B<html_flag>.
-
-I<bool>. If set to "true" then the results returned by the algorithm is in HTML format. If not "true", the
-results are in plain text format.  
-
-=back
-
-returns : Returns an html or text version of the results.
-
-=head2 __PACKAGE__->Algorithm2(searchTerms,numResults,frequencyCutoff,bigramCutoff,numIterations,scoreType,scoreCutOff,path_to_data_directory, html)
-
-Purpose:Given two or more words, this function tries to find a set of related words. This is the Google-Hack algorithm 2.
-
-   The features of Second Approach (Algorithm 2) is given below
-
-                  - Accepts more than 2 terms
-
-		  - Has 3 relatedness scores
-		
-                  - Accepts unigrams and 2-word collocation as input
-		
-                  - Results also contain 2-word collocations
-		
-                  - A score cutoff is also included along with frequency cutoff
-		
-                  - A bigram cutoff is also included.
-
-                  - Stop words and web stop words are removed.
-
-                  - Stop phrases and web stop phrases are removed.
-
-
-=over 4
-
-=item *
-
-B<searchTerms> 
-
-I<string>.  The array of search terms (Can only be a word).
-=item *
-
-B<numResults> 
-
-I<number>.  The number of web pages results to be looked at.
-
-=item *
-
-B<numResults> 
-
-I<number>.  The number of web pages results to be looked at.
-
-
-=item *
-
-B<frequencyCutoff> 
-
-I<number>.  Words occuring less than the frequencyCutoff would be excluded from results.
-
-=item *
-
-B<bigramCutoff> 
-
-I<number>. Bigrams occuring less than the bigramCutoff would be excluded from results.
-
-=item *
-
-B<numIterations> 
-
-I<number>.  The number of iterations that you want the function to search and build cluster on.
-
-=item *
-
-B<scoreType>
-
-I<number>.  Takes on the values 1,2 or 3 indicating the relatedness measure to be used.
-
-=item *
-
-B<scoreCutOff> 
-
-I<number>. Words and Bigrams with relatedness score greater than the scoreCutOff would be excluded from results.
-
-=item *
-
-B<path_to_data_directory>.
-
-I<string>.   The location where the file containing the retreived information 
-has to be stored.
-
-=item *
-
-B<html_flag>.
-
-I<bool>. If set to "true" then the results returned by the algorithm is in HTML format. If not "true", the
-results are in plain text format.  
-
-
-=back
-
-returns : Returns an html or text version of the results.
-
-=head2 __PACKAGE__->predictWordSentiment(infile,positive_inference,negative_inference,$htmlFlag,$traceFile)
-
-Purpose:Given an file containing text, this function tries to find the positive and negative words.
-The formula used to calculate the sentiment of a word is based on 
-          the PMI-IR formula given in Peter Turney's paper.
-
-              (hits(word AND "excellent") hits (poor))
-
-         log2 ----------------------------------------
-
-              (hits(word AND "poor") hits (excellent))
-
-
-For more information refer the paper, "Thumbs Up or Thumbs Down? Semantic Orientation Applied to Unsupervised Classification of Reviews" By Peter Turney.
-
-
-=over 4
-
-=item *
-
-B<infile> 
-
-I<string>. The input file
-
-=item *
-
-B<positive_inference> 
-
-I<string>. A positive word such as "Excellent"
-
-=item *
-
-B<negative_inference>.
-
-I<string>. A negative word such as "Bad"
-
-=item *
-
-B<htmlFlag>.
-
-I<string>. Set to "true" if you want the results to be HTML formatted
-
-B<tracefile>.
-
-I<string>. Set to a file if you want the results to be written to the given filename.
-
-=back
-
-returns : Returns an html or text version of the results.
-
-=head2 __PACKAGE__->predictPhraseSentiment(infile,positive_inference,negative_inference,$htmlFlag,$traceFile)
-
-Purpose:Given an file containing text, this function tries to find the positive and negative phrases. 
-The formula used to calculate the sentiment of a phrase is based on the PMI-IR formula given in Peter Turney's paper.
-
-              (hits(phrase AND "excellent") hits (poor))
-
-         log2 ------------------------------------------
-     
-              (hits(phrase AND "poor") hits (excellent))
-
-For more information refer the paper, "Thumbs Up or Thumbs Down? Semantic Orientation Applied to Unsupervised Classification 
-of Reviews" By Peter Turney.
-
-
-=over 4
-
-=item *
-
-B<infile> 
-
-I<string>. The input file
-
-=item *
-
-B<positive_inference> 
-
-I<string>. A positive word such as "Excellent"
-
-=item *
-
-B<negative_inference>.
-
-I<string>. A negative word such as "Bad"
-
-=item *
-
-B<htmlFlag>.
-
-I<string>. Set to "true" if you want the results to be HTML formatted
-
-B<tracefile>.
-
-I<string>. Set to a file if you want the results to be written to the given filename.
-
-=back
-
-returns : Returns an html or text version of the results.
 
 =head1 AUTHOR
 
@@ -921,7 +930,7 @@ Boston, MA  02111-1307, USA.
 
 package WebService::GoogleHack;
 
-our $VERSION = '0.09';
+our $VERSION = '0.11';
 
 use SOAP::Lite;
 use Set::Scalar;
@@ -937,8 +946,6 @@ my $global_url="";
 sub new
 {
 my $this = {};
-
-@snippet=();
 
 #these are the fields/members of the class Google-hack
 
@@ -992,7 +999,7 @@ $this-> {'taggerdir'} = shift;
 sub setMaxResults
 {
     my $this = shift;
-    $maxResults = shift;
+    my $maxResults = shift;
     $this-> {'maxResults'} =$maxResults;
 }
 
@@ -1002,7 +1009,7 @@ sub setMaxResults
 sub setlr
 {
     my $this = shift;
-    $lr = shift;
+    my $lr = shift;
     $this-> {'lr'} =$lr;
 }
 
@@ -1010,7 +1017,7 @@ sub setlr
 sub setoe
 {
     my $this = shift;
-    $oe = shift;
+    my $oe = shift;
 
     $this-> {'oe'} =$oe;
 
@@ -1021,17 +1028,16 @@ sub setoe
 sub setie
 {
     my $this = shift;
-    $ie = shift;
+    my $ie = shift;
 
     $this-> {'ie'} =$ie;
-
 
 }
 
 sub setStartPos
 {
     my $this = shift;
-    $StartPos = shift;
+    my $StartPos = shift;
 
     $this-> {'StartPos'} =$StartPos;
 
@@ -1041,7 +1047,7 @@ sub setStartPos
 sub setFilter
 {
     my $this = shift;
-    $Filter = shift;
+    my $Filter = shift;
 
     $this-> {'Filter'} =$Filter;
 
@@ -1051,7 +1057,7 @@ sub setFilter
 sub setRestrict
 {
     my $this = shift;
-    $Restrict = shift;
+    my $Restrict = shift;
 
     $this-> {'Restrict'} =$Restrict;
 
@@ -1061,7 +1067,7 @@ sub setRestrict
 sub setSafeSearch
 {
     my $this = shift;
-    $Restrict = shift;
+    my $Restrict = shift;
 
     $this-> {'Restrict'} =$Restrict;
 
@@ -1074,11 +1080,11 @@ sub measureSemanticRelatedness1
   my $searchString1=shift;
   my $searchString2=shift;
 
-  print "i am here";
+  require WebService::GoogleHack::Rate;
 
- require WebService::GoogleHack::Rate;
-
- $results=WebService::GoogleHack::Rate::measureSemanticRelatedness1($this, $searchString1, $searchString2);
+  
+ my $results=WebService::GoogleHack::Rate::measureSemanticRelatedness1($this, 
+$searchString1, $searchString2);
 
  return $results;
 
@@ -1090,11 +1096,11 @@ sub measureSemanticRelatedness2
   my $searchString1=shift;
   my $searchString2=shift;
 
-  print "i am here";
-
  require WebService::GoogleHack::Rate;
 
- $results=WebService::GoogleHack::Rate::measureSemanticRelatedness2($this, $searchString1, $searchString2);
+ 
+my $results=WebService::GoogleHack::Rate::measureSemanticRelatedness2($this, 
+$searchString1, $searchString2);
 
  return $results;
 
@@ -1106,11 +1112,11 @@ sub measureSemanticRelatedness3
   my $searchString1=shift;
   my $searchString2=shift;
 
-  print "i am here";
-
  require WebService::GoogleHack::Rate;
 
- $results=WebService::GoogleHack::Rate::measureSemanticRelatedness3($this, $searchString1, $searchString2);
+ 
+my $results=WebService::GoogleHack::Rate::measureSemanticRelatedness3($this, 
+$searchString1, $searchString2);
 
  return $results;
 
@@ -1119,7 +1125,7 @@ sub measureSemanticRelatedness3
 
 sub predictSemanticOrientation
 {
-  my $searchInfo=shift;
+  my $this=shift;
   my $infile=shift;
   my $positive_inference=shift;
   my $negative_inference=shift;
@@ -1135,7 +1141,7 @@ sub predictSemanticOrientation
 
   my $taggedInput=$this->{'basedir'}."Temp/temp.fr.tg";
   
- my $results=WebService::GoogleHack::Rate::predictSemanticOrientation($searchInfo,$taggedInput,$positive_inference,$negative_inference,$trace_file);
+ my $results=WebService::GoogleHack::Rate::predictSemanticOrientation($this,$taggedInput,$positive_inference,$negative_inference,$trace_file);
   
     return $results;
 
@@ -1161,7 +1167,7 @@ sub Search
  
   require WebService::GoogleHack::Search;
  
-  $results=WebService::GoogleHack::Search::searchPhrase($this, $searchString,$num_results);
+  my $results=WebService::GoogleHack::Search::searchPhrase($this,$searchString,$num_results);
 
   $this->{'NumResults'}=$results->{'NumResults'};
   $this-> {'snippet'} = $results->{'snippet'};
@@ -1185,7 +1191,7 @@ my $filename=shift;
 
 #calling the read config function in text
 
-    $results=WebService::GoogleHack::Text::readConfig("$filename");
+    my $results=WebService::GoogleHack::Text::readConfig("$filename");
     $this->{'Key'}=$results->{'Key'};
     $this->{'File_Location'}=$results->{'File_Location'};
     $this-> {'basedir'} = $results->{'basedir'};
@@ -1199,7 +1205,7 @@ return $this;
 sub printConfig
 {
 
-    $this=shift;
+    my $this=shift;
 
     print "\n This is the information retrieved from the configuration file\n";
 
@@ -1238,11 +1244,11 @@ sub getSearchSnippetWords
 	$numResults=10;
     }
 
-  $results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString,$numResults);
+my $results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString,$numResults);
 
 
-    @strings=();
-    $count=0;
+    my @strings=();
+    my $count=0;
     require WebService::GoogleHack::Text;
 
 # I am just checking the first 10 snippets since the snippets get more irrelevant as
@@ -1257,10 +1263,14 @@ sub getSearchSnippetWords
 	$count++;
    }
     
-%results_final=WebService::GoogleHack::Text::getSurroundingWords($searchString,5 , @strings);
+my %results_final=WebService::GoogleHack::Text::getSurroundingWords($searchString,5 
+, @strings);
 
 
 #if we need to write results to the trace_file
+my $Key;
+my $Value;
+my $temp="";
 
 if($trace_file ne "")
 {
@@ -1294,28 +1304,28 @@ sub getCachedSurroundingWords
 
     require WebService::GoogleHack::Search;
 
-    %words=();
-
-    $results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString);
-
-
-   for($i=0; $i< 10; $i++)
-   {
-       print "\n";
-       print $results->{'url'}->[$i];
-       print "\n";
+    my %words=();
+    my @temp=();
+    my $results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString);
+    
+    my $i;
+    
+    for($i=0; $i< 10; $i++)
+    {
+	print "\n";
+	print $results->{'url'}->[$i];
+	print "\n";
        if($results->{'url'}->[$i])
        {
-
 	   use LWP::Simple;
-	   $url=$results->{'url'}->[$i];
-	   $cachedPage=get("$url");
+	   my $url=$results->{'url'}->[$i];
+	   my $cachedPage=get("$url");
 	   
 #print $webpage;
-	   	   
+	   
 	   #$cachedPage=WebService::GoogleHack::Search::getCachedPage($searchInfo,);
-	
-	   $cachedPaget=WebService::GoogleHack::Text::parseWebpage($cachedPage);
+	   
+	   my $cachedPaget=WebService::GoogleHack::Text::parseWebpage($cachedPage);
 	   print "\n Printing Cached Page\n\n";
 	   print $cachedPaget;	   
 	   @temp=();
@@ -1324,13 +1334,13 @@ sub getCachedSurroundingWords
 	   @temp=WebService::GoogleHack::Text::getCachedSentences($searchString,$cachedPaget);
        }   
   
-       $no_words=@temp;
+       my $no_words=@temp;
 
 #inserting words surrounding the searchstring into the words hash.
-
-       for($j=0; $j < $no_words; $j++)
+     
+       for(my $j=0; $j < $no_words; $j++)
        {
-	   $temp_string=lc($ttemp[$j]);
+	   my $temp_string=lc($temp[$j]);
 
 	   $words{"$temp_string"}++ if exists $words{"$temp_string"};	
 	   
@@ -1345,9 +1355,9 @@ sub getCachedSurroundingWords
 
     if($trace_file ne "")
     {
-	$temp="\n Words Surrounding search phrase $searchString in Cached webpages\n\n";
+	my $temp="\n Words Surrounding search phrase $searchString in Cached webpages\n\n";
 	
-	while( ($Key, $Value) = each(%words) ){
+	while( (my $Key, my $Value) = each(%words) ){
 	    $temp=$temp."Key: $Key, Value: $Value \n";
 	    
  #  $semantic_strings[$count]="$Key ";
@@ -1377,11 +1387,11 @@ sub getSnippetSentences
     my $searchString=shift;
     my $trace_file=shift;
 
-    @temp=();
+    my @temp=();
 
-    $results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString);
+my $results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString);
 
-    for($i=0; $i < 10; $i++)
+    for(my $i=0; $i < 10; $i++)
     {
 	if($results->{'snippet'}->[$i])
 	    
@@ -1393,27 +1403,26 @@ sub getSnippetSentences
 	
     }
 
-    @strings=WebService::GoogleHack::Text::getSnippetSentences(@temp);
-
-    $size=@strings;
+    my @strings=WebService::GoogleHack::Text::getSnippetSentences(@temp);
+    my $size=@strings;
 
   if($trace_file ne "")
     {
-	$temp="\n Snippet Sentences for $searchString\n\n";
+	my $temp="\n Snippet Sentences for $searchString\n\n";
 	
-	for($i=0; $i < $size; $i++)
+	for(my $i=0; $i < $size; $i++)
 	{	 
-   $temp=$temp.$strings[$i]."\n";
+	    $temp=$temp.$strings[$i]."\n";
 	}    
- #  $semantic_strings[$count]="$Key ";
-	    # print $semantic_strings[$count];
-	    # $count++;
+	#  $semantic_strings[$count]="$Key ";
+	# print $semantic_strings[$count];
+	# $count++;
 	
 	
 	open(DAT,">$trace_file") || die("Cannot Open $trace_file to write");
 	
 	print DAT $temp;
-
+	
 	close(DAT);
 	
 }
@@ -1431,9 +1440,12 @@ sub getCachedSurroundingSentences
     my $searchString=shift;
     my $trace_file=shift;
 
-    $results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString);
+    my $results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString);
+    my $cachedPage;
+    my $url_value;
+    my %pageContents=();
 
-    for($i=0; $i< 10; $i++)
+    for(my $i=0; $i< 10; $i++)
     {
 	if($results->{'url'}->[$i])
 	{
@@ -1441,7 +1453,7 @@ sub getCachedSurroundingSentences
 	    
 	    $url_value=$results->{'url'}->[$i];
 
-	    @temp=();
+	    my @temp=();
 	    @temp=WebService::GoogleHack::Text::getCachedSentences($searchString,$cachedPage);
 	    
 	    $pageContents{"$url_value"}=@temp;
@@ -1485,14 +1497,15 @@ sub getSearchCommonWords
     require WebService::GoogleHack::Search;
 
     print "\n\nOne $searchString1, Two $searchString2";
-    $results1=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString1, $numResults)
+    my $results1=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString1, $numResults)
 ;
-    @strings1=(); 
+    my @strings1=(); 
 
-    $count=0;  
+    my $count=0;  
 
     require WebService::GoogleHack::Text;
-     $innc=0;
+    my $innc=0;
+    
     while( $count < $numResults)
     {
 	#print "here";
@@ -1506,14 +1519,14 @@ sub getSearchCommonWords
     }
     
     
-    $results2=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString2, $numResults);
-    @strings2=(); 
-    $count=0;
+    my $results2=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString2, $numResults);
+    my @strings2=(); 
+    my $count=0;
     
 
     
 # I am just checking the first 10 snippets since the snippets get more irrelevant as the hit number increases
-    $innc=0;
+    my $innc=0;
    
     while( $count < $numResults)
     {
@@ -1531,17 +1544,18 @@ if($results2->{'snippet'}->[$count] ne "")
     $count=0;
 
 
-%results_final1=WebService::GoogleHack::Text::getSurroundingWords($searchString1,5 , @strings1, $stemmer);
+my %results_final1=WebService::GoogleHack::Text::getSurroundingWords($searchString1,5 , @strings1, $stemmer);
 
 
 
 
-%sequence_occs=();
+my %sequence_occs=();
 
-while( ($Key, $Value) = each(%results_final1) ){
+while( (my $Key, my $Value) = each(%results_final1) ){
 
-    $temp_string=""; 
+    my $temp_string=""; 
     $Key=~s/[\,\\\/\:\(\)\[\]\{\}\_\-\?]//g;
+    my @stem=();
 
 if($stemmer eq "true")
 {
@@ -1567,10 +1581,13 @@ else
 
 
 
-%results_final2=WebService::GoogleHack::Text::getSurroundingWords($searchString2,5 , @strings2, $stemmer);
+my %results_final2=WebService::GoogleHack::Text::getSurroundingWords($searchString2,5 , @strings2, $stemmer);
 
 
-while( ($Key, $Value) = each(%results_final2) ){
+my @stem=();
+my $temp_string;
+
+while( (my $Key,my $Value) = each(%results_final2) ){
 
     $temp_string="";
 if($stemmer eq "true")
@@ -1594,7 +1611,7 @@ $sequence_occs{"$temp_string"}++ if exists $sequence_occs{"$temp_string"};
 
  
 # print "\n\n\n\n";
-    while( ($Key, $Value) = each(%sequence_occs) ){
+    while( (my $Key,my $Value) = each(%sequence_occs) ){
 	
 	if($sequence_occs{"$Key"} > 1)
 	    
@@ -1611,25 +1628,25 @@ $sequence_occs{"$temp_string"}++ if exists $sequence_occs{"$temp_string"};
     
     #reading in the stop list
     
-    %stop_list=WebService::GoogleHack::Text::getWords("$stoplist_location");
+    my %stop_list=WebService::GoogleHack::Text::getWords("$stoplist_location");
     
     
-    while( ($Key, $Value) = each(%stop_list) ){
+    while( (my $Key, my $Value) = each(%stop_list) ){
     
 	delete($sequence_occs{"$Key"}) 
 	    
 	}
 
 
-$date=getDateHeader();
+my $date=getDateHeader();
 
-$fileContent="\n\n\n================================================================";
+my $fileContent="\n\n\n================================================================";
 $fileContent.="\n\n Query Date - $date - Intersecting Words for $searchString1 & $searchString2\n\n";
 $fileContent.="================================================================\n\n";
     $fileContent.="\nWord List for $searchString1\n";
     $fileContent.="=================================\n";
     
-    while( ($Key, $Value) = each(%results_final1) ){
+    while( (my $Key,my $Value) = each(%results_final1) ){
 	
 	    $fileContent.="\n$Key";
 	    
@@ -1638,7 +1655,7 @@ $fileContent.="================================================================\
 	$fileContent.="\n\n\nWord List for $searchString2\n";
 	$fileContent.="=================================\n";
 	
-	while( ($Key, $Value) = each(%results_final2) ){
+	while( (my $Key,my $Value) = each(%results_final2) ){
 	
 	     $fileContent.="\n$Key";
 	    
@@ -1650,7 +1667,7 @@ $fileContent.="================================================================\
     delete($sequence_occs{""});   
     delete($sequence_occs{"-"});
     
-    while( ($Key, $Value) = each(%sequence_occs) ){
+    while( (my $Key,my $Value) = each(%sequence_occs) ){
 	
 	$fileContent.="\n$Key";
 	
@@ -1681,16 +1698,16 @@ sub getWordClustersInSnippets
 
     my $stoplist_location=$searchInfo->{'basedir'}."Datafiles/stoplist.txt";
     
-    $k=0;
+    my $k=0;
 
    
-    $results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString);
+    my $results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString);
     
-    $count=0;  
+    my $count=0;  
     
     require WebService::GoogleHack::Text;
     
-    @strings1=();
+    my @strings1=();
     
     while( $count < 10)
     {	
@@ -1698,22 +1715,22 @@ sub getWordClustersInSnippets
 	$count++;
     }
     
-    %results_final=WebService::GoogleHack::Text::getSurroundingWords($searchString,5 , @strings1);
+    my %results_final=WebService::GoogleHack::Text::getSurroundingWords($searchString,5 , @strings1);
     
     require WebService::GoogleHack::Text;
     
-    %stop_list=WebService::GoogleHack::Text::getWords("$stoplist_location");
+    my %stop_list=WebService::GoogleHack::Text::getWords("$stoplist_location");
     
-    @stopwords=();
+    my @stopwords=();
     $count=0;
     
-    while( ($Key, $Value) = each(%stop_list) ){
+    while( (my $Key,my $Value) = each(%stop_list) ){
 	
 	delete($results_final{"$Key"}) 
 	    
 }
     
-    $clusters=();
+    my $clusters=();
     $count=0;
    
     delete($results_final{""});     
@@ -1750,17 +1767,18 @@ sub getClustersInSnippets
     #value
 
     
-%first_intersection=WebService::GoogleHack::getSearchCommonWords($searchInfo, 
+my %first_intersection=WebService::GoogleHack::getSearchCommonWords($searchInfo, 
 $searchString1, $searchString2, $numResults,$trace_file);
 
     
-    @intersection=();
-    
-    $count=0;
-    
-    
-    #we need to use this since we are using Set::Scalar to find the intersection of words
+    my @intersection=();
+    my $count=0;
+    my $Key;
+    my $Value;
 
+
+    #we need to use this since we are using Set::Scalar to find the intersection of words
+    
     while( ($Key, $Value) = each(%first_intersection) ){
 	$Key=~s/[\,\\\/\:\(\)\[\]\{\}\_\-\?]//g;
 	if($Key ne "")
@@ -1771,9 +1789,9 @@ $searchString1, $searchString2, $numResults,$trace_file);
     }
     
     #for each word in the set of intersecting words
-    for($i=0; $i <  $count; $i++)
+    for(my $i=0; $i <  $count; $i++)
     {
-	%temp=();
+	my %temp=();
 	
 	#now I am calling this funciton to return the set of words in the snippet 
 	#for each intersecting word
@@ -1783,16 +1801,13 @@ $searchString1, $searchString2, $numResults,$trace_file);
 	#now, again to use Set::Scalar i need to store this stuff in an array
 	#arrays would array0.array1 etc etc.
 
-	$varname="array$i";
+	my $varname="array$i";
 
 	#initializing the new array
-
 	@$varname=();
-
-
-	$count1=0;
+	my $count1=0;
 	
-	while( ($Key, $Value) = each(%temp) ){
+	while( (my $Key, my $Value) = each(%temp) ){
 	#pushing words into the array
 	    if($Key ne "")
 	    {
@@ -1804,9 +1819,11 @@ $searchString1, $searchString2, $numResults,$trace_file);
 
     #this variable will basically contain all the words    
     
-    %cluster=();
-    
-    for($i=0; $i < $count; $i++)
+    my %cluster=();
+    my $s;
+    my $varname;
+
+    for(my $i=0; $i < $count; $i++)
     {
 	#once again assigning the correct name for the array
 	
@@ -1816,19 +1833,19 @@ $searchString1, $searchString2, $numResults,$trace_file);
 	$s = Set::Scalar->new;
 	$s = Set::Scalar->new(@$varname);
  
-	for($j=$i + 1; $j < $count; $j++)
+	for(my $j=$i + 1; $j < $count; $j++)
 	{	
-	    $tempvarname="array$j";
-	    $temp = Set::Scalar->new;
+	    my $tempvarname="array$j";
+	    my $temp = Set::Scalar->new;
 	    $temp = Set::Scalar->new(@$tempvarname);
 	    
-	    $size = $temp->size; #
+	    my $size = $temp->size; #
 
-	    $tempIntersect=  $temp * $s;
+	    my $tempIntersect=  $temp * $s;
 
 	    while (defined(my $e = $tempIntersect->each))
 	    {
-		$temp_string="";
+		my $temp_string="";
 		$temp_string=$e;
 
 
@@ -1852,10 +1869,10 @@ delete($cluster{"-"});
 delete($cluster{"a"});
 require WebService::GoogleHack::Text;
 
-%stop_list=WebService::GoogleHack::Text::getWords("$stoplist_location");
+my %stop_list=WebService::GoogleHack::Text::getWords("$stoplist_location");
 
 
-while( ($Key, $Value) = each(%stop_list) ){
+while( (my $Key, my $Value) = each(%stop_list) ){
     
     delete($cluster{"$Key"}) 
     
@@ -1863,12 +1880,12 @@ while( ($Key, $Value) = each(%stop_list) ){
 }
 
 
-$fileContent="";
+my $fileContent="";
 $fileContent.="\n\nWord Cluster\n";
 $fileContent.="=================\n";
-$extended_fileContent="\n\n Extended Cluster for $searchString1 & $searchString2\n\n";
+my $extended_fileContent="\n\n Extended Cluster for $searchString1 & $searchString2\n\n";
 
-while( ($Key, $Value) = each(%cluster) ){
+while( (my $Key,my $Value) = each(%cluster) ){
     
     if($cluster{"$Key"} >= $cutOff)    
 {
@@ -1914,9 +1931,9 @@ sub getText
     my  $searchString = shift;  
     my  $path_to_write=shift;
     my  $numberResults=shift;
-    
+    my $temp="";
 
- ($Second, $Minute, $Hour, $Day, $Month, $Year, $WeekDay, $DayOfYear, $IsDST) = localtime(time);
+my ($Second, $Minute, $Hour, $Day, $Month, $Year, $WeekDay, $DayOfYear, $IsDST) = localtime(time);
 
 $Month = $Month + 1; 
 
@@ -1933,25 +1950,25 @@ if($Day < 10)
 
 $Year=$Year+1900;
 
-$date=$Month."-".$Day."-".$Year;
+my $date=$Month."-".$Day."-".$Year;
 
-    $results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString);
+my    $results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString);
     
-    for($i=0; $i< 10 ; $i++)
+    for(my $i=0; $i< 10 ; $i++)
     {
 	if(($results->{'url'}->[$i]) ne "")
 	{
 	    
-	    $url=$results->{'url'}->[$i];
-	    $webPage="";
+	    my $url=$results->{'url'}->[$i];
+	    my $webPage="";
 	    $webPage=LWP::Simple::get("$url");
 	    
 	    require WebService::GoogleHack::Text;
 
-	    $webPaget=WebService::GoogleHack::Text::parseWebpage($webPage);
+	    my $webPaget=WebService::GoogleHack::Text::parseWebpage($webPage);
 
-	    @stem = Text::English::stem( "$searchString" );
-	    $file_name=  $path_to_write.$stem[0].".txt";
+	    my @stem = Text::English::stem( "$searchString" );
+	    my $file_name=  $path_to_write.$stem[0].".txt";
 	    
 	    #print $webPaget;
        	    $temp="\n\nURL: $url, Date Retrieved:  $date\n\n";
@@ -1975,7 +1992,7 @@ return $temp;
 sub getDateHeader
 {
 
-($Second, $Minute, $Hour, $Day, $Month, $Year, $WeekDay, $DayOfYear, $IsDST) = localtime(time);
+my ($Second, $Minute, $Hour, $Day, $Month, $Year, $WeekDay, $DayOfYear, $IsDST) = localtime(time);
 
 $Month = $Month + 1; 
 
@@ -2008,7 +2025,7 @@ if($Second < 10)
 $Year=$Year+1900;
 
 
-$date=$Month."-".$Day."-".$Year." @ ".$Hour.":".$Minute.":".$Second;
+my $date=$Month."-".$Day."-".$Year." @ ".$Hour.":".$Minute.":".$Second;
 
 return $date;
 
@@ -2120,6 +2137,8 @@ sub getWordsInPage
     
    
     my $count=0;
+    my $t;
+    my $i;
 
     foreach my $query (@permutations)
     {
@@ -2136,7 +2155,7 @@ sub getWordsInPage
 
 	# now for each url, I am going through the urls in the url.
 
-	for(my $i=0; $i< $numResults ; $i++)
+	for($i=0; $i< $numResults ; $i++)
 	{
  	    if(($results->{'url'}->[$i]) ne "")
 	    {
@@ -2183,6 +2202,7 @@ sub getWordsInPage
  		}
             }
 	}
+
 	
 	$global_url.="\n\n<br>";
 
@@ -2191,20 +2211,21 @@ $count++;$searchStrings[$i]
 
     require WebService::GoogleHack::Text;
 
-  %stop_list=WebService::GoogleHack::Text::getWords("$stoplist_location");
+    my %stop_list=WebService::GoogleHack::Text::getWords("$stoplist_location");
 
     my %frequencyMatrix=();
-    %matrix=();
+    my %matrix=();
     $count=0;
     my $data=();
     my $index=0;
     my @bwords=();
     my $str="";
     my $tsize=2;
+    my $temp;
 
 # the array filecontent now has the text from each url and its subset of urls.
     
-    foreach $context (@fileContent)
+    foreach my $context (@fileContent)
     {   
 	my @words=();
 
@@ -2318,36 +2339,38 @@ for my $word ( keys %matrix ) {
 }
 
 
-%cluster=();
+my %cluster=();
 
 
 #finding the intersection
-%stop_list=WebService::GoogleHack::Text::getWords("$stoplist_location");
+    my %stop_list=WebService::GoogleHack::Text::getWords("$stoplist_location");
+    my $varname;
+    my $s;
 
-for(my $i=0;$i<$count; $i++)
-{
+    for(my $i=0;$i<$count; $i++)
+    {
 	$varname="var$i";
 	
 	#initializing the variable $s to the base array. 
 	$s = Set::Scalar->new;
 	$s = Set::Scalar->new(@$varname);
- 
-	for($j=$i + 1; $j < $count; $j++)
+	
+	for(my $j=$i + 1; $j < $count; $j++)
 	{	
-	    $tempvarname="var$j";
+	    my $tempvarname="var$j";
 	    $temp = Set::Scalar->new;
 	    $temp = Set::Scalar->new(@$tempvarname);
 	    
 	    $size = $temp->size; #
 
-	    $tempIntersect=  $temp * $s;
+	    my $tempIntersect=  $temp * $s;
 
 	    while (defined(my $e = $tempIntersect->each))
 	    {
-		$temp_string="";
+		my $temp_string="";
 		$temp_string=$e;
-	  if (!exists $stop_list{"$temp_string"})
-	    { 
+		if (!exists $stop_list{"$temp_string"})
+		{ 
 		#$cluster{"$temp_string"}++ if exists $cluster{"$temp_string"};
 	#print "\n $temp_string $frequencyMatrix{$temp_string}";
 #		$cluster{"$temp_string"}= if exists $cluster{"$temp_string"};
@@ -2382,7 +2405,7 @@ sub Algorithm1
 
     my @searchTerms=@{$ref_searchStrings};
     
-    %results=WebService::GoogleHack::getWordsInPage($searchInfo, $ref_searchStrings, $numResults,$cutOff,0,2,0,$trace_file);
+    my %results=WebService::GoogleHack::getWordsInPage($searchInfo, $ref_searchStrings, $numResults,$cutOff,0,2,0,$trace_file);
 
 
     
@@ -2392,17 +2415,20 @@ sub Algorithm1
 
     my $Relatedness=0;
     my $tempScore="";
+    my %cluster=();
 
     $htmlContent.="<TABLE><TR><TD> <B> Result Set 1 </B> </TD></TR>";
     $fileContent="\n Result Set 1 \n";
 
     foreach my $key (sort  { $results{$b} <=> $results{$a} } (keys(%results))) {
 	$htmlContent.="<TR><TD>$key : $results{$key} </TD></TR>";   	
-	$fileContent.="\n $key : $results{$key}";   	
+	$fileContent.="\n $key : $results{$key}"; 
+	$cluster{$key}= $results{$key}; 	
     }
     
     $htmlContent.="\n</TABLE>\n";
     $fileContent.="\n ";
+  
 
     print "\n Got done with first round";
 
@@ -2410,7 +2436,7 @@ sub Algorithm1
     {
 	print "\n I am now in $i round";
 
-	@searchStrings=();	
+	my @searchStrings=();	
 
 	foreach my $term (@searchTerms)
 	{
@@ -2429,7 +2455,7 @@ sub Algorithm1
 
 
 	%cluster=();
-	%cluster=WebService::GoogleHack::getWordsInPage($this, \@searchStrings, $numResults,$cutOff,$i,2,0,$trace_file);
+	%cluster=WebService::GoogleHack::getWordsInPage($searchInfo, \@searchStrings, $numResults,$cutOff,$i,2,0,$trace_file);
 
 	my $k=$i+1;
 	$htmlContent.="\n<br><TABLE><TR><TD> <B> Result Set $k </B> </TD></TR>";
@@ -2486,7 +2512,7 @@ sub Algorithm2
     my $html=shift;
     my %htmlresults=();
     my $numSearchTerms=0;
-
+    my %cluster=();
 
     my @searchTerms=@{$ref_searchStrings};
 
@@ -2495,7 +2521,7 @@ sub Algorithm2
 
     print "\n numberof terms $numTerms\n";
 
-    %results=WebService::GoogleHack::getWordsInPage($searchInfo, $ref_searchStrings, $numResults,$cutOff,0,$numTerms,$bigramCutOff,$trace_file);
+    my %results=WebService::GoogleHack::getWordsInPage($searchInfo, $ref_searchStrings, $numResults,$cutOff,0,$numTerms,$bigramCutOff,$trace_file);
 
     if(!defined($scoreCutOff))
     {
@@ -2512,11 +2538,11 @@ sub Algorithm2
 
     my $Relatedness=0;
     my $tempScore="";
-
+    my %htmlResults=();
     $htmlContent.="<TABLE><TR><TD> <B> Result Set 1 </B> </TD></TR>";
     $fileContent="\n Result Set 1 \n";
 
-    while( ($Key, $Value) = each(%results) ){     
+    while( (my $Key,my $Value) = each(%results) ){     
 	$Relatedness="";
   	$tempScore=0;
 	
@@ -2574,7 +2600,7 @@ sub Algorithm2
     for(my $i=1; $i < $iterations; $i++)
     {
 	print "\n I am now in $i round";
-	@searchStrings=();
+	my @searchStrings=();
 	
     	foreach my $term (@searchTerms)
 	{
@@ -2594,7 +2620,7 @@ sub Algorithm2
 
 
 	%cluster=();
-	%cluster=WebService::GoogleHack::getWordsInPage($this, \@searchStrings, $numResults,$cutOff,$i,$numTerms,$bigramCutOff,$trace_file);
+	%cluster=WebService::GoogleHack::getWordsInPage($searchInfo, \@searchStrings, $numResults,$cutOff,$i,$numTerms,$bigramCutOff,$trace_file);
 
 	my $k=$i+1;
 	$htmlContent.="\n<br><TABLE><TR><TD> <B> Result Set $k </B> </TD></TR>";
@@ -2603,7 +2629,7 @@ sub Algorithm2
 	$Relatedness="No Score";
 	$tempScore=0;
 
-	while( ($Key, $Value) = each(%cluster) ){
+	while( (my $Key, my $Value) = each(%cluster) ){
 #jumbo     
 	    $Relatedness="";
 	    $tempScore=0;

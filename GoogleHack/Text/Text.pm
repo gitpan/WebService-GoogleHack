@@ -268,7 +268,7 @@ Boston, MA  02111-1307, USA.
 package WebService::GoogleHack::Text;
 
 
-our $VERSION = '0.1';
+our $VERSION = '0.11';
 
 sub new
 {

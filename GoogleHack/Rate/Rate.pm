@@ -153,7 +153,8 @@ I<string>.   The search string which can be a phrase or word
 
 Returns: Returns the object containing the relatedness measure. 
 
-=head2 __PACKAGE__->predictSemanticOrientation(review_file,positive_inference,negative_inference,trace_file)
+=head2 __PACKAGE__->predictSemanticOrientation(review_file,positive_inference,
+                    negative_inference,trace_file)
 
 Purpose: this function tries to predict the semantic orientation of a paragraph of text.
 
@@ -235,7 +236,7 @@ Boston, MA  02111-1307, USA.
 
 package WebService::GoogleHack::Rate;
 
-our $VERSION = '0.1';
+our $VERSION = '0.11';
 
 use strict;
 

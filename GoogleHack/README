@@ -2,7 +2,7 @@ NAME
     WebService::GoogleHack README
 
 VERSION
-    0.1
+    0.11
 
 SYNOPSIS
     GoogleHack is a set of Perl modules that does a variety of text
@@ -58,10 +58,10 @@ IMPLEMENTATION DETAILS
 
     Google Hack supports two methods for finding sets of related words. These
     are known as Algorithm 1 and Algorithm 2  
-    (http://search.cpan.org/~prath/WebService-GoogleHack-0.1/GoogleHack/GoogleHack.pm#PACKAGE_METHODS). 
+    (http://search.cpan.org/~prath/WebService-GoogleHack-0.11/GoogleHack/GoogleHack.pm#PACKAGE_METHODS). 
     These algorithms are implemented in the module GoogleHack.pm. You can see an example program
     that calls these algorithms here 
-    (http://search.cpan.org/~prath/WebService-GoogleHack-0.1/GoogleHack/Examples/WordCluster.pl)
+    (http://search.cpan.org/~prath/WebService-GoogleHack-0.11/GoogleHack/Examples/WordCluster.pl)
     
   Rate.pm
     Rate.pm is the sub-module of GoogleHack that implements all the

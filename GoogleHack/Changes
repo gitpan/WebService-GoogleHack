@@ -30,4 +30,6 @@ mRevision history for Perl extension WebService::GoogleHack.
 		  - A score cutoff is also included along with frequency cutoff
 		  - A bigram cutoff is also included.
 
-		  
+0.1 2005-04-4
+    - Changed measureSemanticRelatedness1 from log(hits(w1)) + log(hits(w2)) -  log(hits(w1w2)) to log(hits(w1)) + log(hits(w2)) - 2 * log(hits(w1w2)).
+    - Updated README and PERLDOC.

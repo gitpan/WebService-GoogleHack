@@ -1,7 +1,7 @@
 #!/usr/local/bin/perl
 =head1 NAME
 
-InitExample - This program provides examples of the initialization functions.
+InitExample - This program provides an example of the initialization function.
 
 =head1 SYNOPSIS
 
@@ -21,22 +21,13 @@ InitExample - This program provides examples of the initialization functions.
 
 =head1 DESCRIPTION
 
-This program is intended to show the user how they can call the functions 
+This program is intended to show the user how they can call the function 
 to initialize the Google-Hack key, WSDL file path, and the word lists. 
-Two methods of initialization is shown.
 
-1) Initialization through assigning values to the variables inside the
-package it self.
-
-2) Initialization through a configuration file.
+1) Initialization through a configuration file.
 
 Initialization through a configuration file is the most efficient method,
 since, you would not need to type the Google-API key more than once.
-
-Note* 
-Make sure to use only one method of initialization. This is a use method 1) or 2) sort of condition.
-
-It is preferred to use the Initialization  method number 2.
 
 =head1 AUTHOR
 

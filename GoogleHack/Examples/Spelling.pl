@@ -1,8 +1,8 @@
 #!/usr/local/bin/perl
 =head1 NAME 
 
-Spelling - This is a perl program that gives the example use of 
-the Google-Hack function to retrieve a spelling suggestion.
+	Spelling - This is a perl program that gives the example use of 
+	the Google-Hack function to retrieve a spelling suggestion.
 
 
 =head1 SYNOPSIS

@@ -2,7 +2,7 @@
 
 =head1 NAME 
 
-	WordCluster - Simple program that interacts with GoogleHack to 
+	WordCluster - Simple program that uses the GoogleHack functions to 
         retrieve related set of words.
 
 =head1 SYNOPSIS
@@ -25,8 +25,7 @@
 	
 =head1 DESCRIPTION
 
-The examples in this module are meant to serve as a means of introducing to the user how to use GoogleHack some of the special features of GoogleHack.
-
+This program shows the example usage of the sets of related words functions.
 
 =head1 AUTHOR
 

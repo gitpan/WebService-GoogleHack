@@ -56,8 +56,7 @@
 	
 =head1 DESCRIPTION
 
-The examples in this module are meant to serve as a means of introducing to the user how to use GoogleHack some of the special features of GoogleHack.
-
+This program contains example usage of the GoogleHack sentiment classification functions.
 
 =head1 AUTHOR
 
