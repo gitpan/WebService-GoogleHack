@@ -1,6 +1,85 @@
-WebService::GoogleHack Version 0.06
+WebService::GoogleHack Version 0.07
 
 WebService::GoogleHack Installation Guide
+
+Requirements:
+=============
+
+1) Perl Version 5.8  or better Required for Evaluador.
+
+   You can check the version of Perl you have by issuing the following command.
+
+   COMMAND:Perl -V
+
+2) Brill Tagger - 
+   Installation file and instructions @ : 
+   
+   http://www.cs.jhu.edu/~brill/RBT1_14.tar.Z
+
+3) Other Required PERL Modules
+
+   SOAP::Lite;
+   Set::Scalar;
+   Text::English;
+   LWP::Simple;
+   URI::URL;
+   LWP::UserAgent;
+   HTML::LinkExtor;
+   Data::Dumper;
+
+   Brill Tagger Installation Instructions
+   ======================================
+
+   Download the Brill Tagger Installation file from 
+
+   http://www.cs.jhu.edu/~brill/RBT1_14.tar.Z 
+   
+   and store the installation file in your local directory:
+
+   Eg, /home/username/
+
+   *Note: The following commands are for the Unix/Linux Command prompt.
+
+   Next, unzip and untar the file into your local directory.
+   
+   COMMAND: uncompress RBT1_14.tar.Z
+   COMMAND: tar -xvf RBT1_14.tar.Z
+
+   This command would have unpacked the tagger into
+
+   /home/username/RULE_BASED_TAGGER_V1.14/
+   
+   (If you had unpacked the Brill Tagger from you local directory) 
+  
+   Next, Change the directory to the Brill Tagger directory. 
+
+   COMMAND: cd /home/username/RULE_BASED_TAGGER_V1.14/
+
+   The Brill Tagger uses the "cc" compiler. Current Unix and Linux 
+   versions use the "gcc" compiler. Hence, change every occurence of "cc" to 
+   "gcc" in the file named Makefile.
+
+   Finally, make the installation,
+   
+   COMMAND: make  
+
+   You should now be able to access the tagger.  So if you had installed the 
+   Brill tagger in
+
+   /home/username/
+
+   then, you should be able to see the tagger in
+
+   /home/username/RULE_BASED_TAGGER_V1.14/
+
+   To run the tagger, you would have to go into the Bin_and_Data directory and 
+   issue the following command:
+  
+   COMMAND: tagger LEXICON inputfile BIGRAMS LEXICALRULEFILE CONTEXTUALRULEFILE
+
+   Use the name of the file to be tagged instead of inputfile in the above 
+   command. The input file is basically a corpus of text.
+
 
 INSTALLATION
 -------------

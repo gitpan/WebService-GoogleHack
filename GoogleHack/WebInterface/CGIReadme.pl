@@ -20,52 +20,53 @@ The web interface for WebService::Google-Hack has been implemented such that, th
 2) Next, copy the file named google_hack.cgi, which is given with the 
 distribution of the google-hack package into your cgi-bin/ghack/ directory.
 
-3) Open the google_hack.cgi file, and change the lib path to the path where 
-WebService::GoogleHack has been installed on your machine.
+3) Open the google_hack.cgi file (The google_hack.cgi file is in the WebInterface directory of GoogleHack. For eg: WebService/GoogleHack/WebInterface), 
+and change the lib path to the path where WebService::GoogleHack has been 
+installed on your machine.
 
-use lib "/home/lib/perl5/site_perl/";
-
-*Note:
-The google_hack.cgi file is in the WebInterface directory of GoogleHack.
-For eg: WebService/GoogleHack/WebInterface.
-
-4) Now, open the ghack_server.pl file (which is also given in the  WebInterface directory of GoogleHack), and change the lib path to the path where WebService::GoogleHack has been installed on your machine.
- 
-use lib "/home/lib/perl5/site_perl/";
+4) Now, open the ghack_server.pl file (which is also given in the  WebInterface directory of GoogleHack),
 
 5) In the ghack_server.pl file, change the following variables accordingly:
 
+Basedir should be the path to the cgi-bin directory in which google_hack.cgi 
+resides.
+
 $BASEDIR = '/webspace/cgi-bin/ghack'; 
 
+The localport should be a number above 1024, and less than around 66,000. Make
+ sure that localport number is the same on both the client and server side.
+
 $localport = 32983;
+
 
 $lock_file = "$BASEDIR/ghack_server.lock";
 
 $error_log = "$BASEDIR/error.log";
 
-Basedir should be the path to the cgi-bin directory in which google_hack.cgi 
-resides.
-
-The localport should be a number above 1024, and less than around 66,000. Make
- sure that localport number is the same on both the client and server side.
 
 The lockfile & error_log variables will remain the same. 
 
 6) Now, open the google_hack.cgi  file (which is also given in the  WebInterface directory of GoogleHack),
 
-Set the remotr_host, and remote_port variables to the correct values.
+Set the remote_host, and remote_port variables to the correct values.
+
+The remote host will be the IP address of the machine where the google_hack server will be running.
 
 $remote_host = '';
 
-$remote_port = '';
-
-The remote host will be the IP address of the machine where the google_hack server will be running.
 The remote port needs to be the same as the $localport variable in ghack_server.pl
+$remote_port = '';
 
 7)If your ghack server is running behind a firewall, you will need to
 edit the file /etc/sysconfig/iptables to allow clients to connect to the machine through the port you had given.  There is a line that looks like this:
 
 -A RH-Firewall-1-INPUT -p tcp --dport XXXXX -j ACCEPT
+
+Where XXXXX is the port that your client will be connecting to (the value of $localport in ghack_server.pl).
+
+The change would not take effect until the host machine is rebooted. If you do not have permissions to reboot, please issue the following command:
+ 
+/sbin/iptables -I RH-Firewall-1-INPUT 10 -p tcp --dport XXXXX -j ACCEPT
 
 Where XXXXX is the port that your client will be connecting to (the value of $localport in ghack_server.pl).
 
@@ -102,7 +103,12 @@ The Free Software Foundation, Inc.,
 59 Temple Place - Suite 330,
 Boston, MA  02111-1307, USA.
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself. 
-
 =cut
+
+
+
+
+
+
+
+

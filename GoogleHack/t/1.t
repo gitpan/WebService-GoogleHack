@@ -50,6 +50,23 @@ chomp $wsdl;
 diag("\n".     "This is the path to the WSDL file: $wsdl, Thanks".
      "\n");
 
+diag("\n".     "Please Enter path to the directory in which the untarred GoogleHack resides , \n EG, /home/username/WebService/GoogleHack/".
+     "\n");
+
+$basedir = <STDIN>;
+chomp $basedir;
+diag("\n".     "This is the path to the Google Hack directory: $basedir, Thanks".
+     "\n");
+
+diag("\n".     "Please Enter path to the directory in which the  Brill Tagger executable, \n EG, /home/username/RULE_BASED_TAGGER_V1.14/Bin_and_Data/".
+     "\n");
+
+$tagger = <STDIN>;
+chomp $tagger;
+diag("\n".     "This is the path to the tagger executable: $tagger, Thanks".
+     "\n");
+
+
 diag("\n".     "Is the above information accurate y-yes, n-no".
      "\n");
 
@@ -90,18 +107,9 @@ if($flag ne "true")
 {
 $temp="GoogleHack
 
-adjectives_list			::../Datafiles/adjectives_list.txt      
-     # Give path to List of Adjectives
+basedir::$basedir     # Give path to base dir in which googlehack is installed
 
-verbs_list::../Datafiles/verbs_list.txt		    # Give path to List of Verbs
-
-nouns_list::../Datafiles/nouns_list.txt		    # Give path to List of Nouns
-
-stop_list::../Datafiles/smartstop.txt			    #Give path to List of 
-stop words
-
-adverbs_list::../Datafiles/adverbs_list.txt		    # Give path to List of 
-Adverbs
+taggerdir::$tagger		    # Give path to the directory in which the brill tagger resides
 
 key::$key  	#give key to google access
 

@@ -169,7 +169,7 @@ Boston, MA  02111-1307, USA.
 
 package WebService::GoogleHack::Search;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 use SOAP::Lite;
 
 
@@ -304,7 +304,6 @@ sub setSafeSearch
 
 }
 
-
 sub searchPhrase
 {
     my $searchInfo=shift;
@@ -322,7 +321,8 @@ sub searchPhrase
     {
 	$num_results=10;
     }
-    
+
+    print ".";
     $key  = $searchInfo->{'Key'}; 
     $wsdl_path =$searchInfo->{'File_Location'}; 
     
@@ -334,7 +334,7 @@ sub searchPhrase
 # Initialise with local SOAP::Lite file
     
 
-open(WSDL,"$wsdl_path") || die("\n\n\n\nIllegal WSDL File Location\n\n\n\n");
+open(WSDL,"$wsdl_path") || die("\n\n\n\nIllegal WSDL File Location : $wsdl_path\n\n\n\n");
 close(WSDL);
 
 $service = SOAP::Lite

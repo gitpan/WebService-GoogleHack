@@ -10,29 +10,23 @@ The server then retrieves the results of the queries and sends it back to the we
 
 To install the server please follow these steps:
 
-1) Change the lib path to the path where WebService::GoogleHack has been installed on your machine.
- 
-use lib "/home/lib/perl5/site_perl/";
-
-2) Change the following variables accordingly:
-
-$BASEDIR = '/webspace/cgi-bin/ghack'; 
-
-$localport = 32983;
-
-$lock_file = "$BASEDIR/ghack_server.lock";
-
-$error_log = "$BASEDIR/error.log";
-
-Basedir should be the path to the cgi-bin directory in which google_hack.cgi 
-resides.
+1) Change the following variables accordingly:
 
 The localport should be a number above 1024, and less than around 66,000. Make
  sure that localport number is the same on both the client and server side.
 
-The lockfile & error_log variables will remain the same. 
+$LOCALPORT = XXXXX;
 
-3)If your ghack server is running behind a firewall, you will need to
+The path to the GoogleHack/Temp directory eg, /home/username/WebService/GoogleHack/Temp/
+
+$ghackDir="";
+
+This would be the Google-Hack configuration file eg /home/username/WebService/GoogleHack/Datafiles/initconfig.txt
+
+$configFile="";
+
+
+2)If your ghack server is running behind a firewall, you will need to
 edit the file /etc/sysconfig/iptables to allow clients to connect to the machine through the port you had given.  There is a line that looks like this:
 
 -A RH-Firewall-1-INPUT -p tcp --dport XXXXX -j ACCEPT
@@ -72,23 +66,29 @@ The Free Software Foundation, Inc.,
 59 Temple Place - Suite 330,
 Boston, MA  02111-1307, USA.
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself. 
-
 =cut
 
-use lib "/home/vold/47/rave0029/lib/perl5/site_perl/";
 use strict;
 
-###########################################################
-# Please make sure to change the value of these variables #
-# according to documentation                              # 
-###########################################################
+# The port through which the client would connect
+# said another the way, the port in which the server will be listening
+# for requests
 
-my $BASEDIR = '/home/vold/47/rave0029/www/cgi-bin/ghack';
-my $localport = 32983;
-my $lock_file = "$BASEDIR/ghack_server.lock";
-my $error_log = "$BASEDIR/error.log";
+my $LOCALPORT = 32983;
+
+# The path to the GoogleHack/Temp directory
+# /home/username/WebService/GoogleHack/Temp/
+
+my $ghackDir="";
+
+# This would be the Google-Hack configuration file
+# /home/username/WebService/GoogleHack/Datafiles/initconfig.txt
+
+my $configFile="";
+
+
+my $lock_file = "ghack_server.lock";
+my $error_log = "error.log";
 
 my $lockfh;
 {
@@ -109,18 +109,15 @@ END {
     }
 }
 
+
 # prototypes:
 sub getlock ();
 sub releaselock ();
 
 use sigtrap handler => \&bailout, 'normal-signals';
 use IO::Socket::INET;
-
 use SOAP::Lite;
 use WebService::GoogleHack;
-
-# reset (untaint) the PATH
-$ENV{PATH} = '/bin:/usr/bin:/usr/local/bin';
 
 # automatically reap child processes
 $SIG{CHLD} = 'IGNORE';
@@ -132,21 +129,18 @@ chmod 0664, $error_log;
 
 
 # The is the socket we listen to
-my $socket = IO::Socket::INET->new (LocalPort => $localport,
+my $socket = IO::Socket::INET->new (LocalPort => $LOCALPORT,
 				    Listen => SOMAXCONN,
 				    Reuse => 1,
 				    Type => SOCK_STREAM
 				   ) or die "Could not be a server: $!";
 
-print "SERVER started on port $localport "; 
+print "SERVER started on port $LOCALPORT "; 
 
 my $search = new WebService::GoogleHack;
 
-############################################################
-# Change to you config file path                           #
-############################################################
-
-$search->initConfig("");
+$search->initConfig("$configFile");
+$search->printConfig(); 
 
 ACCEPT:
 while (my $client = $socket->accept) {
@@ -166,18 +160,26 @@ while (my $client = $socket->accept) {
     }
 
     foreach my $i (0..$#requests) {
+
         my $request = $requests[$i];
 	my $rnum = $i + 1;
 	$request =~ m/^(\w)\b/;
 	my $type = $1 || 'UNDEFINED';
 	my $query=$request;
 
-#user wants word cluster
+	print $type."\n";
+	print $query;
+	print "\n\n";
+       
 	if ($type eq 'c')
 	{		   
-	    my ($dummy,$searchString,$numResults,$cutOffs,$numIterations)= split(/\t/, $query);
+	    #print $client "$search->printConfig()";
+
+	    my ($dummy,$key,$searchString,$numResults,$cutOffs,$numIterations)= split(/\t/, $query);
 	    my @terms=();
 	    
+	    print "\n Key is $key ";
+
 	    my @temp= split(/:/, $searchString);
 	    
 	    foreach my $word (@temp)
@@ -188,23 +190,76 @@ while (my $client = $socket->accept) {
 	       }
 	   
 	    }
-	  
- my $results=$search->wordClusterInPage(\@terms,$numResults,$cutOffs,$numIterations,"results.txt","true");
-	    
+	    print "$numResults,$cutOffs,$numIterations";
+	    print $terms[0]."\n".$terms[1];;
+
+	    $search->{'Key'}="$key";
+	    my $results=$search->wordClusterInPage(\@terms,$numResults,$cutOffs,$numIterations,"results.txt","true");	 
 	    print $client "$results";
 	    print $client "\015\012";
 	}
-#if user wants to measure semantic relatedness/ PMI score
 	elsif ($type eq 'p')
 	{		   
-	    my ($dummy,$searchString1,$searchString2)= split(/\t/, $query);
-	    	  
+	    #print $client "$search->printConfig()";
+	    my ($dummy,$key,$searchString1,$searchString2)= split(/\t/, $query); 
+	    
+	    print "\n Key is $key";
+	    
+	    $search->{'Key'}="$key";
 	    my $results=$search->measureSemanticRelatedness($searchString1,$searchString2);
 	 
 
 	    print $client "$results";
 	    print $client "\015\012";
 	}
+	  elsif ($type eq 'r')
+        {
+            #print $client "$search->printConfig()";
+            my ($dummy,$key,$review,$positive,$negative)= split(/\t/, $query);
+	    $review=~s/\#+/ /g;
+	    my $filename=$ghackDir."temp.txt";
+	    open(DAT,">$filename") || die("Cannot Open $filename to write");
+	    print DAT $review;
+	    close(DAT);
+	    $search->{'Key'}="$key";
+	    print "\n the review is $review";
+	    print "\n Predict Review Request $positive $negative\n"; 
+            my $results=$search->predictSemanticOrientation($filename,$positive,$negative,"trace.txt");
+            print $client "$results";
+            print $client "\015\012";
+        }
+	  elsif ($type eq 's')
+        {
+            #print $client "$search->printConfig()";
+            my ($dummy,$key,$review,$positive,$negative)= split(/\t/, $query);
+	    $review=~s/\#+/ /g;
+	    my $filename=$ghackDir."temp.txt";
+	    open(DAT,">$filename") || die("Cannot Open $filename to write");
+	    print DAT $review;
+	    close(DAT);
+	    $search->{'Key'}="$key";
+	    print "\n the review is $review";
+	    print "\n Predict Review Request $positive $negative\n"; 
+            my $results=$search->predictWordSentiment($filename,$positive,$negative,"true");
+            print $client "$results";
+            print $client "\015\012";
+        }
+	elsif ($type eq 'h')
+        {
+            #print $client "$search->printConfig()";
+            my ($dummy,$key,$review,$positive,$negative)= split(/\t/, $query);
+	    $review=~s/\#+/ /g;
+	    my $filename=$ghackDir."temp.txt";
+	    open(DAT,">$filename") || die("Cannot Open $filename to write");
+	    print DAT $review;
+	    close(DAT);
+	    $search->{'Key'}="$key";
+	    print "\n the review is $review";
+	    print "\n Predict Review Request $positive $negative\n"; 
+            my $results=$search->predictPhraseSentiment($filename,$positive,$negative,"true");
+            print $client "$results";
+            print $client "\015\012";
+        }
 	else {
 	    print $client "! Bad request type `$type'\015\012";
 	}
@@ -257,23 +312,6 @@ sub releaselock ()
 }
 
 __END__
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -1,4 +1,4 @@
-!/usr/local/bin/perl -w
+#!/usr/local/bin/perl -w
 
 =head1 WebService::Google-Hack Web Interface
 
@@ -11,7 +11,6 @@ for some of the features of WebService::Google-Hack.
 
 To install the interface please follow these steps:
 
-
 1) Create a directory named ghack in your cgi-bin directory (Where all your cgi files reside). So it should be something like:
 
 /webspace/cgi-bin/ghack
@@ -19,10 +18,7 @@ To install the interface please follow these steps:
 2) Next, copy the file named google_hack.cgi, which is given with the 
 distribution of the google-hack package into your cgi-bin/ghack/ directory.
 
-3) Open the google_hack.cgi file, and change the lib path to the path where 
-WebService::GoogleHack has been installed on your machine.
-
-use lib "/home/lib/perl5/site_perl/";
+3) Open the google_hack.cgi file.
 
 *Note:
 The google_hack.cgi file is in the WebInterface directory of GoogleHack.
@@ -30,7 +26,7 @@ For eg: WebService/GoogleHack/WebInterface.
 
 4) Now, in the google_hack.cgi  file (which is also given in the  WebInterface directory of GoogleHack),
 
-Set the remotr_host, and remote_port variables to the correct values.
+Set the remote_host, and remote_port variables to the correct values.
 
 $remote_host = '';
 
@@ -38,6 +34,10 @@ $remote_port = '';
 
 The remote host will be the IP address of the machine where the google_hack server will be running.
 The remote port needs to be the same as the $localport variable in ghack_server.pl
+
+5) Set the defaultKey variable to your default Google-API key.
+
+    $defaultKey="XXXXXXXXX";
 
 You should now be able to use the web interface.
 
@@ -76,15 +76,7 @@ it under the same terms as Perl itself.
 
 =cut
 
-
 use strict;
-
-##########################################################
-# Change to path                                         #
-##########################################################
-
-use lib "";
-
 
 ##########################################################
 # Change to host ip address and port                     #
@@ -92,38 +84,51 @@ use lib "";
 my $remote_host = '';
 my $remote_port = '';
 
+##########################################################
+# Change to default API key                              #
+##########################################################
+my $defaultKey="";
+
 use CGI;
 use Socket;
 
+
 BEGIN {
+    # Our University's webserver uses an ancient version of CGI::Carp
+    # so we can't do fatalsToBrowser.
+    # The carpout() function lets us modify the format of messages sent to
+    # a filehandle (in this case STDERR) to include timestamps
     use CGI::Carp 'carpout';
     carpout(*STDOUT);
 }
 
 my $cgi = CGI->new;
 
-# print the HTTP header
-print $cgi->header;
+# These are the colors of the text when we alternate text colors (when
+# showing errors, for example).
+my $text_color1 = 'black';
+my $text_color2 = '#d03000';
 
+
+print $cgi->header;
 
 my $action=$cgi->param ('action');
 my $type=$cgi->param ('opt');
-	
-	   my $key = $cgi->param ('apikey');
-	   
-	   my $words;
-	   my $frequency;
-	   my $numPages;
-	   my $numIterations;
-	   my $wordS1;
-	   my $wordS2;
-	   my $review;
+my $key = $cgi->param ('apikey');
 
-	   
-	   if(!defined($action))
-	   {
-	       $action="first";
-	   }
+my $words;
+my $frequency;
+my $numPages;
+my $numIterations;
+my $wordS1;
+my $wordS2;
+my $review;
+my $text;
+
+if(!defined($action))
+{
+    $action="first";
+}
 
 if($action eq "first")
 {
@@ -136,6 +141,7 @@ if($action eq "Submit")
     
     if($type eq "wordcluster")
     {
+	
 	WordClusters();
     }
     elsif($type eq "pmi")
@@ -145,18 +151,39 @@ if($action eq "Submit")
     elsif($type eq "review")
     {
 	Review();
+    } 
+    elsif($type eq "words")
+    {
+	SemanticWords();
+    }
+    elsif($type eq "phrases")
+    {
+	SemanticPhrases();
     }
     
 }
 
 if($action eq "Generate")
 {
-    
-    $words = $cgi->param ('words');;
+  
+  #  $words = $cgi->param ('words');;  print $words;
+    $words = $cgi->param ('searchString1')." ".$cgi->param ('searchString2');
+#    print $words;
     $frequency = $cgi->param ('cutoff');;
     $numPages = $cgi->param ('numres');;
     $numIterations=$cgi->param ('numiters');;;
+
+    if($cgi->param ('apikey') ne "")
+    {
+	$key=$cgi->param ('apikey'); 
+    }
+    else
+    {
+	$key="";
+    }
+
     generateWordCluster();
+#$numIterations = $cgi->param ('apikey');;
     
 }
 
@@ -166,30 +193,107 @@ if($action eq "PMIMeasure")
     
     $wordS1 = $cgi->param ('searchString1');
     $wordS2 = $cgi->param ('searchString2');
+
+    if($cgi->param ('apikey') ne "")
+    {
+	$key=$cgi->param ('apikey'); 
+    }
+    else
+    {
+	$key="$defaultKey";
+    }
+
     generatePMI();
 #$numIterations = $cgi->param ('apikey');;
     
 }
 
+if($action eq "Predict")
+{       
+    $wordS1 = $cgi->param ('searchString1');
+    $wordS2 = $cgi->param ('searchString2');
+    $review= $cgi->param ('review');
+
+    if($cgi->param ('apikey') ne "")
+    {
+	$key=$cgi->param ('apikey'); 
+    }
+    else
+    {
+	$key="$defaultKey";
+    }
+
+    predictReview();    
+}
+
+if($action eq "Semantic")
+{       
+    $wordS1 = $cgi->param ('searchString1');
+    $wordS2 = $cgi->param ('searchString2');
+    $text= $cgi->param ('text');
+
+    if($cgi->param ('apikey') ne "")
+    {
+	$key=$cgi->param ('apikey'); 
+    }
+    else
+    {
+	$key="$defaultKey";
+    }
+
+    predictSemanticWords();    
+}
+
+if($action eq "SemanticPhrases")
+{       
+    $wordS1 = $cgi->param ('searchString1');
+    $wordS2 = $cgi->param ('searchString2');
+    $text= $cgi->param ('text');
+
+    if($cgi->param ('apikey') ne "")
+    {
+	$key=$cgi->param ('apikey'); 
+    }
+    else
+    {
+	$key="$defaultKey";
+    }
+
+    predictSemanticPhrases();    
+}
+
 showPageEnd ();
 exit;
+
+# ========= subroutines =========
+
+sub round ($)
+{
+    my $num = shift;
+    my $str = sprintf ("%.4f", $num);
+    $str =~ s/\.?0+$//;
+
+    return $str;
+}
 
 
 sub showPageStart
 {
     print <<"EOINTRO";
-<html>
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
   <title>Google-Hack</title>
+  <link rel="stylesheet" href="sim-style.css" type="text/css" />
 </head>
 <body>
 
-<B><p><font face="Arial" size="5" >p r o j e c t  &nbsp; </font> </B>
-</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <font size="6">&nbsp;</font><font size="4"><b>
+<B><br><font face="Arial" size="5" >p r o j e c t  &nbsp; </font> </B>
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <font size="6">&nbsp;</font><font size="4"><b>
 </b>&nbsp;</font><font size="4" > <font face="Arial">g o o g l e
-&nbsp;&nbsp; - h a c k&nbsp;&nbsp;</font></font></p>
-
+&nbsp;&nbsp; - h a c k&nbsp;&nbsp;</font></font>
+<br>
 <hr></hr>
 
 <form action="google_hack.cgi" method="get" id="queryform" onreset="formReset()">
@@ -198,8 +302,11 @@ sub showPageStart
 
    <select name="opt">
         <option value="wordcluster"> Word Cluster</option>
-        <option value="pmi">PMI Measure</option>
-            </select><br />
+        <option value="pmi">PMI Measure</option> 
+	<option value="review"> Semantic Orientation of Review</option>	
+	<option value="words"> Semantic Orientation of Words</option>	
+	<option value="phrases"> Semantic Orientation of Phrases</option>
+                 </select><br />
 
 <br><br>
   <label><b>Google API Key:</b></label>
@@ -228,21 +335,21 @@ Pratheepan Raveendranathan
 EOINTRO
 }
 
-
 sub WordClusters
 {
 print <<"Word_Clusters";
-<B><p><font face="Arial" size="5" >p r o j e c t  &nbsp; </font> </B>
-</p>
-<p>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <font size="6">&nbsp;</font><font size="4"><b>
-</b>&nbsp;</font><font size="4" > <font face="Arial">g o o g l e
-&nbsp;&nbsp; - h a c k&nbsp;&nbsp;</font></font></p>
+<font face="Arial" size="4" color="darkblue">P r o j e c t  &nbsp; </font>
+
+
+<font size="4" > <font face="Arial"  color="darkblue">g o o g l e
+- h a c k&nbsp;&nbsp;</font></font>
 
 <hr></hr>
 <form action="google_hack.cgi" method="get" id="queryform" onreset="formReset()">
-<h1> Word Clusters</h1>
+<h2> Word Clusters --- Beta Version </h2>
+(Baseline algorithm)
+<H2><b> Set Parameters</b> </H2>
 
-<H2><b> Parameters</b> </H2>
 
 <label><b>Top "N" web Pages:</b></label>
 Word_Clusters
@@ -259,16 +366,17 @@ for(my $i=10; $i <= 30; $i=$i+10)
 }
 	print "</select> (This will be the number of web pages to parse, Defaults to 10, Maximum 50 )<br />\n";
 
+print "<input type=\"hidden\" name=\"apikey\" value=\"$key\">";
 print <<"Word_Clusters1";
 
-<br><br>
+<br>
 <label><b>Frequency Cutoff &nbsp;&nbsp;&nbsp;: </b></label>
 
 Word_Clusters1
 
 	print "<select name=\"cutoff\">\n";
 
-for(my $i=1; $i <= 20; $i++)
+for(my $i=5; $i <= 25; $i++)
 {
 if($i==5)
 {
@@ -287,7 +395,7 @@ if($i==5)
 	print "</select> (Words with frequency less than given would not be considered, Max 20)<br />\n";
 
 print <<"Word_Clusters2";
-<br><br><label><b>No of Iterations&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b></label>
+<br><label><b>No of Iterations&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b></label>
 Word_Clusters2
 	print "<select name=\"numiters\">\n";
 
@@ -302,14 +410,14 @@ for(my $i=1; $i <= 2; $i++)
 	print "</select> (This will be the number of iterations)<br />\n";
 
     print <<"Word_Clusters3";
-<br>  <label><b>Words&nbsp;&nbsp;:</b></label>
-<br>
-<textarea name="words" value="" cols="80" rows="8"> 
+<br>  <label><b>Example&nbsp;&nbsp;</b>&nbsp;&nbsp;(For example, type in "rachel" & "ross", and set the number of web pages to 10, and the frequency cut off to 20)</label>
+<br><br> 
+  <label><b>Word 1&nbsp;&nbsp;&nbsp;&nbsp;:</b></label>
+<input type="text" name="searchString1" value="" > (Enter a word like "toyota") 
+<br><br>
+<label><b>Word 2&nbsp;&nbsp;&nbsp;&nbsp;:</b></label>
+<input type="text" name="searchString2" value=""> (Enter a word like "ford")<br><br>
 
-
-</textarea>
-<br>
-(New Line/Space Delimited World List)<br><br> 
       <input name="action" type="submit" value="Generate" />
 
 
@@ -336,7 +444,7 @@ sub generateWordCluster
  select ((select (Server), $|=1)[0]);
  
  $words=~s/\s+/:/g;
- print Server "c\t$words\t$numPages\t$frequency\t$numIterations\t\015\012\015\012";
+ print Server "c\t$key\t$words\t$numPages\t$frequency\t$numIterations\t\015\012\015\012";
  print <<"temp";
 <B><p><font face="Arial" size="5" >p r o j e c t  &nbsp; </font> </B>
 </p>
@@ -399,12 +507,14 @@ print <<"PMI";
 <br><br>
 <label><b>Search String 2:</b></label>
 <input type="text" name="searchString2" value=""> (Enter a term like cat)<br><br>
-
+PMI
+print "<input type=\"hidden\" name=\"apikey\" value=\"$key\">";
+print <<"PMIR";
       <input name="action" type="submit" value="PMIMeasure" />
       <input name="action" type="submit" value="Back" />
 
  </form> 
-PMI
+PMIR
 
 }
 
@@ -427,7 +537,7 @@ sub generatePMI
  $wordS1=~s/\s+//g;
  $wordS2=~s/\s+//g;
 
- print Server "p\t$wordS1\t$wordS2\015\012\015\012";
+ print Server "p\t$key\t$wordS1\t$wordS2\015\012\015\012";
  print <<"temp";
 <B><p><font face="Arial" size="5" >p r o j e c t  &nbsp; </font> </B>
 </p>
@@ -452,11 +562,283 @@ temp
  
  local $ENV{PATH} = "/usr/local/bin:/usr/bin:/bin:/ghack";
  my $t_osinfo = `uname -a` || "Couldn't get system information: $!";
+ # $t_osinfo is tainted.  Use it in a pattern match and $1 will
+ # be untainted.
  $t_osinfo =~ /(.*)/;
+#    print "<p>HTTP server: $ENV{HTTP_HOST} ($1)</p>\n";
+#    print "<p>Google server: $remote_host</p>\n";
  print "<hr />";
  close Server;
 }
 
+sub predictReview
+{
+ socket (Server, PF_INET, SOCK_STREAM, getprotobyname ('tcp'));
+
+    my $internet_addr = inet_aton ($remote_host)
+	or die "Could not convert $remote_host to an Internet addr: $!\n";
+    my $paddr = sockaddr_in ($remote_port, $internet_addr);
+
+    unless (connect (Server, $paddr)) {
+	print "<p>Cannot connect to server $remote_host:$remote_port</p>\n";
+	close Server;
+    }
+
+ select ((select (Server), $|=1)[0]);
+ 
+ $wordS1=~s/\s+//g;
+ $wordS2=~s/\s+//g;
+
+ $review=~s/\s+/\#/g;
+
+ print Server "r\t$key\t$review\t$wordS1\t$wordS2\015\012\015\012";
+ print <<"temp";
+<B><p><font face="Arial" size="5" >p r o j e c t  &nbsp; </font> </B>
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <font size="6">&nbsp;</font><font size="4"><b>
+</b>&nbsp;</font><font size="4" > <font face="Arial">g o o g l e
+&nbsp;&nbsp; - h a c k&nbsp;&nbsp;</font></font></p>
+
+<hr></hr>
+temp
+$review=~s/\#+/ /g;
+ print "\n<B>Review  </B><br><br>";
+
+ print "<br>$review";
+
+
+ while (my $line = <Server>) {
+     last if $line eq "\015\012";
+     print "<br>$line";
+     
+ }
+ 
+ local $ENV{PATH} = "/usr/local/bin:/usr/bin:/bin:/ghack";
+ my $t_osinfo = `uname -a` || "Couldn't get system information: $!";
+ # $t_osinfo is tainted.  Use it in a pattern match and $1 will
+ # be untainted.
+ $t_osinfo =~ /(.*)/;
+#    print "<p>HTTP server: $ENV{HTTP_HOST} ($1)</p>\n";
+#    print "<p>Google server: $remote_host</p>\n";
+ print "<hr />";
+ close Server;
+}
+
+
+sub Review()
+{
+    print <<"Review";
+<B><p><font face="Arial" size="5" >p r o j e c t  &nbsp; </font> </B>
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <font size="6">&nbsp;</font><font size="4"><b>
+</b>&nbsp;</font><font size="4" > <font face="Arial">g o o g l e
+&nbsp;&nbsp; - h a c k&nbsp;&nbsp;</font></font></p>
+
+<hr></hr>
+<form action="google_hack.cgi" method="get"  onreset="formReset()">
+<h2> Semantic Orientation of Review </h2>
+  <label><b>Positive Inference&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b></label>
+<input type="text" name="searchString1" value="" > 
+(Positive inference such as "excellent")
+<br><br>
+<label><b>Negative Ineference&nbsp;:</b></label>
+<input type="text" name="searchString2" value=""> (Negative inference such as "bad")<br><br>
+
+
+<p>
+<textarea name="review" rows="15" cols="100">
+Insert you Review Here.
+</textarea>
+</p>
+Review
+
+print "<input type=\"hidden\" name=\"apikey\" value=\"$key\">";
+ print <<"Review1";
+      <input name="action" type="submit" value="Predict" />
+      <input name="action" type="submit" value="Back" />
+
+ </form> 
+Review1
+
+}
+
+sub SemanticWords()
+{
+    print <<"Review";
+<B><p><font face="Arial" size="5" >p r o j e c t  &nbsp; </font> </B>
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <font size="6">&nbsp;</font><font size="4"><b>
+</b>&nbsp;</font><font size="4" > <font face="Arial">g o o g l e
+&nbsp;&nbsp; - h a c k&nbsp;&nbsp;</font></font></p>
+
+<hr></hr>
+<form action="google_hack.cgi" method="get"  onreset="formReset()">
+<h2> Semantic Orientation of Words </h2>
+  <label><b>Positive Inference&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b></label>
+<input type="text" name="searchString1" value="" > 
+(Positive inference such as "excellent")
+<br><br>
+<label><b>Negative Ineference&nbsp;:</b></label>
+<input type="text" name="searchString2" value=""> (Negative inference such as "bad")<br><br>
+<p>
+<textarea name="text" rows="15" cols="100">
+Insert Text Here.
+</textarea>
+</p>
+Review
+
+print "<input type=\"hidden\" name=\"apikey\" value=\"$key\">";
+ print <<"Review1";
+      <input name="action" type="submit" value="Semantic" />
+      <input name="action" type="submit" value="Back" />
+
+ </form> 
+Review1
+
+}
+
+sub SemanticPhrases()
+{
+    print <<"Review";
+<B><p><font face="Arial" size="5" >p r o j e c t  &nbsp; </font> </B>
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <font size="6">&nbsp;</font><font size="4"><b>
+</b>&nbsp;</font><font size="4" > <font face="Arial">g o o g l e
+&nbsp;&nbsp; - h a c k&nbsp;&nbsp;</font></font></p>
+
+<hr></hr>
+<form action="google_hack.cgi" method="get"  onreset="formReset()">
+<h2> Semantic Orientation of Phrases </h2>
+  <label><b>Positive Inference&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b></label>
+<input type="text" name="searchString1" value="" > 
+(Positive inference such as "excellent")
+<br><br>
+<label><b>Negative Ineference&nbsp;:</b></label>
+<input type="text" name="searchString2" value=""> (Negative inference such as "bad")<br><br>
+<p>
+<textarea name="text" rows="15" cols="100">
+Insert Text Here.
+</textarea>
+</p>
+Review
+
+print "<input type=\"hidden\" name=\"apikey\" value=\"$key\">";
+ print <<"Review1";
+      <input name="action" type="submit" value="SemanticPhrases" />
+      <input name="action" type="submit" value="Back" />
+
+ </form> 
+Review1
+
+}
+
+sub predictSemanticWords
+{
+ socket (Server, PF_INET, SOCK_STREAM, getprotobyname ('tcp'));
+
+    my $internet_addr = inet_aton ($remote_host)
+	or die "Could not convert $remote_host to an Internet addr: $!\n";
+    my $paddr = sockaddr_in ($remote_port, $internet_addr);
+
+    unless (connect (Server, $paddr)) {
+	print "<p>Cannot connect to server $remote_host:$remote_port</p>\n";
+	close Server;
+    }
+
+ select ((select (Server), $|=1)[0]);
+ 
+ $wordS1=~s/\s+//g;
+ $wordS2=~s/\s+//g;
+
+ $text=~s/\s+/\#/g;
+
+ print Server "s\t$key\t$text\t$wordS1\t$wordS2\015\012\015\012";
+ print <<"temp";
+<B><p><font face="Arial" size="5" >p r o j e c t  &nbsp; </font> </B>
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <font size="6">&nbsp;</font><font size="4"><b>
+</b>&nbsp;</font><font size="4" > <font face="Arial">g o o g l e
+&nbsp;&nbsp; - h a c k&nbsp;&nbsp;</font></font></p>
+
+<hr></hr>
+temp
+$text=~s/\#+/ /g;
+ print "\n<B>Text  </B><br><br>";
+
+ print "<br>$text";
+
+
+ while (my $line = <Server>) {
+     last if $line eq "\015\012";
+     print "<br>$line";
+     
+ }
+ 
+ local $ENV{PATH} = "/usr/local/bin:/usr/bin:/bin:/ghack";
+ my $t_osinfo = `uname -a` || "Couldn't get system information: $!";
+ # $t_osinfo is tainted.  Use it in a pattern match and $1 will
+ # be untainted.
+ $t_osinfo =~ /(.*)/;
+#    print "<p>HTTP server: $ENV{HTTP_HOST} ($1)</p>\n";
+#    print "<p>Google server: $remote_host</p>\n";
+ print "<hr />";
+ close Server;
+}
+
+
+
+sub predictSemanticPhrases
+{
+ socket (Server, PF_INET, SOCK_STREAM, getprotobyname ('tcp'));
+
+    my $internet_addr = inet_aton ($remote_host)
+	or die "Could not convert $remote_host to an Internet addr: $!\n";
+    my $paddr = sockaddr_in ($remote_port, $internet_addr);
+
+    unless (connect (Server, $paddr)) {
+	print "<p>Cannot connect to server $remote_host:$remote_port</p>\n";
+	close Server;
+    }
+
+ select ((select (Server), $|=1)[0]);
+ 
+ $wordS1=~s/\s+//g;
+ $wordS2=~s/\s+//g;
+
+ $text=~s/\s+/\#/g;
+
+ print Server "h\t$key\t$text\t$wordS1\t$wordS2\015\012\015\012";
+ print <<"temp";
+<B><p><font face="Arial" size="5" >p r o j e c t  &nbsp; </font> </B>
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <font size="6">&nbsp;</font><font size="4"><b>
+</b>&nbsp;</font><font size="4" > <font face="Arial">g o o g l e
+&nbsp;&nbsp; - h a c k&nbsp;&nbsp;</font></font></p>
+
+<hr></hr>
+temp
+$text=~s/\#+/ /g;
+ print "\n<B>Text  </B><br><br>";
+
+ print "<br>$text";
+
+
+ while (my $line = <Server>) {
+     last if $line eq "\015\012";
+     print "<br>$line";
+     
+ }
+ 
+ local $ENV{PATH} = "/usr/local/bin:/usr/bin:/bin:/ghack";
+ my $t_osinfo = `uname -a` || "Couldn't get system information: $!";
+ # $t_osinfo is tainted.  Use it in a pattern match and $1 will
+ # be untainted.
+ $t_osinfo =~ /(.*)/;
+#    print "<p>HTTP server: $ENV{HTTP_HOST} ($1)</p>\n";
+#    print "<p>Google server: $remote_host</p>\n";
+ print "<hr />";
+ close Server;
+}
 
 
 sub showPageEnd

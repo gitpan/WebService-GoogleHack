@@ -4,7 +4,6 @@
 
 WebService::GoogleHack - Perl package that ties together all GoogleHack modules.
 
-
 =head1 SYNOPSIS
 
     use WebService::GoogleHack;
@@ -58,6 +57,32 @@ WebService::GoogleHack::Search
 WebService::GoogleHack::Rate 
 
 WebService::GoogleHack::Spelling
+
+=head1 Required Packages
+
+Brill Tagger 
+
+    Installation file and instructions @ : 
+   
+    http://www.cs.jhu.edu/~brill/RBT1_14.tar.Z
+
+Required PERL Modules
+
+    SOAP::Lite;
+
+    Set::Scalar;
+
+    Text::English;
+
+    LWP::Simple;
+
+    URI::URL;
+
+    LWP::UserAgent;
+
+    HTML::LinkExtor;
+ 
+    Data::Dumper;
 
 =head1 PACKAGE METHODS
 
@@ -615,6 +640,45 @@ has to be stored.
 
 returns : Returns an html or text version of the results.
 
+=head2 __PACKAGE__->predictWordSentiment(infile,positive_inference,negative_inference,$htmlFlag,$traceFile)
+
+Purpose:Given an file containing text, this function tries to find the positive and negative words.
+
+=over 4
+
+=item *
+
+B<infile> 
+
+I<string>. The input file
+
+=item *
+
+B<positive_inference> 
+
+I<string>. A positive word such as "Excellent"
+
+=item *
+
+B<negative_inference>.
+
+I<string>. A negative word such as "Bad"
+
+=item *
+
+B<htmlFlag>.
+
+I<string>. Set to "true" if you want the results to be HTML formatted
+
+B<tracefile>.
+
+I<string>. Set to a file if you want the results to be written to the given filename.
+
+=back
+
+returns : Returns an html or text version of the results.
+
+
 =head1 AUTHOR
 
 Pratheepan Raveendranathan, E<lt>rave0029@d.umn.eduE<gt>
@@ -654,15 +718,12 @@ The Free Software Foundation, Inc.,
 59 Temple Place - Suite 330,
 Boston, MA  02111-1307, USA.
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself. 
-
 =cut
 
 
 package WebService::GoogleHack;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 use SOAP::Lite;
 use Set::Scalar;
@@ -689,11 +750,8 @@ $this->{'correction'} = undef;
 $this-> {'NumResults'} = undef;
 $this-> {'snippet'} = undef;
 $this-> {'searchTime'} = undef;
-$this-> {'adverbs_list'} = undef;
-$this-> {'verbs_list'} = undef;
-$this-> {'adjectives_list'} = undef;
-$this-> {'nouns_list'} = undef;
-$this-> {'stop_list'} = undef;
+$this-> {'basedir'} = undef;
+$this-> {'taggerdir'} = undef;
 $this->{'PMIMeasure'}=undef;
 $this->{'prediction'}=undef;
 $this-> {'maxResults'} =10;
@@ -727,11 +785,8 @@ my $this = shift;
 
 $this->{'Key'} = shift;
 $this->{'File_Location'} = shift;
-$this-> {'adverbs_list'} = shift;
-$this-> {'verbs_list'} = shift;
-$this-> {'adjectives_list'} = shift;
-$this-> {'nouns_list'} = shift;
-$this-> {'stop_list'} = shift;
+$this-> {'basedir'} = shift;
+$this-> {'taggerdir'} = shift;
 
 }
 
@@ -740,10 +795,7 @@ sub setMaxResults
 {
     my $this = shift;
     $maxResults = shift;
-
     $this-> {'maxResults'} =$maxResults;
-
-
 }
 
 #this function sets the language restriction
@@ -753,10 +805,7 @@ sub setlr
 {
     my $this = shift;
     $lr = shift;
-
     $this-> {'lr'} =$lr;
-
-
 }
 
 
@@ -833,11 +882,6 @@ sub measureSemanticRelatedness
 
  $results=WebService::GoogleHack::Rate::measureSemanticRelatedness($this, $searchString1, $searchString2);
 
-  #print "\nRelatedness is ";
-  #print "here $searchString1 , $searchString2";
-  #print $results->{'PMI'};
-#  print "\n\n";
-
  return $results;
 
 }
@@ -846,18 +890,23 @@ sub measureSemanticRelatedness
 sub predictSemanticOrientation
 {
   my $searchInfo=shift;
-    $config_file=shift;
-    $positive_inference=shift;
-    $negative_inference=shift;
-    $trace_file=shift;
+  my $infile=shift;
+  my $positive_inference=shift;
+  my $negative_inference=shift;
+  my $trace_file=shift;
 
-    require WebService::GoogleHack::Rate;
- 
-    $results=WebService::GoogleHack::Rate::predictSemanticOrientation($searchInfo, $config_file ,$positive_inference,$negative_inference,$trace_file);
+  require WebService::GoogleHack::Text;
+  
+  WebService::GoogleHack::Text::Boundary($this,$infile);
+  
+  WebService::GoogleHack::Text::POSTagData($this);
+   
+  require WebService::GoogleHack::Rate;
 
-#    $this->{'PMIMeasure'}=$results->{'PMIMeasure'};
- #   $this->{'prediction'}=$results->{'prediction'};
-
+  my $taggedInput=$this->{'basedir'}."Temp/temp.fr.tg";
+  
+ my $results=WebService::GoogleHack::Rate::predictSemanticOrientation($searchInfo,$taggedInput,$positive_inference,$negative_inference,$trace_file);
+  
     return $results;
 
 }
@@ -895,7 +944,6 @@ sub Search
 }
 
 
-
 sub initConfig
 {
 
@@ -908,14 +956,10 @@ my $filename=shift;
 #calling the read config function in text
 
     $results=WebService::GoogleHack::Text::readConfig("$filename");
-
     $this->{'Key'}=$results->{'Key'};
     $this->{'File_Location'}=$results->{'File_Location'};
-    $this-> {'adverbs_list'} = $results->{'adverbs_list'};
-    $this-> {'verbs_list'} =$results->{'verbs_list'}  ;
-    $this-> {'adjectives_list'} =$results->{'adjectives_list'} ;
-    $this-> {'nouns_list'} = $results->{'nouns_list'} ;
-    $this-> {'stop_list'} = $results->{'stop_list'} ;
+    $this-> {'basedir'} = $results->{'basedir'};
+    $this-> {'taggerdir'} =$results->{'taggerdir'}  ;
 
 return $this;
 
@@ -935,19 +979,11 @@ sub printConfig
     print "\n WSDL Location:";
     print  $this->{'File_Location'};
     
-    print "\n Adverbs File Location:";
-    print $this-> {'adverbs_list'};
-    print "\n Verbs File Location:";
-    print $this-> {'verbs_list'}  ;
-    
-    print "\n Adjectives File Location:";
-    print $this-> {'adjectives_list'} ;
-    
-    print "\n Nouns File Location:";
-    print $this-> {'nouns_list'}  ;
+    print "\n Base Directory:";
+    print $this-> {'basedir'};
 
-    print "\n Stop List File Location:";
-    print $this-> {'stop_list'} ;
+    print "\n Tagger Directory:";
+    print $this-> {'taggerdir'} ;
     
     print "\n\n";
 
@@ -1203,7 +1239,8 @@ sub getSearchCommonWords
     my  $trace_file=shift;
     my $stemmer=shift;
 
-
+    my $stoplist_location=$searchInfo->{'basedir'}."Datafiles/stoplist.txt";
+    
     if(!defined($numResults))
     {
 	$numResults=10;
@@ -1344,7 +1381,7 @@ $sequence_occs{"$temp_string"}++ if exists $sequence_occs{"$temp_string"};
     
     #reading in the stop list
     
-    %stop_list=WebService::GoogleHack::Text::getWords("$searchInfo->{'stop_list'}");
+    %stop_list=WebService::GoogleHack::Text::getWords("$stoplist_location");
     
     
     while( ($Key, $Value) = each(%stop_list) ){
@@ -1412,51 +1449,44 @@ sub getWordClustersInSnippets
     my $iterations=shift;
     my $trace_file=shift;
 
-
+    my $stoplist_location=$searchInfo->{'basedir'}."Datafiles/stoplist.txt";
+    
     $k=0;
 
    
-	$results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString);
-     
-	$count=0;  
-	
-	require WebService::GoogleHack::Text;
-	
-	@strings1=();
-	
+    $results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString);
+    
+    $count=0;  
+    
+    require WebService::GoogleHack::Text;
+    
+    @strings1=();
+    
     while( $count < 10)
-    {
-	
-	$strings1[$count]=WebService::GoogleHack::Text::removeHTML($results->{'snippet'}->[$count]);
-	
+    {	
+	$strings1[$count]=WebService::GoogleHack::Text::removeHTML($results->{'snippet'}->[$count]);	
 	$count++;
     }
     
-%results_final=WebService::GoogleHack::Text::getSurroundingWords($searchString,5 , @strings1);
-
- require WebService::GoogleHack::Text;
-
-    %stop_list=WebService::GoogleHack::Text::getWords("$searchInfo->{'stop_list'}");
-
+    %results_final=WebService::GoogleHack::Text::getSurroundingWords($searchString,5 , @strings1);
+    
+    require WebService::GoogleHack::Text;
+    
+    %stop_list=WebService::GoogleHack::Text::getWords("$stoplist_location");
+    
     @stopwords=();
     $count=0;
-
-while( ($Key, $Value) = each(%stop_list) ){
-
-    delete($results_final{"$Key"}) 
-
+    
+    while( ($Key, $Value) = each(%stop_list) ){
+	
+	delete($results_final{"$Key"}) 
+	    
 }
-
-
-  
     
     $clusters=();
     $count=0;
-
    
-    delete($results_final{""}); 
-
-    
+    delete($results_final{""});     
 }
 
 
@@ -1472,6 +1502,8 @@ sub getClustersInSnippets
     my  $numResults=shift;
     my  $cutOff=shift;
     my  $trace_file=shift;
+
+    my $stoplist_location=$searchInfo->{'basedir'}."Datafiles/stoplist.txt";
 
   if(!defined($numResults))
   {
@@ -1590,7 +1622,7 @@ delete($cluster{"-"});
 delete($cluster{"a"});
 require WebService::GoogleHack::Text;
 
-%stop_list=WebService::GoogleHack::Text::getWords("$searchInfo->{'stop_list'}");
+%stop_list=WebService::GoogleHack::Text::getWords("$stoplist_location");
 
 
 while( ($Key, $Value) = each(%stop_list) ){
@@ -1762,7 +1794,7 @@ sub getWordsInPage
     my  $numResults=shift; # the number of results to look at
     my  $cutOff=shift; #the cutoff -- remnove words which occur less than cutoff
     my  $trace_file=shift;  #output to tracefile
-
+    my $stoplist_location=$searchInfo->{'basedir'}."Datafiles/stoplist.txt";
 
     #retrieving words in the stop list
   
@@ -1805,6 +1837,7 @@ sub getWordsInPage
      }
 
     my $count=0;
+
     foreach my $query (@permutations)
     {
 
@@ -1855,7 +1888,7 @@ sub getWordsInPage
                     }
                  else
                  {
-		   
+	
 		    my $content=LWP::Simple::get("$webPage");  
 #print "\n".$content;
 		    $global_url.="\n<br><a href=\'$webPage\'>$webPage</a>";
@@ -1873,7 +1906,10 @@ sub getWordsInPage
 $count++;$searchStrings[$i]
     }
 
-  %stop_list=WebService::GoogleHack::Text::getWords("$searchInfo->{'stop_list'}");
+    require WebService::GoogleHack::Text;
+
+  %stop_list=WebService::GoogleHack::Text::getWords("$stoplist_location");
+
 
 %matrix=();
 $count=0;
@@ -1881,8 +1917,7 @@ $count=0;
 # the array filecontent now has the text from each url and its subset of urls.
 
 foreach $context (@fileContent)
-{
-   
+{   
     my @words=();
     $context=~s/[0-9]//gs;
     @words = split(/\s+|\,|\?|\./, $context);	
@@ -1893,13 +1928,13 @@ foreach $context (@fileContent)
 	$word=~s/[^\w]//g;
 	if($word ne "")
 	{
-	  
+	    
 	    if (!exists $stop_list{"$word"})
 	    {  
-	    $matrix{"$permutations[$count]"}->{"$word"}++ if exists $matrix{"$permutations[$count]"}->{"$word"};
-	    
-	    $matrix{"$permutations[$count]"}->{"$word"}=1 if !exists $matrix{"$permutations[$count]"}->{"$word"};
-	}
+		$matrix{"$permutations[$count]"}->{"$word"}++ if exists $matrix{"$permutations[$count]"}->{"$word"};
+		
+		$matrix{"$permutations[$count]"}->{"$word"}=1 if !exists $matrix{"$permutations[$count]"}->{"$word"};
+	    }
 	}
 	
 	
@@ -1937,7 +1972,7 @@ for my $word ( keys %matrix ) {
 
 
 #finding the intersection
- %stop_list=WebService::GoogleHack::Text::getWords("$searchInfo->{'stop_list'}");
+%stop_list=WebService::GoogleHack::Text::getWords("$stoplist_location");
 
 for(my $i=0;$i<$count; $i++)
 {
@@ -1965,6 +2000,7 @@ for(my $i=0;$i<$count; $i++)
 	    { 
 		$cluster{"$temp_string"}++ if exists $cluster{"$temp_string"};
 		
+		print "\n $temp_string";
 #else if the sequence does not in the array, then insert it into the array
 		
 		$cluster{"$temp_string"}=1 if !exists $cluster{"$temp_string"};		       
@@ -1974,9 +2010,6 @@ for(my $i=0;$i<$count; $i++)
 	}
    
 }
-
-
-
 
     return %cluster;
     
@@ -1993,39 +2026,46 @@ sub wordClusterInPage
     my  $iterations=shift;
     my  $trace_file=shift;
     my  $html=shift;
+    my %htmlresults=();
+
 
     %results=WebService::GoogleHack::getWordsInPage($searchInfo, $ref_searchStrings, $numResults,$cutOff,$trace_file);
+
 
     my @searchTerms=@{$ref_searchStrings};
 
     my $htmlContent="";
     my $fileContent="";
 
-    my $Relatedness="No Score";
+    my $Relatedness=0;
     my $tempScore="";
 
     $htmlContent.="<TABLE><TR><TD> <B> Result Set 1 </B> </TD></TR>";
     $fileContent="\n Result Set 1 \n";
 
     while( ($Key, $Value) = each(%results) ){     
-
 	$Relatedness="";
-	$tempScore=0;
+  	$tempScore=0;
 
 	foreach my $term (@searchTerms)
 	{
 	    require WebService::GoogleHack::Rate;
 	    $Relatedness = WebService::GoogleHack::Rate::measureSemanticRelatedness($searchInfo,$term,$Key); 
 	    $tempScore+=$Relatedness;	 
-}
+	}
 	$tempScore=$tempScore/2;
 	$tempScore=abs($tempScore);
-	$tempScore=sprintf("%.4f",$tempScore);
-	$htmlContent.="<TR><TD>$Key   $tempScore</TD></TR>";   	
-	$fileContent.="\n $Key";   
-	$cluster{"$Key"}=$results{"$Key"};
+	$tempScore=sprintf("%.4f",$tempScore);	
+    	$cluster{"$Key"}=$results{"$Key"};
+	$htmlResults{"$Key"}=$tempScore;
     }
     
+
+    foreach my $key (sort  { $htmlResults{$b} <=> $htmlResults{$a} } (keys(%htmlResults))) {
+	$htmlContent.="<TR><TD>$key : $htmlResults{$key} </TD></TR>";   	
+	$fileContent.="\n $key : $htmlResults{$key}";   	
+    }
+
     $htmlContent.="\n</TABLE>\n";
     $fileContent.="\n ";
 
@@ -2054,7 +2094,6 @@ sub wordClusterInPage
 #jumbo     
 	    foreach my $term (@searchTerms)
 	    {
-		print "here";
 		$Relatedness = measureSemanticRelatedness($searchInfo,$term,$Key);		
 		$tempScore.=$Relatedness.",\n";
 	    }
@@ -2089,6 +2128,46 @@ sub wordClusterInPage
     {
 	return $fileContent;
     }
+}
+
+sub predictWordSentiment
+{
+    my $this=shift;
+    my $infile=shift;
+    my $positive_inference=shift;
+    my $negative_inference=shift;
+    my $htmlFlag=shift;
+    my $traceFile=shift;
+
+    require WebService::GoogleHack::Rate;
+    
+    my $results=WebService::GoogleHack::Rate::predictWordSentiment($this,$infile,$positive_inference,$negative_inference,$htmlFlag,$traceFile);
+
+    return $results;
+}
+
+sub predictPhraseSentiment
+{   
+    my $this=shift;
+    my $infile=shift;
+    my $positive_inference=shift;
+    my $negative_inference=shift;
+    my $htmlFlag=shift;
+    my $traceFile=shift;
+
+    require WebService::GoogleHack::Text;
+    
+    WebService::GoogleHack::Text::Boundary($this,$infile);    
+    WebService::GoogleHack::Text::POSTagData($this);
+        
+    require WebService::GoogleHack::Rate;
+    
+    my $taggedInput=$this->{'basedir'}."Temp/temp.fr.tg";
+    
+    my $results=WebService::GoogleHack::Rate::predictPhraseSentiment($this,$taggedInput,$positive_inference,$negative_inference,$htmlFlag,$traceFile);
+   
+    return $results;
+    
 }
 
 1;

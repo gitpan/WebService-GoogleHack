@@ -64,35 +64,16 @@ I<string>.  This the wsdl file name
 
 =item *
 
-B<adverbs_list>
+B<basedir>
 
-I<string>. The location of the adverbs list file
-
-
-=item *
-
-B<verbs_list>
-
-I<string>. The location of the verbs list file
-
-=item *
-
-B<adjectives_list>
-
-I<string>. The location of the adjectives list file
+I<string>. The base directory of Google Hack.
 
 
 =item *
 
-B<nouns_list>
+B<taggerdir>
 
-I<string>. The location of the nouns list file
-
-=item *
-
-B<stop_list>
-
-I<string>. The location of the stop_words list file
+I<string>. The location of the Brill Tagger
 
 =back
 
@@ -287,18 +268,15 @@ Boston, MA  02111-1307, USA.
 package WebService::GoogleHack::Text;
 
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 sub new
 {
 my $this = {};
 $this-> {'Key'} = undef;
 $this-> {'File_Location'} = undef;
-$this-> {'adjectives_list'} = undef;
-$this-> {'adverbs_list'} = undef;
-$this-> {'verbs_list'} = undef;
-$this-> {'nouns_list'} = undef;
-$this-> {'stop_list'} = undef;
+$this-> {'basedir'} = undef;
+$this-> {'taggerdir'} = undef;
 
  bless $this;
  
@@ -312,23 +290,13 @@ return $this;
 # Post : An object of type Google-Hack is created
 # @params  Key -  key to the google-api
 # @params  File_location - is the wsdl file name
-# @params  adverbs_list - the path to the adverbs list
-# @params  nouns_list - the path to the nouns list
-# @params  adjectives_list - the path to the adjectives list
-# @params  stop_list - the path to the stop list
 
 
 sub init
- {
+{
     my $this = shift;
     $this-> {'Key'} = shift;
     $this-> {'File_Location'} = shift;
-    $this-> {'adverbs_list'} = shift;
-    $this-> {'verbs_list'} = shift;
-    $this-> {'adjectives_list'} = shift;
-    $this-> {'nouns_list'} = shift;
-    $this-> {'stop_list'} = shift;
-
 }
 
 
@@ -494,7 +462,8 @@ sub getWords
 {
    my $file_name=shift;
 
-   open(FILE, $file_name) || die "Unable to open file $file_name";
+   
+   open(FILE, $file_name) || print "Unable to open file $file_name";
    
    my %words_list=();
 
@@ -502,7 +471,7 @@ sub getWords
    
    $num_words=0;
    
-   
+   print "here also";
    
    while(<FILE>)
    {
@@ -586,35 +555,16 @@ sub readConfig
 	    s/\s+//g;
 	    
 	    
-	    if(/^adjectives_list::(.*)/)
+	    if(/^basedir::(.*)/)
 	    {
-		$this->{'adjectives_list'}= $1;
+		$this->{'basedir'}= $1;
 #print $1;
 	    }
-	    elsif(/^verbs_list::(.*)/)
+	    elsif(/^taggerdir::(.*)/)
 	    {
-		$this->{'verbs_list'}= $1;
+		$this->{'taggerdir'}= $1;
 #print $1;
 	    }
-	    
-	    elsif(/^nouns_list::(.*)/)
-	    {
-		$this->{'nouns_list'}= $1;
-#print $1;
-	    }
-
-	     elsif(/^stop_list::(.*)/)
-	    {
-		$this->{'stop_list'}= $1;
-#print $1;
-	    }
-
-	    elsif(/^adverbs_list::(.*)/)
-	    {
-		$this->{'adverbs_list'}= $1;	
-#print $1;
-	    }
-	    
 	    
 	    elsif(/^key::(.*)/)
 	    {
@@ -943,8 +893,61 @@ sub getCachedSentences
 
 }
 
-1;
+#################################################
+# This code segment is attributed to the Evaluador#
+# team from UMD Computer Science NLP Fall 2004#
+###############################################
 
+sub Boundary
+{
+    my $this=shift;
+    # local var
+    my $infile = shift;
+    # array to store processed sentences
+    my @data = ();
+    # Count index
+    my $index = 0;
+    my $line = "";
+
+    my $outfile=$this->{'basedir'}."Temp/temp.fr";
+
+    # open the file to read
+    open(INFILE, "<$infile") || die "*** Error : Opening $infile to read - Boundary\n";
+    while(<INFILE>)
+    {
+        # remove newline
+        chop;
+        # apped it to $line .. create on whole string of files
+        # and the process them
+        $line = $line . " " . $_;
+    }
+    # Assign $line to $_ .. for easy processing
+    $_ = $line;
+    # remove any other character besides alpha, space, and (.|!|?)
+    tr/a-zA-z.!?0-9%\$\'/ /cs;
+    # remove other characters that were no removed such as ^, [, ]
+    tr/[|]|^|_|-|&|\#|\@|~/ /s;
+    # replace more than one space by one space only.
+    s/\s+/ /g;
+    # create sentences by split with (.|?|!)
+    # replace any leading space too
+    while(/(\s*)(((\s|\w|\d)+)(.|\!|\?))/g)
+    {
+        $data[$index++] = $3;
+    }
+    # write the output sentence to formatted infile
+
+    open(OUTFILE, ">$outfile") || die "*** Error : Opening $outfile to write - Boundary\n";
+    for(my $i=0; $i<$index; $i++)
+    {
+        print OUTFILE "$data[$i]\n";
+    }
+    # close the outfile
+    close(OUTFILE);
+    # check if outfile exists or not
+    (-e $outfile) || die "*** Error : $outfile does not exists - Boundary\n";
+    #
+}
 
 
 sub parseWebpage
@@ -975,3 +978,34 @@ while ($token = $parser->get_token) {
     return $content;
 
 }
+
+
+sub POSTagData()
+{
+    # local variables
+    my $this = shift;
+    # start getting the input values
+    my $filename = $this->{'basedir'}."Temp/temp.fr";
+    my $outfile = $filename . ".tg";
+    my $location = $this->{'taggerdir'};
+    # from current location change to Brill Tagger's folder
+    my $var = `pwd`;
+    chomp($var);
+    (-e "$filename") || print "*** Error : no $filename found - BrillTagger\n";
+    (-d "$location") || print "*** Error : no $location found - BrillTagger\n";
+    chdir $location;
+    $var = `pwd`;
+    chomp($var);
+    # check if tagger exists or not
+    (-e "tagger") || print "*** Error : no tagger file in location - BrillTagger\n";
+    # re-direct STDERR from wherever it is now to a log file
+    #close STDERR;
+    #open (STDERR, '>mEmE') or die "Could not re-open STDERR";    
+    # now make a call to tagger
+    print "\n running tagger";
+    system("tagger LEXICON $filename BIGRAMS LEXICALRULEFILE CONTEXTUALRULEFILE > $outfile");
+    # check if file created or not
+    (-e "$outfile") || print "*** Error : no outputfile created - BrillTagger\n";
+}
+
+1;

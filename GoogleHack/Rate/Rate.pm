@@ -181,7 +181,9 @@ Boston, MA  02111-1307, USA.
 
 package WebService::GoogleHack::Rate;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
+
+use strict;
 
 use SOAP::Lite;
 
@@ -194,13 +196,9 @@ $this-> {'File_Location'} = undef;
 $this->{'releated'}=undef;
 $this->{'PMIMeasure'}=undef;
 $this->{'prediction'}=undef;
-$this-> {'adjectives_list'} = undef;
-$this-> {'adverbs_list'} = undef;
-$this-> {'verbs_list'} = undef;
-$this-> {'nouns_list'} = undef;
-$this-> {'stop_list'} = undef;
 
- bless $this;
+
+bless $this;
  
 return $this;
 } 
@@ -219,22 +217,23 @@ sub measureSemanticRelatedness
     my $searchString=shift;
  #   my $searchString2=shift; 
     my $context=shift;
-    $temp_string1="\"".$searchString." AND ".$context."\"";    
+    my $temp_string1="\"".$searchString." AND ".$context."\"";    
   #  $temp_string2=$searchString2." AND ".$context; 
-   
+    my $pmi=0;
+  
     require WebService::GoogleHack::Search;
     
-    $results1=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString);
-   $result_counte=$results1->{NumResults}; 
-
-    $results3=WebService::GoogleHack::Search::searchPhrase($searchInfo, $temp_string1);
-
- $result_count1=$results3->{NumResults};
-
-    $results5=WebService::GoogleHack::Search::searchPhrase($searchInfo, $context);
-
-$result_counti=$results5->{NumResults};
-
+    my $results1=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString);
+    my $result_counte=$results1->{NumResults}; 
+    
+    my $results3=WebService::GoogleHack::Search::searchPhrase($searchInfo, $temp_string1);
+    
+    my $result_count1=$results3->{NumResults};
+    
+    my $results5=WebService::GoogleHack::Search::searchPhrase($searchInfo, $context);
+    
+    my $result_counti=$results5->{NumResults};
+    
     my $denom=$result_counte * $result_counti;
 
     if($denom==0 || $result_count1==0)
@@ -252,286 +251,653 @@ $result_counti=$results5->{NumResults};
 } 
  
 
+
 sub predictSemanticOrientation
-{
-    #$this=shift;    
-    my  $searchInfo = shift;
-    my  $review_file=shift;
+{   
+    my $this=shift;
+    my $infile=shift;
     my $positive_inference=shift;
     my $negative_inference=shift;
     my $trace_file=shift;
-    my $flag;
- 
-    print "\n The review file is $review_file";
-    print "\n";
 
-   require WebService::GoogleHack::Text;
+    open(INFILE, "<$infile") || print "*** Error : Opening  $infile to read - Boundary\n";
 
-    %nouns_list=WebService::GoogleHack::Text::getWords("$searchInfo->{'nouns_list'}");
-    %verbs_list=WebService::GoogleHack::Text::getWords("$searchInfo->{'verbs_list'}");
-  %adjectives_list=WebService::GoogleHack::Text::getWords("$searchInfo->{'adjectives_list'}");
-   %adverbs_list=WebService::GoogleHack::Text::getWords("$searchInfo->{'adverbs_list'}");
+    my @contents=<INFILE>;
+    my $phrase_size=3;
+    my @phrases=();
 
-if($flag eq "false")
-{
-    @semantic_strings=WebService::GoogleHack::Text::getSentences
-($review_file,3,"false");
-}
-else
-{    
-@semantic_strings=WebService::GoogleHack::Text::getSentences($review_file,3,"true");
-}
- 
-    $count=0;
-    $temp_words=();
-    $strings_count=@semantic_strings;
-    $so_count=0;
-    $so_strings=();
+    print "\n Running Predict Semantic Orientation $positive_inference";
     
-    
-    $check_string=();
+    foreach my $line (@contents)
+    {
+	my @temp=split(/\s/,$line);
 
-
-    
-    print "\n\n Making Phrases ";
-  
-    print "\n Number of Semantic Strings ";
-    print "$strings_count \n";
-
-	while($count < $strings_count)
+	for my $i (0..$#temp)
 	{
-	    @temp_words = split(/\s+/, "$semantic_strings[$count]");
-	    $t= $#temp_words;
+	    my $str="";
+	    my $t=$i + $phrase_size;
+	    for(my $j=$i; $j < $t; $j++)
+	    {
+		if($j < ($#temp+1))
+		{
+		    $str.=" $temp[$j]";
+		}
+		
+	    }
+#	print "\n $str";
+	    push(@phrases, $str);
+	}
+    }
+    
+    
+    my %sentences=();
+    
 
-	 
-	    
-#	    print "$count";
-	    
-# JJ & NN/NN & anything
-	    
-	    if ((exists $adjectives_list{"$temp_words[1]"}) && (exists $nouns_list{"$temp_words[2]"}) )
-	    {
-		$temp=$temp_words[1]." ".$temp_words[2];
-		
-		if (!exists $check_string{"$temp"})
-		{
-		    $check_string{"$temp"}=1;
-		    $so_strings[$so_count]=$temp_words[1]." ".$temp_words[2];
-		    
-		    # print "\n Case1 ";   
-		    # print $so_strings[$so_count];
-		    
-		    $so_count++;
-		}
-		
-	    }
-	    
+    foreach my $ph (@phrases)
+    {
 
-	    
-# RB & JJ ~NN/NNS
-	    
-	    if ((exists $adverbs_list{"$temp_words[1]"}) && (exists $adjectives_list{"$temp_words[2]"}) && (!exists $nouns_list{"$temp_words[3]"}))
-	    {
-		
-		$temp=$temp_words[1]." ".$temp_words[2];
-		
-		if (!exists $check_string{"$temp"})
-		{
-		    $check_string{"$temp"}=1;
-		    $so_strings[$so_count]=$temp_words[1]." ".$temp_words[2];
-		    #print "\n  Case2 ";   
-		    #print $so_strings[$so_count];
-		    
-		    $so_count++;
-		    
-		}
-		
-	    }
-	    
-	    
-#JJ & JJ ~NN/NNS
-	    
-	    if ((exists $adjectives_list{"$temp_words[1]"}) && (exists $adjectives_list{"$temp_words[2]"}) && (!exists $nouns_list{"$temp_words[3]"}))
-	    {
-		
-		$temp=$temp_words[1]." ".$temp_words[2];
-		
-		if (!exists $check_string{"$temp"})
-		{
-		    $check_string{"$temp"}=1;
-		    $so_strings[$so_count]=$temp_words[1]." ".$temp_words[2];
-		    #print "\n  Case3 ";   
-		    #print $so_strings[$so_count];
-		    
-		    $so_count++;
-		    
-		}
-		
-	    }
-	    
-	    
-#NN/NNS JJ ~NN/NNS
-	    
-	    if ((exists $nouns_list{"$temp_words[1]"}) && (exists $adjectives_list{"$temp_words[2]"}) && (!exists $nouns_list{"$temp_words[3]"}))
-	    {
-		
-		$temp=$temp_words[1]." ".$temp_words[2];
-		
-		if (!exists $check_string{"$temp"})
-		{
-		    $check_string{"$temp"}=1;
-		    $so_strings[$so_count]=$temp_words[1]." ".$temp_words[2];
-		    #print "\n  Case4 ";   
-		    #print $so_strings[$so_count];
-		    
-		    $so_count++;
-		    
-		}
-		
-	    }
-	    
-# RB & VB & anything
-	    
-	    if ((exists $adverbs_list{"$temp_words[1]"}) && (exists $verbs_list{"$temp_words[2]"}))
-	    {
-		$temp=$temp_words[1]." ".$temp_words[2];
-		
-		if (!exists $check_string{"$temp"})
-		{
-		    $check_string{"$temp"}=1;
-		    $so_strings[$so_count]=$temp_words[1]." ".$temp_words[2];
-				    $so_count++;
-		    
-		}
-		
-	    }
 
-	    $count++;
-	    
+	# my @temp=split(/ /,$ph);
+	
+#my $ph=" FORMER/RB SUPERHERO/JJ IN/IN ";
+	
+    if($ph=~m/(((\w*)(\/JJ ))((\w*)(\/NN)))/)
+    {
+#	print "Found $ph :\n$3 $6\n";
+        $sentences{"$3 $6"}++;
+    }
+    
+    if($ph=~m/(((\w*)(\/RB ))((\w*)(\/JJ )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    
+    if($ph=~m/(((\w*)(\/RBR ))((\w*)(\/JJ )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    
+    if($ph=~m/(((\w*)(\/RBS ))((\w*)(\/JJ )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    
+    if($ph=~m/(((\w*)(\/JJ ))((\w*)(\/JJ )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    
+    if($ph=~m/(((\w*)(\/NN ))((\w*)(\/JJ )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    
+    if($ph=~m/(((\w*)(\/NNS ))((\w*)(\/JJ )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    
+    if($ph=~m/(((\w*)(\/RB ))((\w*)(\/VB )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RB ))((\w*)(\/VBD )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RB ))((\w*)(\/VBN )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RB ))((\w*)(\/VBG )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RBR ))((\w*)(\/VB )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RBR ))((\w*)(\/VBD )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RBR ))((\w*)(\/VBN )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RBR ))((\w*)(\/VBG )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RBS ))((\w*)(\/VB )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RBS ))((\w*)(\/VBD )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RBS ))((\w*)(\/VBN )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RBS ))((\w*)(\/VBG )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+
+   
+#    print $ph."\n";
+
 }
+
+    
+    require WebService::GoogleHack::Search;
+
+    my $results1=WebService::GoogleHack::Search::searchPhrase($this, $positive_inference);
+    my $positiveInference=$results1->{NumResults}; 
+
+    my $results2=WebService::GoogleHack::Search::searchPhrase($this, $negative_inference);
+    my $negativeInference=$results2->{NumResults}; 
+    my $total_so=0;
+    my $so=0;
+    my $score=0;
+    my $html="";
+    my $text="";
+    
+  #  print "\n\n";
+    
+    $html.= "<BR>";
+
+    foreach my $key ( keys %sentences)
+    {
+
+	#print "\n\n\n Phrase is $key";
+	$html.= "<BR>Extracted Phrase is \"$key\"";
+
+	my $query1="\"$key\" AND $positive_inference";
+	my $query2="\"$key\" AND $negative_inference";
+
+	my $rs1=WebService::GoogleHack::Search::searchPhrase($this,$query1);
+       
+	my $good_query=$rs1->{NumResults};
+
+	#print "\n Good Count is $good_query";
+
+	#print "\n Query 2 is $query2";
+
+	my $rs2=WebService::GoogleHack::Search::searchPhrase($this,$query2);
+
+	my $bad_query=$rs2->{NumResults};
+
+	#print "\n Bad Count is $bad_query";
+	
+	$score=($good_query * $negativeInference) / (($bad_query * $positiveInference)+1);
+
+	if($score == 0)
+	{
+	 $total_so+=0; 
+
+	# print "\n So is 0"; 
+	 $html.=" : 0"; 
+	}
+	else  
+	{ 
+	    $so=(log ($score))/(log(2));	
+ 	    $total_so+=$so; 
+#	    print "\n So is $so";
+	    $html.=" : ".sprintf("%.4f",$so)." ";
+	}
+
+
+
+    }
+
+#    print "\n Semantic Orientation is $total_so";
+ 
+    my $final="";
+    if($total_so >= 0)
+    {
+     $final="<br> Positive Orientation <BR> Semantic Orientation Score is $total_so"."<br><br> <b>Trace </b>$html";	
+    }
+    else
+    {
+      $final="<br> Negative Orientation <BR> Semantic Orientation Score is $total_so"."<br><br> <b>Trace </b> <br><br>$html";	
+    }
+
+return $final;
+
+}
+
+
+
+sub predictWordSentiment
+{   
+    my $this=shift;
+    my $infile=shift;
+    my $positiveWord=shift;
+    my $negativeWord=shift;
+    my $htmlFlag=shift;
+    my $traceFile=shift;
+
+    my %stop_list=();
+    my $stoplist_location=$this->{'basedir'}."Datafiles/stoplist.txt";
+    my $query1;
+    my $query2;
+    my $rs1;
+    my $rs2;
+    my $good_query;
+    my $bad_query;
+    my $score=0;
+    my $so=0;
+    my $html="";
+    my $text="";
+    my $positiveHtml;
+    my $positiveText;
+    my $negativeHtml;
+    my $negativeText;
+    my %resultset=();
+
+    require WebService::GoogleHack::Text;
+
+    %stop_list=WebService::GoogleHack::Text::getWords("$stoplist_location");
+
+
+    undef $/;
+    open(INFILE, "<$infile") || print "*** Error : Opening  $infile to read - Boundary\n";
+    
+    $_=<INFILE>;
+ 
+    my @words=();
+
+    # remove any other character besides alpha, space, and (.|!|?)
+    ~tr/a-zA-z\'/ /cs;
+    # remove other characters that were no removed such as ^, [, ]
+    tr/[|]|^|_|-|&|\#|\@|~|,|!|/ /s;
+
+    my @temp=split(/\s+|\n/,$_);
+
+   
+    my $Key;
+    my $Value;
+
+    while( ($Key,$Value) = each(%stop_list) ){
+	$stop_list{"$Key"}=1;	
+}
+
+#    print "\n printing here".$stop_list{"a "};
+
+    foreach my $word (@temp)
+    {
+	$word=lc($word);	
+	chomp($word);
+	if(!exists $stop_list{"$word"})
+	{
+#	    print "\n Word is $word";
+	    push(@words,$word);   
+	}	
+    } 
 
     require WebService::GoogleHack::Search;
 
-    $rs_neg=0;
-    $rs_pos=0;
-
-    $results_positive=WebService::GoogleHack::Search::searchPhrase($searchInfo, $positive_inference,10);
-
-    $rs_pos=$results_positive->{NumResults};
-
-    $results_negative=WebService::GoogleHack::Search::searchPhrase($searchInfo, $negative_inference,10);
-
-    $rs_neg=$results_negative->{NumResults};
-
-    $k=0;
-    $write_file="";
+    my $results1=WebService::GoogleHack::Search::searchPhrase($this, "\"$positiveWord\"");
     
+    my $positiveInference=$results1->{NumResults}; 
+
+    my $results2=WebService::GoogleHack::Search::searchPhrase($this,  "\"$negativeWord\"");
     
-    if($trace_file)
+    my $negativeInference=$results2->{NumResults}; 
+    
+    print "\n";
+
+    foreach my $word (@words)
     {
-	$write_file=" Querying Google \n\n"."Count of $positive_inference: ". $rs_pos . "\n Count of $negative_inference: ".$rs_neg;
+	$query1="\"$word\" AND $positiveWord";
+	$query2="\"$word\" AND $negativeWord";
+	
+	print ".";
+
+	$rs1=WebService::GoogleHack::Search::searchPhrase($this,$query1);
+	$good_query=$rs1->{NumResults};
+	$rs2=WebService::GoogleHack::Search::searchPhrase($this,$query2);
+	$bad_query=$rs2->{NumResults};
+
+	$score=($good_query * $negativeInference) / (($bad_query * $positiveInference)+1);
+
+	print "\n Score is $score";
+	
+	if($score == 0)
+	{	
+	    $resultset{"$word"}=0;
+	}
+	else  
+	{ 
+	    $so=(log ($score))/(log(2));	
+	    $resultset{"$word"}=$so;	  
+	}
+	
+    }
+
+    foreach my $key (sort  { $resultset{$b} <=> $resultset{$a} } (keys(%resultset))) {
+ 
+	if($resultset{"$key"}>=0)
+	{
+  	   $positiveHtml.="<TR><TD>$key: $resultset{$key}</TD></TR>";
+	   $positiveText.="\n$key: $resultset{$key}";
+	}
+	else
+	{
+	    $negativeHtml.="<TR><TD>$key: $resultset{$key}</TD></TR>";
+	    $negativeText.="\n$key: $resultset{$key}";
+	}
+
+    }
+	   
+    $text.="\n Results \n\n POSITIVE WORDS \n $positiveText \n NEGATIVE WORDS \n $negativeText";
+
+    $html.="<TABLE><TR><TD> <B> Result </B> </TD></TR><TR><TD></TD></TR>";
+    $html.="<TR><TD> <B> Positive Words </B> </TD></TR>";
+    $html.="$positiveHtml<TR><TD></TD></TR>";
+    $html.="<TR><TD> <B> Negative Words </B> </TD></TR>$negativeHtml<br></TABLE>";
+
+ if($traceFile ne "")
+    {
+	open(DAT,">$traceFile") || die("Cannot Open $traceFile to write");
+	print DAT $text;	
+	close(DAT);      
+    }
+
+  if($htmlFlag eq "true")
+    {
+	return $html;
+    }
+    else
+    {
+	return $text;
+    }
+
+}
+
+
+sub predictPhraseSentiment
+{   
+    my $this=shift;
+    my $infile=shift;
+    my $positive_inference=shift;
+    my $negative_inference=shift;
+    my $htmlFlag=shift;
+    my $traceFile=shift;
+
+    open(INFILE, "<$infile") || print "*** Error : Opening  $infile to read - Boundary\n";
+
+    my @contents=<INFILE>;
+    my $phrase_size=3;
+    my @phrases=();
+    my $positiveHtml;
+    my $positiveText;
+    my $negativeHtml;
+    my $negativeText;
+
+    print "\n Running Phrase Sentiment";
+    
+    foreach my $line (@contents)
+    {
+	my @temp=split(/\s/,$line);
+
+	for my $i (0..$#temp)
+	{
+	    my $str="";
+	    my $t=$i + $phrase_size;
+	    for(my $j=$i; $j < $t; $j++)
+	    {
+		if($j < ($#temp+1))
+		{
+		    $str.=" $temp[$j]";
+		}
+		
+	    }
+#	print "\n $str";
+	    push(@phrases, $str);
+	}
     }
     
-  #  print "\n so count is $so_count";
-    my $rs_query1=0;
-    my $rs_query2=0;
+    
+    my %sentences=();
+    
+
+    foreach my $ph (@phrases)
+    {
+
+
+	# my @temp=split(/ /,$ph);
+	
+#my $ph=" FORMER/RB SUPERHERO/JJ IN/IN ";
+	
+    if($ph=~m/(((\w*)(\/JJ ))((\w*)(\/NN)))/)
+    {
+#	print "Found $ph :\n$3 $6\n";
+        $sentences{"$3 $6"}++;
+    }
+    
+    if($ph=~m/(((\w*)(\/RB ))((\w*)(\/JJ )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    
+    if($ph=~m/(((\w*)(\/RBR ))((\w*)(\/JJ )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    
+    if($ph=~m/(((\w*)(\/RBS ))((\w*)(\/JJ )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    
+    if($ph=~m/(((\w*)(\/JJ ))((\w*)(\/JJ )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    
+    if($ph=~m/(((\w*)(\/NN ))((\w*)(\/JJ )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    
+    if($ph=~m/(((\w*)(\/NNS ))((\w*)(\/JJ )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    
+    if($ph=~m/(((\w*)(\/RB ))((\w*)(\/VB )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RB ))((\w*)(\/VBD )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RB ))((\w*)(\/VBN )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RB ))((\w*)(\/VBG )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RBR ))((\w*)(\/VB )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RBR ))((\w*)(\/VBD )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RBR ))((\w*)(\/VBN )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RBR ))((\w*)(\/VBG )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RBS ))((\w*)(\/VB )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RBS ))((\w*)(\/VBD )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RBS ))((\w*)(\/VBN )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+    if($ph=~m/(((\w*)(\/RBS ))((\w*)(\/VBG )))/)
+    {
+	#print "Found $ph :\n$3 $6\n";
+	$sentences{"$3 $6"}++;
+    }
+
    
-    $write_file.="\n Phrases Extracted\n\n";
-
-while($k< $so_count)
-{
-    $write_file.="\n".$so_strings[$k]." AND $positive_inference"."\n";
-    $write_file.="\n".$so_strings[$k]." AND $negative_inference"."\n";
-    $k++;
-}
-
-$k=0;
-
-while($k< $so_count)
-{
-
-
-$query1= $so_strings[$k]." AND $positive_inference";
-
-$query2= $so_strings[$k]." AND $negative_inference";
-
-
-
-$results_query1=WebService::GoogleHack::Search::searchPhrase($searchInfo,$query1);
-
-$rs_query1=$results_query1->{NumResults};
-
-$results_query2=WebService::GoogleHack::Search::searchPhrase($searchInfo,$query2);
-$rs_query2=$results_query2->{NumResults};
-
-if($trace_file)
-{
-    $write_file=$write_file. "\n===============================================\n";
-    $write_file=$write_file."\n"."\nNumber of Results \"$query1\" is  ".$rs_query1."\n\n";
-}
-
-$num=  $rs_query1 * $rs_neg;
-$den=  $rs_query2- * $rs_pos +0.01;
-
-if($num == 0)
-{
-   # print "here";
-    $semantic_orientation[$k]=0;
-}
-else
-{
-    $semantic_orientation[$k]= log ($num/$den);
-}
-
-if($trace_file)
-{
-    $write_file=$write_file."\n"."\nNumber of Results \"$query2\"s  ".$rs_query2."\n"."\n\nThe semantic orientation is $semantic_orientation[$k]\n\n";
-}
-
-$k++;
+#    print $ph."\n";
 
 }
 
-$i=0;
+    
+    require WebService::GoogleHack::Search;
 
-$average_so=0;
+    my $results1=WebService::GoogleHack::Search::searchPhrase($this,$positive_inference);
+    my $positiveInference=$results1->{NumResults}; 
 
-while($i < $k)
-{
-    $average_so=$average_so + $semantic_orientation[$i];
-    $i++;
+    my $results2=WebService::GoogleHack::Search::searchPhrase($this, $negative_inference);
+    my $negativeInference=$results2->{NumResults}; 
+
+    my $so=0;
+    my $score=0;
+    my $html="";
+    my $text="";
+    
+  #  print "\n\n";
+    
+    $html.= "<BR>";
+
+    foreach my $key ( keys %sentences)
+    {
+
+	print "\n\n\n Phrase is $key";
+	$html.= "<BR>\"$key\"";
+	$text.= "\n\"$key\"";
+
+	my $query1="\"$key\" AND $positive_inference";
+	my $query2="\"$key\" AND $negative_inference";
+
+	my $rs1=WebService::GoogleHack::Search::searchPhrase($this,$query1);
+       	my $good_query=$rs1->{NumResults};
+
+	my $rs2=WebService::GoogleHack::Search::searchPhrase($this,$query2);
+	my $bad_query=$rs2->{NumResults};
+
+	print "\n Bad Count is $bad_query";
+	
+	$score=($good_query * $negativeInference) / (($bad_query * $positiveInference)+1);
+
+	if($score == 0)
+	{
+	    $positiveHtml.="$key : 0"; 
+	}
+	else  
+	{ 
+	    $so=(log ($score))/(log(2));	
+	    $so=sprintf("%.4f",$so)." ";
+
+	    if($so>=0)
+	    {
+		$positiveHtml.="<TR><TD>$key: $so</TD></TR>";
+		$positiveText.="\n$key: $so";
+	    }
+	    else
+	    {
+		$negativeHtml.="<TR><TD>$key</TD></TR>";
+		$negativeText.="\n$key: $so";
+	    } 	   
+	}
+
+
+
+    }
+
+
+    $text.="\n Results \n\n Positive Words \n\n $positiveText \n\n\n Negative Words \n\n $negativeText";
+
+    $html.="<TABLE><TR><TD> <B> Result </B> </TD></TR><TR><TD></TD></TR>";
+    $html.="<TR><TD> <B> Positive Words </B> </TD></TR>";
+    $html.="$positiveHtml<TR><TD></TD></TR>";
+    $html.="<TR><TD> <B> Negative Words </B> </TD></TR>$negativeHtml<br></TABLE>";
+
+ if($traceFile ne "")
+    {
+	open(DAT,">$traceFile") || die("Cannot Open $traceFile to write");
+	print DAT $text;	
+	close(DAT);      
+    }
+
+  if($htmlFlag eq "true")
+    {
+	return $html;
+    }
+    else
+    {
+	return $text;
+    }
+
 }
-
-$average_so=$average_so/($k+1);
-
-$this->{'PMIMeasure'}=$average_so;
-
-if($average_so >= 0)
-{
-$this->{'prediction'}=1;
-}
-else
-{
-$this->{'prediction'}=0;
-}
-
-$write_file=$write_file."\n\n Final SO Measure is $average_so\n\n";
-
-open(DAT,">$trace_file") || die("Cannot Open $trace_file to write");
-
-print DAT $write_file;
-
-close(DAT);
-
-return $write_file;
-
-#return $this;
-}
-
 
  # remember to end the module with this
 1 ;
  
+
+
+
+
+
+
+
 
 
 

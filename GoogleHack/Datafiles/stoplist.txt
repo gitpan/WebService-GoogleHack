@@ -18,6 +18,7 @@ ah
 ain't
 all
 allow
+allowing
 allows
 almost
 alone
@@ -266,12 +267,14 @@ its
 itself
 jpg
 just
+k
 keep
 keeps
 kept
 know
 knows
 known
+l
 last
 lately
 later
@@ -290,6 +293,7 @@ little
 look
 looking
 looks
+l's
 ltd
 made
 make
@@ -382,6 +386,7 @@ possible
 presumably
 probably
 provides
+put
 que
 quite
 qv
@@ -1016,6 +1021,7 @@ sorry
 specified
 specify
 specifying
+src
 still
 sub
 subwin

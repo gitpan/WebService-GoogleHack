@@ -1,0 +1,9 @@
+GoogleHack
+
+basedir::/home/vold/47/rave0029/WebService/GoogleHack/  # Give path to List of Adjectives,dont forget the forward slash at the end
+
+taggerdir::/home/cs/rave0029/RULE_BASED_TAGGER_V1.14/Bin_and_Data/ #please give path to the brill tagger
+
+key::W3EDt6dQFHIBN/qfbniXjwvaf7SFXh0U  	#give key to google access
+
+wsdl::/home/cs/rave0029/ggapi/googleapi/GoogleSearch.wsdl	#give path to wsdl file

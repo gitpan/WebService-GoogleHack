@@ -89,7 +89,7 @@ use WebService::GoogleHack;
 #Change this variable if you are running this program from a directory
 #Other than WebService/GoogleHack/Example/
 
-$PATHCONFIGFILE="../Datafiles/initconfig.txt";
+$PATHCONFIGFILE="initconfig.txt";
 
 #create an instance of GoogleHack called "google".
 
@@ -104,7 +104,7 @@ $google->initConfig("$PATHCONFIGFILE");
 
 $google->printConfig();
 
-
+$google->temp("input.txt");
 
 
 

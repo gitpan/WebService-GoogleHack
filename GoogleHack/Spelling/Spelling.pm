@@ -124,7 +124,7 @@ it under the same terms as Perl itself.
 
 package WebService::GoogleHack::Spelling;
 
-our $VERSION = '0.06';
+our $VERSION = '0.07';
 
 use SOAP::Lite;
 
