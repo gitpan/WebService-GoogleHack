@@ -181,7 +181,7 @@ Boston, MA  02111-1307, USA.
 
 package WebService::GoogleHack::Rate;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 use strict;
 
@@ -213,6 +213,7 @@ sub init
 
 sub measureSemanticRelatedness
 {
+#log( hits(w1w2) / (hits(w1) * hits(w2)))
     my $searchInfo = shift;
     my $searchString=shift;
  #   my $searchString2=shift; 
@@ -243,15 +244,13 @@ sub measureSemanticRelatedness
     else
     {
     $pmi=sprintf("%.4f",$pmi);
-    $pmi=log(($result_count1) / $denom);
+    $pmi=log(($result_count1) / $denom)/log(2);
     }   
 
     return $pmi;
 
 } 
  
-
-
 sub predictSemanticOrientation
 {   
     my $this=shift;

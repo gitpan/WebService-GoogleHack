@@ -576,62 +576,99 @@ has to be stored.
 
 returns : Returns nothing.
 
-=head2 __PACKAGE__->getWordsInPage(searchString,iterations,number,path_to_data_directory)
+=head2 __PACKAGE__->getWordsInPage(searchTerms,numResults,frequencyCutoff,iteration,numberofSearchTerms,trace_file_path)
 
-Purpose:Given a search string, this function will retreive the resulting 
+Purpose:Given a set of search temrs, this function will retreive the resulting 
 URLs from Google, it will then follow those links, and retrieve the text from there.  
 Once all the text is collected, the function finds the intersecting or co-occurring words
 between the top N results. This function is basically used by the function wordClusterInPage.
+
 Valid arguments are :
 
 =over 4
 
 =item *
 
-B<searchString> 
+B<searchTerms> 
 
-I<string>.  The search string which can be a word or phrase.
-
-=item *
-
-B<iterations> 
-
-I<number>.  The number of iterations that you want the function to search and 
-build cluster on.
+I<string>.  An array which contains each search term (It can only be a word not phrase).
 
 =item *
 
-B<path_to_data_directory>.
+B<numResults> 
 
-I<string>.   The location where the file containing the retrived information 
-has to be stored.
+I<number>.  The number of web pages results to be looked at.
+
+=item *
+
+B<frequencyCutoff> 
+
+I<number>.  Words occuring less than the frequencyCutoff would be excluded from results.
+
+
+=item *
+
+B<iteration> 
+
+I<number>.  The current iteration number.
+
+=item *
+
+B<numberofSearchTerms> 
+
+I<number>.  The number of search terms in the initial set.
+
+=item *
+
+B<trace_file_path>.
+
+I<string>.   The location of the trace file.
 
 =back
 
 returns : Returns nothing.
 
-=head2 __PACKAGE__->wordClusterInPage(searchString,iterations,number,path_to_data_directory)
+=head2 __PACKAGE__->wordClusterInPage(searchTerms,numResults,frequencyCutoff,numIterations,path_to_data_directory, html)
 
-Purpose:Given two or more words, this function tries to find a set of related words.
+Purpose:Given two or more words, this function tries to find a set of related words. This is the Google-Hack baseline algorithm 1.
 
 =over 4
 
 =item *
 
-B<searchString> 
+B<searchTerms> 
 
-I<string>.  The search string which can be a word or phrase.
+I<string>.  The array of search terms (Can only be a word).
+=item *
+
+B<numResults> 
+
+I<number>.  The number of web pages results to be looked at.
 
 =item *
 
-B<iterations> 
+B<numResults> 
 
-I<number>.  The number of iterations that you want the function to search and 
-build cluster on.
+I<number>.  The number of web pages results to be looked at.
+
+
+=item *
+
+B<frequencyCutoff> 
+
+I<number>.  Words occuring less than the frequencyCutoff would be excluded from results.
+
+=item *
+
+B<numIterations> 
+
+I<number>.  The number of iterations that you want the function to search and build cluster on.
 
 =item *
 
 B<path_to_data_directory>.
+pwd
+ls
 
 I<string>.   The location where the file containing the retreived information 
 has to be stored.
@@ -678,6 +715,44 @@ I<string>. Set to a file if you want the results to be written to the given file
 
 returns : Returns an html or text version of the results.
 
+=head2 __PACKAGE__->predictPhraseSentiment(infile,positive_inference,negative_inference,$htmlFlag,$traceFile)
+
+Purpose:Given an file containing text, this function tries to find the positive and negative phrases. The function
+selects phrases based on the patterns given in the "Thumbs up or Down" paper.
+
+=over 4
+
+=item *
+
+B<infile> 
+
+I<string>. The input file
+
+=item *
+
+B<positive_inference> 
+
+I<string>. A positive word such as "Excellent"
+
+=item *
+
+B<negative_inference>.
+
+I<string>. A negative word such as "Bad"
+
+=item *
+
+B<htmlFlag>.
+
+I<string>. Set to "true" if you want the results to be HTML formatted
+
+B<tracefile>.
+
+I<string>. Set to a file if you want the results to be written to the given filename.
+
+=back
+
+returns : Returns an html or text version of the results.
 
 =head1 AUTHOR
 
@@ -723,7 +798,7 @@ Boston, MA  02111-1307, USA.
 
 package WebService::GoogleHack;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08';
 
 use SOAP::Lite;
 use Set::Scalar;
@@ -1789,13 +1864,15 @@ return $date;
 sub getWordsInPage
 {
 
-    my  $searchInfo = shift;# the google-hack object containing the searchInfo
-    my  $ref_searchStrings = shift;  #the search strings
-    my  $numResults=shift; # the number of results to look at
-    my  $cutOff=shift; #the cutoff -- remnove words which occur less than cutoff
-    my  $trace_file=shift;  #output to tracefile
+    my $searchInfo = shift;# the google-hack object containing the searchInfo
+    my $ref_searchStrings = shift;  #the search strings
+    my $numResults=shift; # the number of results to look at
+    my $cutOff=shift; #the cutoff -- remnove words which occur less than cutoff
+    my $iterations=shift;
+    my $numSearchTerms=shift;
+    my $trace_file=shift;  #output to tracefile
     my $stoplist_location=$searchInfo->{'basedir'}."Datafiles/stoplist.txt";
-
+    my %searchHash=();
     #retrieving words in the stop list
   
 
@@ -1821,21 +1898,71 @@ sub getWordsInPage
      # creating all the permutations of the words
      # the thing abt google is that "toyota and ford" doesnt give the same results as "ford and toyota".
 
-    for(my $i=0;$i< $size;$i++)
-     {	
-#	 push(@permutations,$searchStrings[$i]);
+    if($iterations > 0)
+    {	
+	#for(my $i=0;$i< 2;$i++)
+	#{
+	    #push(@permutations,$searchStrings[$i]);
+	#    $searchHash{$searchStrings[$i]}=1;
+	#}
+	
+	for(my $i=$numSearchTerms;$i< $size;$i++)
+	{
+	   #push(@permutations,$searchStrings[$i]);
+	   #$searchHash{$searchStrings[$i]}=1;
 
-	 for(my $j=0;$j< $size;$j++)
-	 {
-	     if($i != $j)
-	     { 
-		 my $string=$searchStrings[$i]." AND ".$searchStrings[$j];
-#		 my $string="\"".$searchStrings[$i]." * ".$searchStrings[$j]."\"";
-		 push(@permutations,$string);
-	     }
-	 }
-     }
+	    for(my $j=$numSearchTerms;$j< $size;$j++)
+	    {
+		if($i != $j)
+		{ 
+		    my $string=$searchStrings[$i]." AND ".$searchStrings[$j];  
+		    print "\n Pushing into permutations $string";
+		    push(@permutations,$string);
+		}
+	    }
+	}
+	      
+    }
+    
+    else
+    {
+	for(my $i=0;$i< $size;$i++)
+	{	
+	  #  print "\n Pushing into permutations $searchStrings[$i]";
+	  #  push(@permutations,$searchStrings[$i]);
 
+	    my @tempTerms = split(/\s+/, $searchStrings[$i]);	
+
+	    foreach my $term (@tempTerms)
+	    {
+		$term=lc($term); 
+		print "\n term is $term:";		
+		$term=~s/\s+//g;
+		if($term ne "")
+		{
+		    print "\n second term is ";
+		    $searchHash{$term}=1;	
+		}
+	    }
+
+	    undef @tempTerms;
+
+	    $searchHash{$searchStrings[$i]}=1;
+	    
+	    for(my $j=0;$j< $size;$j++)
+	    {
+		if($i != $j)
+		{   
+		    my $string=$searchStrings[$i]." AND ".$searchStrings[$j];
+		    print "\n Pushing into permutations $string";
+		    push(@permutations,$string);
+		}
+	    }
+	}
+	
+    }
+    
+   
     my $count=0;
 
     foreach my $query (@permutations)
@@ -1845,7 +1972,7 @@ sub getWordsInPage
 
 	require WebService::GoogleHack::Search;
 	my $results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $query);
-	print "\n\n\n Query is $query\n";
+	print "\n\n\n Query is here $query\n";
 	$t=$count+1;
 	#saving the url's
 	$global_url.="\n<B>URL Set $t</B>";
@@ -1910,43 +2037,54 @@ $count++;$searchStrings[$i]
 
   %stop_list=WebService::GoogleHack::Text::getWords("$stoplist_location");
 
-
-%matrix=();
-$count=0;
+    my %frequencyMatrix=();
+    %matrix=();
+    $count=0;
+    my $data=();
+    my $index=0;
+    my @bwords=();
+    my $str="";
+    my $tsize=2;
 
 # the array filecontent now has the text from each url and its subset of urls.
-
-foreach $context (@fileContent)
-{   
-    my @words=();
-    $context=~s/[0-9]//gs;
-    @words = split(/\s+|\,|\?|\./, $context);	
     
-    foreach my $word (@words)
-    {
-	#$word=~s/[\"!;:\'\`\{\(\}\)\[\]\s\=\+\-\/0-9\|\&\$%]//g;
-	$word=~s/[^\w]//g;
-	if($word ne "")
+    foreach $context (@fileContent)
+    {   
+	my @words=();
+
+#    $context=~s/[0-9]//gs; 
+	$context=~tr/a-zA-z.!?/ /cs;
+	$context=~tr/[|]|^|_|-|&|\#|\@|~|\'/ /s;
+	$context=~s/\s+/ /g;
+
+	@words = split(/\s+|\,|\?|\./, $context);	
+	
+	foreach my $word (@words)
 	{
-	    
-	    if (!exists $stop_list{"$word"})
-	    {  
-		$matrix{"$permutations[$count]"}->{"$word"}++ if exists $matrix{"$permutations[$count]"}->{"$word"};
-		
-		$matrix{"$permutations[$count]"}->{"$word"}=1 if !exists $matrix{"$permutations[$count]"}->{"$word"};
+	    #$word=~s/[\"!;:\'\`\{\(\}\)\[\]\s\=\+\-\/0-9\|\&\$%]//g;
+	    $word=~s/[^\w]//g;
+	    if($word ne "")
+	    {
+		if ((!exists $stop_list{"$word"}) && (!exists $searchHash{"$word"}))
+		    #    if ((!exists $stop_list{"$word"}))
+		{  
+		    $matrix{"$permutations[$count]"}->{"$word"}++ if exists $matrix{"$permutations[$count]"}->{"$word"};
+		    $frequencyMatrix{"$word"}++ if exists $frequencyMatrix{"$word"};
+		    
+		    $matrix{"$permutations[$count]"}->{"$word"}=1 if !exists $matrix{"$permutations[$count]"}->{"$word"};
+		    $frequencyMatrix{"$word"}=1  if !exists  $frequencyMatrix{"$word"};
+		}
 	    }
+	    
+	    
 	}
 	
-	
-	
+	$count++;
     }
     
-    $count++;
-}
-
-$count=0;
-
-
+    $count=0;
+    
+    
 #removing words below cutff
 
 for my $word ( keys %matrix ) {
@@ -1959,8 +2097,8 @@ for my $word ( keys %matrix ) {
 	
 	if($matrix{$word}{$context} >= $cutOff)
 	{
+	  
 	    $$varname[$k++]=$context;
-
 	}
 
     }
@@ -1998,12 +2136,14 @@ for(my $i=0;$i<$count; $i++)
 		$temp_string=$e;
 	  if (!exists $stop_list{"$temp_string"})
 	    { 
-		$cluster{"$temp_string"}++ if exists $cluster{"$temp_string"};
-		
-		print "\n $temp_string";
+		#$cluster{"$temp_string"}++ if exists $cluster{"$temp_string"};
+	#print "\n $temp_string $frequencyMatrix{$temp_string}";
+#		$cluster{"$temp_string"}= if exists $cluster{"$temp_string"};
+
+		#print "\n $temp_string";
 #else if the sequence does not in the array, then insert it into the array
 		
-		$cluster{"$temp_string"}=1 if !exists $cluster{"$temp_string"};		       
+		$cluster{"$temp_string"}=$frequencyMatrix{"$temp_string"} if !exists $cluster{"$temp_string"};		       
 	    }
 
 	    }
@@ -2019,20 +2159,22 @@ for(my $i=0;$i<$count; $i++)
 
 sub wordClusterInPage
 {
-    my  $searchInfo = shift;
-    my  $ref_searchStrings = shift;  
-    my  $numResults=shift;
-    my  $cutOff=shift;
-    my  $iterations=shift;
-    my  $trace_file=shift;
-    my  $html=shift;
+    my $searchInfo = shift;
+    my $ref_searchStrings = shift;  
+    my $numResults=shift;
+    my $cutOff=shift;
+    my $iterations=shift;
+    my $trace_file=shift;
+    my $html=shift;
     my %htmlresults=();
-
-
-    %results=WebService::GoogleHack::getWordsInPage($searchInfo, $ref_searchStrings, $numResults,$cutOff,$trace_file);
-
+    my $numSearchTerms=0;
 
     my @searchTerms=@{$ref_searchStrings};
+    
+    %results=WebService::GoogleHack::getWordsInPage($searchInfo, $ref_searchStrings, $numResults,$cutOff,0,2,0,$trace_file);
+
+
+    
 
     my $htmlContent="";
     my $fileContent="";
@@ -2043,66 +2185,52 @@ sub wordClusterInPage
     $htmlContent.="<TABLE><TR><TD> <B> Result Set 1 </B> </TD></TR>";
     $fileContent="\n Result Set 1 \n";
 
-    while( ($Key, $Value) = each(%results) ){     
-	$Relatedness="";
-  	$tempScore=0;
-
-	foreach my $term (@searchTerms)
-	{
-	    require WebService::GoogleHack::Rate;
-	    $Relatedness = WebService::GoogleHack::Rate::measureSemanticRelatedness($searchInfo,$term,$Key); 
-	    $tempScore+=$Relatedness;	 
-	}
-	$tempScore=$tempScore/2;
-	$tempScore=abs($tempScore);
-	$tempScore=sprintf("%.4f",$tempScore);	
-    	$cluster{"$Key"}=$results{"$Key"};
-	$htmlResults{"$Key"}=$tempScore;
+    foreach my $key (sort  { $results{$b} <=> $results{$a} } (keys(%results))) {
+	$htmlContent.="<TR><TD>$key : $results{$key} </TD></TR>";   	
+	$fileContent.="\n $key : $results{$key}";   	
     }
     
-
-    foreach my $key (sort  { $htmlResults{$b} <=> $htmlResults{$a} } (keys(%htmlResults))) {
-	$htmlContent.="<TR><TD>$key : $htmlResults{$key} </TD></TR>";   	
-	$fileContent.="\n $key : $htmlResults{$key}";   	
-    }
-
     $htmlContent.="\n</TABLE>\n";
     $fileContent.="\n ";
 
+    print "\n Got done with first round";
+
     for(my $i=1; $i < $iterations; $i++)
     {
-	@searchStrings=();
-	
+	print "\n I am now in $i round";
+
+	@searchStrings=();	
+
+	foreach my $term (@searchTerms)
+	{
+	    push(@searchStrings, $term);
+	}
     
 	for my $word ( keys %cluster) {
 	   
-	    push(@searchStrings,$word);
+	    print "\n key is $word";
+	    if($cluster{"$word"} > 0)
+	    {		
+		push(@searchStrings,$word);
+		$numSearchTerms++;
+	    }
 	}
 
 
 	%cluster=();
-	%cluster=WebService::GoogleHack::getWordsInPage($this, \@searchStrings, $numResults,$cutOff,$trace_file);
+	%cluster=WebService::GoogleHack::getWordsInPage($this, \@searchStrings, $numResults,$cutOff,$i,2,0,$trace_file);
 
 	my $k=$i+1;
 	$htmlContent.="\n<br><TABLE><TR><TD> <B> Result Set $k </B> </TD></TR>";
 	$fileContent.="\n Result Set $k \n";
 	
 	$Relatedness="No Score";
-	$tempScore="";
+	$tempScore=0;
 
-	while( ($Key, $Value) = each(%cluster) ){
-#jumbo     
-	    foreach my $term (@searchTerms)
-	    {
-		$Relatedness = measureSemanticRelatedness($searchInfo,$term,$Key);		
-		$tempScore.=$Relatedness.",\n";
-	    }
-
-             $htmlContent.="\n<TR><TD>$Key:$tempScore</TD></TR>";
-	     $fileContent.="\n$Key";
-	    $results{"$Key"}=$cluster{"$Key"}  if !exists $results{"$Key"};;
-
-	}	
+	foreach my $key (sort  { $cluster{$b} <=> $cluster{$a} } (keys(%cluster))) {
+	    $htmlContent.="\n<TR><TD>$key:$cluster{$key}</TD></TR>";
+	    $fileContent.="\n$key";
+	}
 
         $htmlContent.="\n\n</TABLE><BR><BR>";  
 	$fileContent.="\n\n";
@@ -2128,7 +2256,11 @@ sub wordClusterInPage
     {
 	return $fileContent;
     }
+
+ #   undef cluster;
+ #   unde
 }
+
 
 sub predictWordSentiment
 {

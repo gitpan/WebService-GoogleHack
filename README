@@ -1,4 +1,4 @@
-GoogleHack version 0.06
+GoogleHack version 0.08
 =======================
 GoogleHack is a set of Perl modules that does a variety of things.
 The Module GoogleHack.pm acts as the "driver" module for all the sub-modules such as Search, Spelling, Text, and Rate.
@@ -81,15 +81,10 @@ Other packages that you will need:
 3) Text::English 
 4) LWP
 
-The other files required for the Rate module to work are:
+Additional Package if using Sentiment Classification functions:
 
-adjectives_list.txt
-nouns_list.txt
-adverbs_list.txt
-verbs_list.txt
+1) Brill Tagger
 
-
-These files have been given in the WebService/GoogleHack/Datafiles/ directory.
 
 DEMONSTRATION
 -------------

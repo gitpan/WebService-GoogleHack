@@ -15,3 +15,8 @@ mRevision history for Perl extension WebService::GoogleHack.
      * Updated the Review Classification function to use the Brill-Tagger.
      * PLEASE MAKE SURE TO ADAPT NEW CONFIG FILE.
      * Updated README and INSTALL Instructions.
+
+0.08 2005-03-13	      
+     * Google-Hack now	 requires the use of the Brill-Tagger if you are using the sentiment classification functions(Please refer to INSTALL file for more information on installing the Brill-Tagger).
+
+     * Updated the base  line algorithm function, wordClusterInPage to be soley based on frequency.

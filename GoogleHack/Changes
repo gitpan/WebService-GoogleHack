@@ -1,4 +1,4 @@
-Revision history for Perl extension WebService::GoogleHack.
+mRevision history for Perl extension WebService::GoogleHack.
 
 0.05  2004-12/08
       * Updated documentation.
@@ -9,9 +9,14 @@ Revision history for Perl extension WebService::GoogleHack.
      * 0.05 and previous modules had problem with perldoc, so made changes to that.
 
 0.07 2005-02/19
-     * Google-Hack now required the use of the Brill-Tagger (Please refer to INSTALL file for more information on installing the Brill-Tagger).
+     * Google-Hack now requires the use of the Brill-Tagger (Please refer to INSTALL file for more information on installing the Brill-Tagger).
      * Added a function to read in a file of text, and return a list of positive and negative words.
        FUNCTION NAME:  predictWordSentiment
      * Updated the Review Classification function to use the Brill-Tagger.
-     * PLEASE MAKE SURE TO ADAPT NEW CONFIG FILE
+     * PLEASE MAKE SURE TO ADAPT NEW CONFIG FILE.
      * Updated README and INSTALL Instructions.
+
+0.08 2005-03-13	      
+     * Google-Hack now	 requires the use of the Brill-Tagger if you are using the sentiment classification functions(Please refer to INSTALL file for more information on installing the Brill-Tagger).
+
+     * Updated the base  line algorithm function, wordClusterInPage to be soley based on frequency.
