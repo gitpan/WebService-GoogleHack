@@ -76,7 +76,7 @@ it under the same terms as Perl itself.
 package WebService::GoogleHack::Text;
 
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 =head1 PACKAGE METHODS
 
@@ -655,6 +655,12 @@ B<filename>
 
 I<string>.  Location of the configuration file.
 
+=item *
+
+B<stemmer>.
+
+I<bool>. Porter Stemmer on or off.
+
 =back
 
 returns : Returns an object which contains the parsed information.
@@ -666,10 +672,20 @@ sub getSurroundingWords
     my $searchPhrase=shift;
     my $proximity=shift;
     my @snippet=@_;
+    my $stemmer=shift;
+
+    if(!defined($stemmer))
+    {
+	$stemmer=false;
+    }
 
     %wordsCount=();
 
-    for($x=0; $x < 10; $x++)
+    $numIterations=@snippet;
+
+#    print "\n Size is $size\n";
+ 
+   for($x=0; $x < $numIterations; $x++)
     {
 	if($snippet[$x])
 	{
@@ -722,11 +738,13 @@ sub getSurroundingWords
 			{
 			    
 			    $temp_string=lc($words[$i]);
-			    @stem = Text::English::stem( "$temp_string" );
-
-			    $temp_string="";
-			    $temp_string=$stem[0];
-				
+			    
+			    if($stemmer eq "true")
+			    {
+				@stem = Text::English::stem( "$temp_string" );
+				$temp_string="";
+				$temp_string=$stem[0];
+			    }
 			    
 			    $wordsCount{"$temp_string"}++ if exists $wordsCount{"$temp_string"};	
 			    
@@ -752,6 +770,7 @@ sub getSurroundingWords
     }
     
     return %wordsCount;
+
 }
 
 

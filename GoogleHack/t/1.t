@@ -40,7 +40,7 @@ diag("\n".     "The Google-API Key you Entered is $key, Thanks".
      "\n");
 
 
-diag("\n".     "Please Enter the Entire Path to the WSDL File, \n EG, /home/public/GoogleSearch.WSDL".
+diag("\n".     "Please Enter the Entire Path to the wsdl File, \n EG, /home/public/GoogleSearch.wsdl".
      "\n");
 
 $wsdl = <STDIN>;

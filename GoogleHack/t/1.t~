@@ -10,7 +10,7 @@
 
 use constant TMPFILE => "../Datafiles/initconfig.txt";
 
-use Test::More tests => 1;
+use Test::More tests => 2;
 BEGIN { use_ok('WebService::GoogleHack') };
 
 #########################
@@ -59,9 +59,9 @@ $ans=lc($ans);
 if($ans eq 'y' || $ans eq "yes")
 {
 
-#open(WSDL,"$wsdl") || die("\n\n\n\nIllegalHello $wsdl WSDL File Location\n\n\n\n");
-#close(WSDL) ;
+open(WSDL,"$wsdl") || die("\n\n\n\nIllegal WSDL File Location - $wsdl\n\n\n\n");
 
+close(WSDL) ;
 
 my $google = new WebService::GoogleHack;
   
@@ -69,14 +69,14 @@ my $google = new WebService::GoogleHack;
 
 $google->init("$key","$wsdl");
 
-#$results = $google->Search("duluth");
+$results = $google->Search("duluth");
 
-#$correction= $google->phraseSpelling("dulut");
+$correction= $google->phraseSpelling("dulut");
 
 diag("\n".     "The Suggested spelling for dulut is $correction".
      "\n");
 
-#is($correction,"duluth", 1 );
+is($correction,"duluth", 1 );
 
 if($correction eq "No Spelling Suggested")
 {

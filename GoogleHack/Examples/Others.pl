@@ -100,6 +100,7 @@ $google->getSearchCommonWords("knife", "scissors");
 # make sure to change it to you path
 # however, if you have super user access, then once you install it in
 # the perl directories, you dont have to do this
+# aomwthing likw /home/lib/perl5/site_perl/5.8.0
 
 use lib "";
 
@@ -107,9 +108,11 @@ use lib "";
 
 #include GoogleHack, so that it can be used
 
-use GoogleHack;
+use WebService::GoogleHack;
 
+create an instance of WebService::GoogleHack called "Search".
 
+$google = new WebService::GoogleHack;
 
 #######################################################################
 # Make sure to pass the ENTIRE path to the configuration file
@@ -155,9 +158,9 @@ $google->getCachedSurroundingWords("duluth", "test2.txt");
 $google->getSearchCommonWords("knife", "scissors");
 
 
-
-
-
+#$search->getSearchCommonWords("toyota", "ford",10,"result.txt");
+#$search->getPairWordClusters("toyota", "ford",10,1,"result1.txt");
+#$search->getText("duluth","/home/vold/47/rave0029/Data/");
 
 
 

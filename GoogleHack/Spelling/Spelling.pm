@@ -75,7 +75,7 @@ it under the same terms as Perl itself.
 
 package WebService::GoogleHack::Spelling;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use SOAP::Lite;
 

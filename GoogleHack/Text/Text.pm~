@@ -669,13 +669,19 @@ sub getSurroundingWords
 
     %wordsCount=();
 
-    for($x=0; $x < 10; $x++)
+    $numIterations=@snippet;
+
+#    print "\n Size is $size\n";
+ 
+   for($x=0; $x < $numIterations; $x++)
     {
 	if($snippet[$x])
 	{
 	    $snippet[$x]=~ s/[\r\f\n]//g;
 	    $snippet[$x]=~ s/[\#]//g;
-	    $snippet[$x]=~ s/[0-9]+//g;
+	    $snippet[$x]=~ s/[0-9]+//g;  
+	    $snippet[$x]=~ s/(l&;)//g;
+	    $snippet[$x]=~ s/(s&;)//g;
 #    $snippet=~ s/[...]/\n/g;
 	    
 	    @sentences = split(/\.+/, $snippet[$x]);
@@ -720,10 +726,10 @@ sub getSurroundingWords
 			{
 			    
 			    $temp_string=lc($words[$i]);
-			    @stem = Text::English::stem( "$temp_string" );
+	#		    @stem = Text::English::stem( "$temp_string" );
 
-			    $temp_string="";
-			    $temp_string=$stem[0];
+			#    $temp_string="";
+		#	    $temp_string=$stem[0];
 				
 			    
 			    $wordsCount{"$temp_string"}++ if exists $wordsCount{"$temp_string"};	
@@ -750,6 +756,7 @@ sub getSurroundingWords
     }
     
     return %wordsCount;
+
 }
 
 

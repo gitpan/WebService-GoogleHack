@@ -167,9 +167,12 @@ PERL_ARCHIVE =
 
 PERL_ARCHIVE_AFTER = 
 
-TO_INST_PM = GoogleHack.pm
+TO_INST_PM = GoogleHack.pm \
+	example.pl
 
-PM_TO_BLIB = GoogleHack.pm \
+PM_TO_BLIB = example.pl \
+	blib/lib/WebService/example.pl \
+	GoogleHack.pm \
 	blib/lib/WebService/GoogleHack.pm
 
 
@@ -444,7 +447,7 @@ realclean purge ::  clean
 	-cd Text && $(TEST_F) Makefile && $(MAKE)  realclean
 	rm -rf $(INST_AUTODIR) $(INST_ARCHAUTODIR)
 	rm -rf $(DISTVNAME)
-	rm -f  blib/lib/WebService/GoogleHack.pm
+	rm -f  blib/lib/WebService/example.pl blib/lib/WebService/GoogleHack.pm
 	rm -rf Makefile Makefile.old
 
 
@@ -699,7 +702,7 @@ ppd:
 
 pm_to_blib: $(TO_INST_PM)
 	@$(PERLRUNINST) "-MExtUtils::Install" \
-	-e "pm_to_blib({qw{GoogleHack.pm blib/lib/WebService/GoogleHack.pm}},'$(INST_LIB)/auto','$(PM_FILTER)')"
+	-e "pm_to_blib({qw{GoogleHack.pm blib/lib/WebService/GoogleHack.pm example.pl blib/lib/WebService/example.pl}},'$(INST_LIB)/auto','$(PM_FILTER)')"
 	@$(TOUCH) $@
 
 # --- MakeMaker selfdocument section:

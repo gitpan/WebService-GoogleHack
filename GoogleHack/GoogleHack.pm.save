@@ -63,7 +63,7 @@ it under the same terms as Perl itself.
 
 package WebService::GoogleHack;
 
-our $VERSION = '0.03';
+our $VERSION = '0.02';
 
 use SOAP::Lite;
 use Set::Scalar;
@@ -784,10 +784,6 @@ sub getSearchSnippetWords
 
     $results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString,$numResults);
 
-    if(!defined($numResults))
-    {
-	$numResults=10;
-    }
 
     @strings=();
     $count=0;
@@ -1121,12 +1117,6 @@ B<trace_file>.
 I<string>.   The location of the trace file. If a file_name is given, the 
 results are stored in this file
 
-=item *
-
-B<stemmer>.
-
-I<bool>. Porter Stemmer on or off.
-
 =back
 
 returns : Returns a hash which contains the parsed sentences as values and the
@@ -1143,25 +1133,12 @@ sub getSearchCommonWords
     my  $searchString1 = shift;  
     my  $searchString2 = shift;
     my  $numResults=shift;
-    my  $trace_file=shift;
-    my $stemmer=shift;
+    my $trace_file=shift;
 
-
-    if(!defined($numResults))
-    {
-	$numResults=10;
-    }
-
-    if(!defined($stemmer))
-    {
-	$stemmer=false;
-    }
-
- #   print $trace_file;
     require WebService::GoogleHack::Search;
 
     print "\n\nOne $searchString1, Two $searchString2";
-    $results1=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString1, $numResults)
+    $results1=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString1,$numResults)
 ;
     @strings1=(); 
 
@@ -1169,7 +1146,7 @@ sub getSearchCommonWords
 
     require WebService::GoogleHack::Text;
      $innc=0;
-    while( $count < $numResults)
+    while( $count < 10)
     {
 	#print "here";
 	#print $results1->{'snippet'}->[$count];
@@ -1182,7 +1159,7 @@ sub getSearchCommonWords
     }
     
     
-    $results2=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString2, $numResults);
+    $results2=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString2);
     @strings2=(); 
     $count=0;
     
@@ -1191,9 +1168,8 @@ sub getSearchCommonWords
 # I am just checking the first 10 snippets since the snippets get more irrelevant as the hit number increases
     $innc=0;
    
-    while( $count < $numResults)
+    while( $count < 10)
     {
-
 # removing html tags from the resulting snippet
 if($results2->{'snippet'}->[$count] ne "")
    {
@@ -1207,7 +1183,7 @@ if($results2->{'snippet'}->[$count] ne "")
     $count=0;
 
 
-%results_final1=WebService::GoogleHack::Text::getSurroundingWords($searchString1,5 , @strings1, $stemmer);
+%results_final1=WebService::GoogleHack::Text::getSurroundingWords($searchString1,5 , @strings1);
 
 
 
@@ -1217,18 +1193,10 @@ if($results2->{'snippet'}->[$count] ne "")
 while( ($Key, $Value) = each(%results_final1) ){
 
     $temp_string=""; 
-
-if($stemmer eq "true")
-{
     @stem = Text::English::stem( "$Key" );
     print "\n This is the stem for $Key:$stem[0]\n";;
     $temp_string=$stem[0];
-}
-else
-{
-    $temp_string="$Key"; 
-}
- 
+  
 	$sequence_occs{"$temp_string"}++ if exists $sequence_occs{"$temp_string"};
 	
 #else if the sequence does not in the array, then insert it into the array
@@ -1242,24 +1210,18 @@ else
 
 
 
-%results_final2=WebService::GoogleHack::Text::getSurroundingWords($searchString2,5 , @strings2, $stemmer);
+%results_final2=WebService::GoogleHack::Text::getSurroundingWords($searchString2,5 , @strings2);
 
 
 while( ($Key, $Value) = each(%results_final2) ){
 
     $temp_string="";
-if($stemmer eq "true")
-{
     @stem = Text::English::stem( "$Key" );
+
+
     $temp_string=$stem[0];
-}
-else
-{
-    $temp_string="$Key";
 
-}
-
-$sequence_occs{"$temp_string"}++ if exists $sequence_occs{"$temp_string"};
+   $sequence_occs{"$temp_string"}++ if exists $sequence_occs{"$temp_string"};
 
 #else if the sequence does not in the array, then insert it into the array
  
@@ -1296,11 +1258,8 @@ $sequence_occs{"$temp_string"}++ if exists $sequence_occs{"$temp_string"};
 	}
 
 
-$date=getDateHeader();
+    $fileContent="\n Intersecting Words for $searchString1 & $searchString2\n\n";
 
-$fileContent="\n\n\n================================================================";
-$fileContent.="\n\n Query Date - $date - Intersecting Words for $searchString1 & $searchString2\n\n";
-$fileContent.="================================================================\n\n";
     $fileContent.="\nWord List for $searchString1\n";
     $fileContent.="=================================\n";
     
@@ -1490,26 +1449,21 @@ sub getPairWordClusters
     my  $searchString1 = shift;  
     my  $searchString2 = shift;
     my  $numResults=shift;
-    my  $cutOff=shift;
     my  $trace_file=shift;
 
   if(!defined($numResults))
   {
       $numResults=10;
   }
- if(!defined($cutOff))
-  {
-      $cutOff=1;
-  }
 
-    print "i am in word clusters" ;
+#    print "i am in word clusters" ;
     #first, doing a search with the given strings, and finding the intersecting words
     #this associative array would contain the word as a key and the frequency of occurence as the
     #value
 
     
 %first_intersection=WebService::GoogleHack::getSearchCommonWords($searchInfo, 
-$searchString1, $searchString2, $numResults,$trace_file);
+$searchString1, $searchString2,$numResults, $trace_file);
 
     
     @intersection=();
@@ -1592,11 +1546,11 @@ if($Key ne "")
 		$temp_string="";
 		$temp_string=$e;
 		
-	#	if($e eq "car")
-#{
- #   print "\n\n\n Here ";
- #   print $cluster{"$temp_string"};
-#}
+		if($e eq "car")
+{
+    print "\n\n\n Here ";
+    print $cluster{"$temp_string"};
+}
 		$cluster{"$temp_string"}++ if exists $cluster{"$temp_string"};
 		
 #else if the sequence does not in the array, then insert it into the array
@@ -1635,7 +1589,7 @@ $extended_fileContent="\n\n Extended Cluster for $searchString1 & $searchString2
 
 while( ($Key, $Value) = each(%cluster) ){
     
-    if($cluster{"$Key"} > $cutOff)    
+    if($cluster{"$Key"} > 1)    
 {
     $fileContent.="\n$Key, $Value";
 }
@@ -1776,47 +1730,6 @@ $date=$Month."-".$Day."-".$Year;
     
 }
 
-sub getDateHeader
-{
-
-($Second, $Minute, $Hour, $Day, $Month, $Year, $WeekDay, $DayOfYear, $IsDST) = localtime(time);
-
-$Month = $Month + 1; 
-
-if($Month < 10)
-{
-    $Month = "0" . $Month; 
-}
-
-
-if($Day < 10)
-{
-    $Day = "0" . $Day; 
-}
-
-if($Minute < 10)
-{
-    $Minute = "0" . $Minute; 
-}
-
-if($Hour < 10)
-{
-    $Hour = "0" . $Hour; 
-}
-
-if($Second < 10)
-{
-    $Second = "0" . $Second; 
-}
-
-$Year=$Year+1900;
-
-
-$date=$Month."-".$Day."-".$Year." @ ".$Hour.":".$Minute.":".$Second;
-
-return $date;
-
-}
 
 1;
     

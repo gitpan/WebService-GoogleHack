@@ -13,6 +13,6 @@ stop words
 adverbs_list::../Datafiles/adverbs_list.txt		    # Give path to List of 
 Adverbs
 
-key::  	#give key to google access
+key::ImbjULt0W3FuwYXOEM+AhN3/TWIRIwkg  	#give key to google access
 
-wsdl::	#give path to wsdl file
+wsdl::/home/cs/rave0029/ggapi/googleapi/GoogleSearch.wsdl	#give path to wsdl file

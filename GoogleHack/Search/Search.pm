@@ -14,14 +14,14 @@ It makes it easier for querying Google.
 
 If required you can set search parameters with following functions:
 
-$search->setMaxResults($param)
-$search->setlr($param)
-$search->setoe($param)
-$search->setie($param)
-$search->setStartPos($param)
-$search->setFilter("bool")
-$search->setSafeSearch("bool")
-$search->setRestrict("bool")
+    $search->setMaxResults($param);
+$search->setlr($param);
+$search->setoe($param);
+$search->setie($param);
+$search->setStartPos($param);
+$search->setFilter("bool");
+$search->setSafeSearch("bool");
+$search->setRestrict("bool");
 
 =head1 DESCRIPTION
 
@@ -71,7 +71,7 @@ it under the same terms as Perl itself.
 
 package WebService::GoogleHack::Search;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 use SOAP::Lite;
 
 
@@ -196,7 +196,8 @@ $this-> {'ie'} =shift;
 
 =head2 __PACKAGE__->setMaxResults(\%args)
 
-Purpose: This this function can used to set the maximum number of results retrieved.
+Purpose: This this function can used to set the maximum number of results 
+retrieved.
 
 Valid arguments are :
 
@@ -400,7 +401,8 @@ sub setRestrict
 
 =head2 __PACKAGE__->setSafeSearch(\%args)
 
-Purpose: This functions enables safe search, Restricts search to non-abusive material.
+Purpose: This functions enables safe search, Restricts search to non-abusive 
+material.
 
 Valid arguments are :
 
@@ -440,13 +442,15 @@ Valid arguments are :
 
 B<$searchString> 
 
-I<string>.  Need to pass the search string, which can be a single word or phrase, maximum ten words
+I<string>.  Need to pass the search string, which can be a single word or 
+phrase, maximum ten words
 
 =item *
 
 B<num_results> 
 
-I<integer>. The number of results you wast to retrieve, default is 10. Maximum is 1000.
+I<integer>. The number of results you wast to retrieve, default is 10. 
+Maximum is 1000. Give in terms of multiples of ten.
 
 
 =back
@@ -460,9 +464,19 @@ sub searchPhrase
     my $searchInfo=shift;
     my $searchString=shift;
     my $num_results=shift;
+    @snippet_array=();
+    @url_array=();
+    @title_array=();
 
-    $num_results=10;
+    $count1=0;
+    $count2=0;
+    $count3=0;
 
+    if(!defined($num_results))
+    {
+	$num_results=10;
+    }
+    
     $key  = $searchInfo->{'Key'}; 
     $wsdl_path =$searchInfo->{'File_Location'}; 
     
@@ -470,7 +484,7 @@ sub searchPhrase
 #    print "\n path is $wsdl_path";
 #    print "\n Search phrase is $searchString\n";
 #    print  $searchInfo-> {'StartPos'};
-
+    
 # Initialise with local SOAP::Lite file
     
 
@@ -480,15 +494,9 @@ close(WSDL);
 $service = SOAP::Lite
     -> service("file:$wsdl_path");
 
-  #  print "\n This is what i am trying to print \n";
-  #  print $searchInfo-> {'maxResults'};
-  #  print $searchInfo-> {'StartPos'};
-  #  print "\n Looks like i printed it \n\n";
-  #if($num_results > 10)
-  #{
-
 $count=0;
-
+   $searchInfo-> {'lr'}="lang_en";
+ 
 while( $count < $num_results)
 
 {
@@ -505,8 +513,45 @@ $result =  $service -> doGoogleSearch(
 		      $searchInfo-> {'ie'}                # oe
 		      );
 
-#print "\n Printing here ";
-#print $result->{estimatedTotalResultsCount};
+foreach $temp (@{$result->{resultElements}}) {
+   
+
+    if(defined($temp->{URL}))
+    {
+	$url_array[$count2++]=$temp->{URL};      
+    }
+    else
+    {
+	$url_array[$count2++]="Undefined URL";
+	
+    }
+    
+
+    if(defined($temp->{title}))
+    {
+	$title_array[$count3++]=$temp->{title};
+    }
+    else
+    { 
+	$title_array[$count3++]="Undefined Title";
+    }
+
+
+    if(defined($temp->{snippet}))
+    {
+	$snippet_array[$count1++]=$temp->{snippet};
+    }
+    else
+    { 
+	$snippet_array[$count1++]="Undefined Snippet";
+    }
+
+#print "\n\n",$temp->{title};
+#print "\n", $temp->{snippet};
+#print "\n",$temp->{URL};
+
+
+}
 
 
 $count=$count+10;
@@ -514,35 +559,14 @@ $count=$count+10;
 }
 
 $this->{'NumResults'} = $result->{estimatedTotalResultsCount};
+$this->{'searchTime'} = $result->{searchTime};
+$this->{'snippet'} = \@snippet_array;
+$this->{'url'}=\@url_array;
+$this->{'title'}=\@title_array; 
 
-    @snippet_array=();
-    @url_array=();
-    @title_array=();
-
-    $count=0;
-    foreach $temp (@{$result->{resultElements}}) {
-	$snippet_array[$count++]=$temp->{snippet};
-    }
+return $this;
 
 
-  $count=0;
-    foreach $temp (@{$result->{resultElements}}) {
-	$url_array[$count++]=$temp->{URL};
-    }
-
- $count=0;
-    foreach $temp (@{$result->{resultElements}}) {
-	$title_array[$count++]=$temp->{title};
-    }
-
-    $this->{'snippet'} = \@snippet_array;
-    $this->{'searchTime'} = $result->{searchTime};
-    $this->{'url'}=\@url_array;
-    $this->{'title'}=\@title_array; 
-
-    return $this;
-
-    
 }
 
 
@@ -573,7 +597,8 @@ return   $this-> {'NumResults'};
 
 =head2 __PACKAGE__->IamFeelingLucky(\%args)
 
-Purpose: This function imitates the "I am Feeling Lucky" search feature of Google. It basically returns the URL of the first result of your search.
+Purpose: This function imitates the "I am Feeling Lucky" search feature of 
+Google. It basically returns the URL of the first result of your search.
 
 No Valid arguments.
 
