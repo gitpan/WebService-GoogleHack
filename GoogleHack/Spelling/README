@@ -1,0 +1,119 @@
+GoogleHack version 0.01
+=======================
+This is the Spelling.pm module. It allows the user to give a word or a string,
+and it queries Google to find if the spelling of the given word or phrase is 
+incorrect, and retrieve a suggested correction from Google.
+
+* Retrive Spelling Suggestions .
+
+
+INSTALLATION
+
+There are multiple ways to install the modules. 
+
+
+1) You can use CPAN.pm to install GoogleHack. To install the module type the
+ following
+:
+
+   perl -MCPAN -e 'install GoogleHack'
+
+
+2) Otherwise, type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+The advantage of Using CPAN to install the module is that it will also install 
+all the other modules required by GoogleHack.
+
+
+DEPENDENCIES
+
+This module requires these other modules and libraries:
+
+To use this package, you need to have a Google API ID, and the 
+GoogleSearch.WSDL File. You can register for this service and download the 
+required materials @ 
+http://www.google.com/apis/ 
+
+Other packages that you will need:
+
+1) SOAP::Lite
+2) HTML::TokeParser
+
+DEMONSTRATION
+-------------
+
+
+use GoogleHack;
+
+$search = new GoogleHack;
+$search->init( "key","GoogleSearch.wsdl");
+$correction=$search->phraseSpelling("dulut");
+$results=$search->Search("duluth");
+
+print $search->{'searchTime'};
+print $search->{'snippet'}->[0];;
+
+$results=$search->measureSemanticRelatedness("knife","cut");
+
+$search->initConfig("config.txt");
+$search->printConfig();
+
+$search->predictSemanticOrientation("ggapi/googleapi/review.txt",
+"excellent","bad");
+
+
+DOCUMENTATION
+-------------
+POD style documentation is included in all modules and scripts
+You can look @ `perldoc GoogleHack` for more information about the specifics 
+of each module. The description of each method in the modules is also given.
+
+SUPPORT & CREDITS
+-----------------
+Questions about how to use this library should 
+If you have any questions or suggestions you e mail Pratheepan Raveendranathan 
+(rave0029@d.umn.edu) or Ted Pedersen (tpederse@d.umn.edu).
+
+Design - Ted Pedersen Pratheepan Raveendranathan
+
+Implementation - Pratheepan Raveendranathan
+
+Documentation - Ted Pedersen Pratheepan Raveendranathan
+
+You can visit the developers web site @
+
+Ted Pedersen - http://www.d.umn.edu/~tpederse
+Pratheepan Raveendranathan - http://www.d.umn.edu/~rave0029
+
+
+
+COPYRIGHT AND LICENCE
+
+Copyright (c) 2003 by Pratheepan Raveendranathan, Ted Pedersen
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to
+
+The Free Software Foundation, Inc.,
+59 Temple Place - Suite 330,
+Boston, MA  02111-1307, USA.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself. 
+
+
+

@@ -1,0 +1,18 @@
+GoogleHack
+
+adjectives_list			::../Datafiles/adjectives_list.txt      
+     # Give path to List of Adjectives
+
+verbs_list::../Datafiles/verbs_list.txt		    # Give path to List of Verbs
+
+nouns_list::../Datafiles/nouns_list.txt		    # Give path to List of Nouns
+
+stop_list::../Datafiles/smartstop.txt			    #Give path to List of 
+stop words
+
+adverbs_list::../Datafiles/adverbs_list.txt		    # Give path to List of 
+Adverbs
+
+key::  	#give key to google access
+
+wsdl::	#give path to wsdl file

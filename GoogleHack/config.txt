@@ -1,0 +1,19 @@
+GoogleHack
+
+adjectives_list			::	   adjectives_list.txt      
+     # Give path to List of Adjectives
+
+verbs_list::verbs_list.txt		    # Give path to List of Verbs
+
+nouns_list::nouns_list.txt		    # Give path to List of Nouns
+
+stop_list::smartstop.txt			    #Give path to List of 
+stop words
+
+adverbs_list::adverbs_list.txt		    # Give path to List of 
+Adverbs
+
+key::iROSyfxQFHKjtA1CLcVQ3aGawqQW2j2Q 	#give key to google access
+
+wsdl::/home/cs/rave0029/ggapi/googleapi/GoogleSearch.wsdl	#give path to wsdl file
+

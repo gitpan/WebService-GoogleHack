@@ -1,0 +1,150 @@
+GoogleHack version 0.01
+=======================
+This is the Rate.pm module. This module allows the user some basic Natural 
+Language processing capabilities. It interacts with the GoogleHack::Search 
+module.
+
+
+Provides basic Natural Language Processing features, by using the results 
+retrieved from Google.
+
+* Find the Pointwise Mututal Information measure of two words
+
+Given two words, the moduleinteracts with Google, and retrieves the number of
+ times the given words occured. The PMI is calculated as follows:
+
+Given, phrase1 and phrase2:
+
+PMI (phrase1, phrase2) = log( (Number of times phrase1 & phrase2 co-occured) / 
+(Number of times phrase1 occured) (Number of times phrase2 occured) )
+
+For example, the PMI measure for the search phrases "knife" and "cut" would be greater than for "knife" and "write".
+
+* Given a paragraph find if the paragraph has a positive or negative 
+orientation
+
+The user provides the module with a paragraph of text, for example, a review 
+of an automobile. The module will then issue multiple queries to Google, and 
+calculates the relatedness between the different combination of words in the 
+review. If the total of the PMI measure results are positive then the review has a positive semantic orientation, and if the total is negative then the reviewe has a negative semantic orientation.
+
+For more on this idea visit:
+
+http://arxiv.org/ftp/cs/papers/0212/0212032.pdf
+
+* Given a search string and a proximity value, can retrieve a top n number of sentences with the search string surrounded by a certain number of words (proximity).
+
+* Find the top n words occuring with the search string within a certain proximity given.
+
+
+
+INSTALLATION
+
+There are multiple ways to install the modules. 
+
+
+1) You can use CPAN.pm to install GoogleHack. To install the module type the
+ following
+:
+
+   perl -MCPAN -e 'install GoogleHack'
+
+
+2) Otherwise, type the following:
+
+   perl Makefile.PL
+   make
+   make test
+   make install
+
+The advantage of Using CPAN to install the module is that it will also install 
+all the other modules required by GoogleHack.
+
+
+DEPENDENCIES
+
+This module requires these other modules and libraries:
+
+To use this package, you need to have a Google API ID, and the 
+GoogleSearch.WSDL File. You can register for this service and download the 
+required materials @ 
+http://www.google.com/apis/ 
+
+Other packages that you will need:
+
+1) SOAP::Lite
+2) HTML::TokeParser
+
+DEMONSTRATION
+-------------
+
+
+use GoogleHack;
+
+$search = new GoogleHack;
+$search->init( "key","GoogleSearch.wsdl");
+$correction=$search->phraseSpelling("dulut");
+$results=$search->Search("duluth");
+
+print $search->{'searchTime'};
+print $search->{'snippet'}->[0];;
+
+$results=$search->measureSemanticRelatedness("knife","cut");
+
+$search->initConfig("config.txt");
+$search->printConfig();
+
+$search->predictSemanticOrientation("ggapi/googleapi/review.txt",
+"excellent","bad");
+
+
+DOCUMENTATION
+-------------
+POD style documentation is included in all modules and scripts
+You can look @ `perldoc GoogleHack` for more information about the specifics 
+of each module. The description of each method in the modules is also given.
+
+SUPPORT & CREDITS
+-----------------
+Questions about how to use this library should 
+If you have any questions or suggestions you e mail Pratheepan Raveendranathan 
+(rave0029@d.umn.edu) or Ted Pedersen (tpederse@d.umn.edu).
+
+Design - Ted Pedersen Pratheepan Raveendranathan
+
+Implementation - Pratheepan Raveendranathan
+
+Documentation - Ted Pedersen Pratheepan Raveendranathan
+
+You can visit the developers web site @
+
+Ted Pedersen - http://www.d.umn.edu/~tpederse
+Pratheepan Raveendranathan - http://www.d.umn.edu/~rave0029
+
+
+
+COPYRIGHT AND LICENCE
+
+Copyright (c) 2003 by Pratheepan Raveendranathan, Ted Pedersen
+
+This program is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License as published by the Free Software
+Foundation; either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with
+this program; if not, write to
+
+The Free Software Foundation, Inc.,
+59 Temple Place - Suite 330,
+Boston, MA  02111-1307, USA.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself. 
+
+
+
