@@ -1,9 +1,10 @@
 #!/usr/local/bin/perl
+
 =head1 NAME 
 
-Rate - This is a perl program that gives the example use of the 
-Google-Hack Rate functions which manipulate the text 
-retrieved from the web to .
+	Rate - This is a perl program that gives the example use of the 
+	Google-Hack Rate functions which manipulate the text 
+	retrieved from the web to .
 
 =head1 SYNOPSIS
 
@@ -49,18 +50,18 @@ Ted Pedersen, E<lt>tpederse@d.umn.eduE<gt>
 
 =head1 SEE ALSO
 
-L<GoogleHack home page|http://google-hack.sourceforge.net>
+WebService::GoogleHack home page - http://google-hack.sourceforge.net
 
-L<Pratheepan Raveendranathan|http://www.d.umn.edu/~rave0029/research>
+Pratheepan Raveendranathan - http://www.d.umn.edu/~rave0029/research
 
-L<Ted Pedersen|www.d.umn.edu./~tpederse>
+Ted Pedersen - www.d.umn.edu./~tpederse
 
 Google-Hack Maling List E<lt>google-hack-users@lists.sourceforge.netE<gt>
 
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2003 by Pratheepan Raveendranathan, Ted Pedersen
+Copyright (c) 2005 by Pratheepan Raveendranathan, Ted Pedersen
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software

@@ -88,17 +88,17 @@ Ted Pedersen, E<lt>tpederse@d.umn.eduE<gt>
 
 =head1 SEE ALSO
 
-L<WebService::GoogleHack home page|http://google-hack.sourceforge.net>
-  
-L<Pratheepan Raveendranathan|http://www.d.umn.edu/~rave0029/research>
+WebService::GoogleHack home page - http://google-hack.sourceforge.net
+ 
+Pratheepan Raveendranathan - http://www.d.umn.edu/~rave0029/research
 
-L<Ted Pedersen|www.d.umn.edu./~tpederse>
+Ted Pedersen - www.d.umn.edu./~tpederse
 
 Google-Hack Maling List E<lt>google-hack-users@lists.sourceforge.netE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2003 by Pratheepan Raveendranathan, Ted Pedersen
+Copyright (c) 2005 by Pratheepan Raveendranathan, Ted Pedersen
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -124,7 +124,7 @@ it under the same terms as Perl itself.
 
 package WebService::GoogleHack::Spelling;
 
-our $VERSION = '0.09';
+our $VERSION = '0.1';
 
 use SOAP::Lite;
 

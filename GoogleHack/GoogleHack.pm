@@ -2,7 +2,7 @@
 
 =head1 NAME 
 
-WebService::GoogleHack - Perl package that ties together all GoogleHack modules.
+WebService::GoogleHack - Perl package that ties together all GoogleHack modules. Use this package to access all the functionality of Google-Hack.
 
 =head1 SYNOPSIS
 
@@ -21,7 +21,7 @@ WebService::GoogleHack - Perl package that ties together all GoogleHack modules.
     #Measure the semantic relatedness between the words "white house" and 
     #"president".
 
-    $measure=$google->measureSemanticRelatedness("white house","president");
+    $measure=$google->measureSemanticRelatedness1("white house","president");
 
     print "\nRelatedness measure between white house and president is: ";
     print $measure."\n";
@@ -35,7 +35,7 @@ WebService::GoogleHack - Perl package that ties together all GoogleHack modules.
     #at, the number of iterations,output file and the "true" indicates that the
     #diagnostic data should be stored in the file "results.txt"
 
-    $results=$google->wordClusterInPage(\@terms,10,25,1,"results.txt","true");
+    $results=$google->Algorithm1(\@terms,10,25,1,"results.txt","true");
 
     print $results;
 
@@ -44,10 +44,24 @@ WebService::GoogleHack - Perl package that ties together all GoogleHack modules.
 
 WebService::GoogleHack - Is a Perl package that interacts with the Google API,
 and has some basic functionalities that allow the user to interact with 
-Googleand retrieve results. It also  has some Natural Language Processing 
-capabilities, such as the ability to predict the semantic orienation of words, 
-build word clusters, and find words that are common to a pair of words.
+Googleand retrieve results. It also does a fair amount of Natural Language Processing 
+using the World Wide Web as a source of information. 
 
+Some of the features are:
+
+    * Find the Pointwise Mututal Information (PMI) measure between two words
+
+    * Given a paragraph find if the paragraph has a positive or negative semantic orientation.
+         
+    * Given a set of words along with a positively oriented word such as "excellent" and a negatively oriented  word such as "poor", find if the word has a positive or negative semantic orientation.
+
+    * Given a set of phrases along with a positively oriented word such  as "excellent" and a negatively oriented word such as "poor",  
+      predict if the given phrases are positive or negative in sentiment.
+
+    * Given two or more words finds a set of related words. 
+
+
+ 
 Related Modules:
 
 WebService::GoogleHack::Text 
@@ -60,7 +74,7 @@ WebService::GoogleHack::Spelling
 
 =head1 Required Packages
 
-Brill Tagger 
+Brill Tagger (If using Sentiment Classification stuff)
 
     Installation file and instructions @ : 
    
@@ -88,12 +102,16 @@ Required PERL Modules
 
 =head2 __PACKAGE__->new()
 
-Purpose: This function creates an object of type GoogleHack and returns a blessed reference.
+Purpose: This function creates an object of type GoogleHack and returns a blessed reference. 
+
+returns: A blessed reference to a GoogleHack object.
 
 =head2 __PACKAGE__->initConfig(configLocation)
 
-Purpose:  This function is used to read a configuration file containing 
-informaiton such as the Google-API key, the words list etc.
+Purpose:  This function is used to read the configuration file containing information such 
+as the Google-API key, the base directory path, and the path to the Brill Tagger. The configuration file is in the WebService/GoogleHack/Datafiles directory.
+
+This function must be called in order to initialize the GoogleHack object.
 
 Valid arguments are :
 
@@ -111,98 +129,16 @@ returns : Returns an object which contains the parsed information.
 
 =head2 __PACKAGE__->printConfig()
 
-Purpose:  This function is used to print the information read from a 
-configuration file 
+Purpose:  This function is used to print the information read from the configuration file 
 
 No arguments.
 
-=head2 __PACKAGE__->setMaxResults(maxResults)
+=head2 __PACKAGE__->measureSemanticRelatedness1(searchString1,searchString2)
 
-Purpose: This function sets the maximum number of results retrieved
 
-Valid arguments are :
+Purpose: This function is used to measure the relatedness between two words.
 
-=over 4
-
-=item *
-
-B<maxResults>
-
-I<Number>. The maximum number of results we want to be able to retrieve from a Google search. Should be less than 10.
-
-=back
-
-=head2 __PACKAGE__->setlr(lr)
-
-Purpose: This this function used to set the language restriction.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<lr>
-
-I<string>. Language Restricion eg, "lang_eng", This will restrict the google 
-search to web pages in english.
-
-=back
-
-=head2 __PACKAGE__->setStartPos(StartPos)
-
-Purpose: This function sets the startposition for the search results. This should be an integer
-between 0 and 1000.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<StartPos>
-
-I<string>.
-
-=back
-
-=head2 __PACKAGE__->setRestrict(Restrict)
-
-Purpose: This function sets the restrict search to a specific domain on.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<Restrict>
-
-I<String>. UncleSam for the US Government
-
-=back
-
-=head2 __PACKAGE__->setSafeSearch(Restrict)
-
-Purpose: This functions enables safe search, Restricts search to non-abusive material.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<Restrict>
-
-I<Boolean>. "True" or "False".
-
-=back
-
-=head2 __PACKAGE__->measureSemanticRelatedness(searchString1,searchString2)
-
-Purpose: this is function is used to measure the relatedness between two words it basically 
-calls the measureSemanticRelatedness function which is in  the Rate class
-
+Formula used: log(hits(w1)) + log(hits(w2)) - 2 * log(hits(w1w2))
 
 Valid arguments are :
 
@@ -222,11 +158,66 @@ I<string>.   The search string which can be a phrase or word
 
 =back
 
-Returns: Returns the object containing the PMI measure. ($search->{'PMI'}).
+Returns: Returns the object containing the relatedness measure.
+
+=head2 __PACKAGE__->measureSemanticRelatedness2(searchString1,searchString2)
+
+Purpose: This function is used to measure the relatedness between two words.
+
+Formula used:  log(w1w2/(w1+w2))
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchString1>
+
+I<string>. The search string which can be a phrase or word
+
+=item *
+
+B<searchString2>
+
+I<string>.   The search string which can be a phrase or word
+
+=back
+
+Returns: Returns the object containing the relatedness measure.
+
+=head2 __PACKAGE__->measureSemanticRelatedness3(searchString1,searchString2)
+
+Purpose: This function is used to measure the relatedness between two words.
+
+Formula used:  log( hits(w1w2) / (hits(w1) * hits(w2)))
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchString1>
+
+I<string>. The search string which can be a phrase or word
+
+=item *
+
+B<searchString2>
+
+I<string>.   The search string which can be a phrase or word
+
+=back
+
+Returns: Returns the object containing the relatedness measure. 
 
 =head2 __PACKAGE__->predictSemanticOrientation(reviewfile,positive_inference,negative_inference,trace_file)
 
-Purpose: this function tries to predict the semantic orientation of a paragraph of text need
+Purpose: This function tries to predict the semantic orientation of a paragraph of text. The semantic orientation of a paragraph is calculated according to the paper 
+"Thumbs Up or Thumbs Down? Semantic Orientation Applied to Unsupervised Classification of Reviews" By Peter Turney. The difference between Peter Turney's implementation of the PMI-IR algorithm and the implementation of the PMI-IR algorithm in Google Hack is small, but very important. 
+
+In Peter Turney's implementation, the PMI-IR algorithm uses the search engine Alta Vista. However, in Google-Hack, we are using Google as our search engine. More importantly, AltaVista provides a "near" operator which the original PMI=IRuses, however, Google does not. Hence, we are using the "AND" operator.
 
 Valid arguments are :
 
@@ -256,7 +247,6 @@ I<string>.    Negative inference such a poor
 B<trace_file>.
 
 I<string>.   The location of the trace file. If a file_name is given, the results are stored in this file
-
 
 =back
 
@@ -578,10 +568,10 @@ returns : Returns nothing.
 
 =head2 __PACKAGE__->getWordsInPage(searchTerms,numResults,frequencyCutoff,iteration,numberofSearchTerms,bigrams,trace_file_path)
 
-Purpose:Given a set of search temrs, this function will retreive the resulting 
+Purpose:Given a set of search terms, this function will retreive the resulting 
 URLs from Google, it will then follow those links, and retrieve the text from there.  
 Once all the text is collected, the function finds the intersecting or co-occurring words
-between the top N results. This function is basically used by the function wordClusterInPage.
+between the top N results. This function is basically used by the function Algorithm1.
 
 Valid arguments are :
 
@@ -635,9 +625,24 @@ I<string>.   The location of the trace file.
 
 returns : Returns nothing.
 
-=head2 __PACKAGE__->wordClusterInPage(searchTerms,numResults,frequencyCutoff,numIterations,path_to_data_directory, html)
+=head2 __PACKAGE__->Algorithm1(searchTerms,numResults,frequencyCutoff,numIterations,path_to_data_directory, html)
 
 Purpose:Given two or more words, this function tries to find a set of related words. This is the Google-Hack baseline algorithm 1.
+For example, given the two words gun and pistol, an example of an nexpanded set of related words would be, 
+
+{laser,paintball, case,bullet, machine gun, rifle} etc.
+
+  The features of Initial Approach (Algorithm 1) is given below
+
+                  - Frequency Based
+ 
+                  - Accepts only 2 terms
+
+                  - Results also contain only unigrams
+		
+                  - A frequency cutoff is used
+		
+                  - Stop words and web stop words are removed.
 
 =over 4
 
@@ -651,13 +656,6 @@ I<string>.  The array of search terms (Can only be a word).
 B<numResults> 
 
 I<number>.  The number of web pages results to be looked at.
-
-=item *
-
-B<numResults> 
-
-I<number>.  The number of web pages results to be looked at.
-
 
 =item *
 
@@ -678,13 +676,39 @@ B<path_to_data_directory>.
 I<string>.   The location where the file containing the retreived information 
 has to be stored.
 
+=item *
+
+B<html_flag>.
+
+I<bool>. If set to "true" then the results returned by the algorithm is in HTML format. If not "true", the
+results are in plain text format.  
+
 =back
 
 returns : Returns an html or text version of the results.
 
 =head2 __PACKAGE__->Algorithm2(searchTerms,numResults,frequencyCutoff,bigramCutoff,numIterations,scoreType,scoreCutOff,path_to_data_directory, html)
 
-Purpose:Given two or more words, this function tries to find a set of related words. This is the Google-Hack baseline algorithm 1.
+Purpose:Given two or more words, this function tries to find a set of related words. This is the Google-Hack algorithm 2.
+
+   The features of Second Approach (Algorithm 2) is given below
+
+                  - Accepts more than 2 terms
+
+		  - Has 3 relatedness scores
+		
+                  - Accepts unigrams and 2-word collocation as input
+		
+                  - Results also contain 2-word collocations
+		
+                  - A score cutoff is also included along with frequency cutoff
+		
+                  - A bigram cutoff is also included.
+
+                  - Stop words and web stop words are removed.
+
+                  - Stop phrases and web stop phrases are removed.
+
 
 =over 4
 
@@ -736,13 +760,20 @@ B<scoreCutOff>
 
 I<number>. Words and Bigrams with relatedness score greater than the scoreCutOff would be excluded from results.
 
-
 =item *
 
 B<path_to_data_directory>.
 
 I<string>.   The location where the file containing the retreived information 
 has to be stored.
+
+=item *
+
+B<html_flag>.
+
+I<bool>. If set to "true" then the results returned by the algorithm is in HTML format. If not "true", the
+results are in plain text format.  
+
 
 =back
 
@@ -751,6 +782,18 @@ returns : Returns an html or text version of the results.
 =head2 __PACKAGE__->predictWordSentiment(infile,positive_inference,negative_inference,$htmlFlag,$traceFile)
 
 Purpose:Given an file containing text, this function tries to find the positive and negative words.
+The formula used to calculate the sentiment of a word is based on 
+          the PMI-IR formula given in Peter Turney's paper.
+
+              (hits(word AND "excellent") hits (poor))
+
+         log2 ----------------------------------------
+
+              (hits(word AND "poor") hits (excellent))
+
+
+For more information refer the paper, "Thumbs Up or Thumbs Down? Semantic Orientation Applied to Unsupervised Classification of Reviews" By Peter Turney.
+
 
 =over 4
 
@@ -788,8 +831,18 @@ returns : Returns an html or text version of the results.
 
 =head2 __PACKAGE__->predictPhraseSentiment(infile,positive_inference,negative_inference,$htmlFlag,$traceFile)
 
-Purpose:Given an file containing text, this function tries to find the positive and negative phrases. The function
-selects phrases based on the patterns given in the "Thumbs up or Down" paper.
+Purpose:Given an file containing text, this function tries to find the positive and negative phrases. 
+The formula used to calculate the sentiment of a phrase is based on the PMI-IR formula given in Peter Turney's paper.
+
+              (hits(phrase AND "excellent") hits (poor))
+
+         log2 ------------------------------------------
+     
+              (hits(phrase AND "poor") hits (excellent))
+
+For more information refer the paper, "Thumbs Up or Thumbs Down? Semantic Orientation Applied to Unsupervised Classification 
+of Reviews" By Peter Turney.
+
 
 =over 4
 
@@ -835,18 +888,17 @@ Ted Pedersen, E<lt>tpederse@d.umn.eduE<gt>
 
 =head1 SEE ALSO
 
-L<WebService::GoogleHack home page|http://google-hack.sourceforge.net>  
+WebService::GoogleHack home page - http://google-hack.sourceforge.net
 
-L<Pratheepan Raveendranathan|http://www.d.umn.edu/~rave0029/research>
+Pratheepan Raveendranathan - http://www.d.umn.edu/~rave0029/research
 
-L<Ted Pedersen|www.d.umn.edu./~tpederse>
+Ted Pedersen - www.d.umn.edu./~tpederse
 
 Google-Hack Maling List E<lt>google-hack-users@lists.sourceforge.netE<gt>
 
-
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2003 by Pratheepan Raveendranathan, Ted Pedersen
+Copyright (c) 2005 by Pratheepan Raveendranathan, Ted Pedersen
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -1016,7 +1068,7 @@ sub setSafeSearch
 
 }
 
-sub measureSemanticRelatedness
+sub measureSemanticRelatedness1
 {
   my $this = shift;
   my $searchString1=shift;
@@ -1026,7 +1078,39 @@ sub measureSemanticRelatedness
 
  require WebService::GoogleHack::Rate;
 
- $results=WebService::GoogleHack::Rate::measureSemanticRelatedness($this, $searchString1, $searchString2);
+ $results=WebService::GoogleHack::Rate::measureSemanticRelatedness1($this, $searchString1, $searchString2);
+
+ return $results;
+
+}
+
+sub measureSemanticRelatedness2
+{
+  my $this = shift;
+  my $searchString1=shift;
+  my $searchString2=shift;
+
+  print "i am here";
+
+ require WebService::GoogleHack::Rate;
+
+ $results=WebService::GoogleHack::Rate::measureSemanticRelatedness2($this, $searchString1, $searchString2);
+
+ return $results;
+
+}
+
+sub measureSemanticRelatedness3
+{
+  my $this = shift;
+  my $searchString1=shift;
+  my $searchString2=shift;
+
+  print "i am here";
+
+ require WebService::GoogleHack::Rate;
+
+ $results=WebService::GoogleHack::Rate::measureSemanticRelatedness3($this, $searchString1, $searchString2);
 
  return $results;
 
@@ -1980,7 +2064,7 @@ sub getWordsInPage
 	
 	for(my $i=$numSearchTerms;$i< $size;$i++)
 	{
-	   #push(@permutations,$searchStrings[$i]);
+	   push(@permutations,$searchStrings[$i]);
 	   #$searchHash{$searchStrings[$i]}=1;
 
 	    for(my $j=$numSearchTerms;$j< $size;$j++)
@@ -2000,8 +2084,8 @@ sub getWordsInPage
     {
 	for(my $i=0;$i< $size;$i++)
 	{	
-	  #  print "\n Pushing into permutations $searchStrings[$i]";
-	  #  push(@permutations,$searchStrings[$i]);
+	    print "\n Pushing into permutations $searchStrings[$i]";
+	    push(@permutations,$searchStrings[$i]);
 
 	    my @tempTerms = split(/\s+/, $searchStrings[$i]);	
 
@@ -2044,7 +2128,7 @@ sub getWordsInPage
 
 	require WebService::GoogleHack::Search;
 	my $results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $query);
-	print "\n\n\n Query is here $query\n";
+	print "\n\n\n Query is $query\n";
 	$t=$count+1;
 	#saving the url's
 	$global_url.="\n<B>URL Set $t</B>";
@@ -2200,8 +2284,9 @@ for my $word ( keys %matrix ) {
     my $varname="var".$count;
     @$varname=();
     my $k=0;
-
+	print "\n\n Words for Query $word\n\n";
     for my $context ( keys %{ $matrix{$word} } ) {
+
 
 
 	if($bigram >= 1)
@@ -2224,7 +2309,7 @@ for my $word ( keys %matrix ) {
 	
 	if($matrix{$word}{$context} >= $cutOff)
 	{
-	  
+	    print "\n $context, $matrix{$word}{$context} ";
 	    $$varname[$k++]=$context;
 	}
 
@@ -2283,7 +2368,7 @@ for(my $i=0;$i<$count; $i++)
 }
 
 
-sub wordClusterInPage
+sub Algorithm1
 {
     my $searchInfo = shift;
     my $ref_searchStrings = shift;  
@@ -2434,23 +2519,26 @@ sub Algorithm2
     while( ($Key, $Value) = each(%results) ){     
 	$Relatedness="";
   	$tempScore=0;
-
+	
+	print "\n $Key, $results{$Key}";
+	
 	foreach my $term (@searchTerms)
 	{
-	    require WebService::GoogleHack::Rate;	print "\n $term, $Key";
+	    require WebService::GoogleHack::Rate;
+            print "\n $term, $Key";
 	   # $Relatedness = WebService::GoogleHack::Rate::measureSemanticRelatedness($searchInfo,$term,$Key); 
 	    if($scoreType == 1)
 	    {
 		print "\n In score 1";
-		$Relatedness = WebService::GoogleHack::Rate::relatednessScore1($searchInfo,$term,$Key); 
+		$Relatedness = WebService::GoogleHack::Rate::measureSemanticRelatedness1($searchInfo,$term,$Key); 
 	    }
 	    elsif($scoreType == 2)
 	    {
-		$Relatedness = WebService::GoogleHack::Rate::relatednessScore2($searchInfo,$term,$Key); 
+		$Relatedness = WebService::GoogleHack::Rate::measureSemanticRelatedness2($searchInfo,$term,$Key); 
 	    }
 	    else
 	    {
-		$Relatedness = WebService::GoogleHack::Rate::relatednessScore3($searchInfo,$term,$Key); 
+		$Relatedness = WebService::GoogleHack::Rate::measureSemanticRelatedness3($searchInfo,$term,$Key); 
 	    }
 
 	    $tempScore+=$Relatedness;	 
@@ -2526,15 +2614,15 @@ sub Algorithm2
 		#$Relatedness = measureSemanticRelatedness($searchInfo,$term,$Key);   
 		if($scoreType == 1)
 		{
-		    $Relatedness = WebService::GoogleHack::Rate::relatednessScore1($searchInfo,$term,$Key); 
+		    $Relatedness = WebService::GoogleHack::Rate::measureSemanticRelatedness1($searchInfo,$term,$Key); 
 		}
 		elsif($scoreType == 2)
 		{
-		    $Relatedness = WebService::GoogleHack::Rate::relatednessScore2($searchInfo,$term,$Key); 
+		    $Relatedness = WebService::GoogleHack::Rate::measureSemanticRelatedness2($searchInfo,$term,$Key); 
 		}
 		else
 		{
-		    $Relatedness = WebService::GoogleHack::Rate::relatednessScore3($searchInfo,$term,$Key); 
+		    $Relatedness = WebService::GoogleHack::Rate::measureSemanticRelatedness3($searchInfo,$term,$Key); 
 		}
 		
 		$tempScore+=$Relatedness;	 		

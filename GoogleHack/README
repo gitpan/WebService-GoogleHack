@@ -1,172 +1,218 @@
-GoogleHack version 0.08
-=======================
-GoogleHack is a set of Perl modules that does a variety of things.
-The Module GoogleHack.pm acts as the "driver" module for all the sub-modules such as Search, Spelling, Text, and Rate.
+NAME
+    WebService::GoogleHack README
 
-The module:
+VERSION
+    0.1
 
-1) Provides an easy to use interface to the Google API SOAP package. Some 
-basic functionalities include:
+SYNOPSIS
+    GoogleHack is a set of Perl modules that does a variety of text
+    processing using the World Wide Web as a source of information.
 
-* Allow the user to to query Google .
-* Retrive Spelling Suggestions .
-* Retrieve Cached web pages in a readable format (remove HTML tags).
-* Retrieve Number of hits.
-* Retrieve Time Taken for Query.
-* Retrieve snippets (these are small sentences in the web pages of the search 
-results, that actually made google pick it).
-* Retrieve  
+    The module GoogleHack.pm acts as the "driver" module for all the
+    sub-modules such as Search, Spelling, Text, and Rate.
 
+Basic Features
+    * Allow the users to to query Google .
+    * Retrieve Spelling Suggestions .
+    * Retrieve Cached web pages in a readable format.
+    * Retrieve Number of hits.
+    * Retrieve Time Taken for Query.
+    * Retrieve snippets.
 
-2) Provides basic Natural Language Processing features, by using the results 
-retrieved from Google.
+Advanced Features
+    * Find the Pointwise Mututal Information (PMI) measure between two words
 
-* Find the Pointwise Mututal Information measure of two words
-* Given a paragraph find if the paragraph has a positive or negative 
-orientation.
-* Find the frequency counts of words that occur within a proximity of the given search string
-* Retrieve sentences surrounding the search string.
-* Given a word, find a set of words that are associated with it
-* Given two words, find the common intersecting words that occur in the results
-* Given two words finds a set of related words.
+    * Given a paragraph find if the paragraph has a positive or negative
+    semantic orientation.
 
-3) Provides basic text processing capabilities.
-* Remove HTML, XML tags.
-* Make n word sentences given text.
-* Parse word list files and return words as an array.
+    * Given a set of words along with a positively oriented word such as
+    "excellent" and a negatively oriented word such as "poor", predict if
+    the given words are positive or negative in sentiment.
 
-INSTALLATION
--------------
+    * Given a set of phrases along with a positively oriented word such as
+    "excellent" and a negatively oriented word such as "poor", predict if
+    the given words are positive or negative in sentiment.
 
-Make sure to install the entire package.
+    * Given two or more words finds a set of related words.
 
-There are multiple ways to install the modules. 
+IMPLEMENTATION DETAILS
+    GoogleHack is made up of 5 PERL modules:
 
+            1) GoogleHack.pm
 
-1) You can use CPAN.pm to install WebSerivce::GoogleHack. To install the module type the following commands in the Unix command prompt:
+            2) Rate.pm
 
-   perl -MCPAN -e 'install WebSerice::GoogleHack'
+            3) Search.pm
 
+            4) Text.pm
 
-2) Otherwise, :
+            5) Spelling.pm
+        
+  GoogleHack.pm
+    GoogleHack.pm ties together all the functionality of the Rate,
+    Search,Text and Spelling modules. Hence, by just creating an object of
+    type GoogleHack, the user will be able to call all the functions of the
+    other modules. In addition to acting as a single interface to the other
+    modules, GoogleHack.pm also provides the functions to find the set of
+    related words.
 
-   gunzip WebService-GoogleHack-0.06.tar.gz
-   tar -xvf WebService-GoogleHack-0.06
-   cd WebService/GoogleHack/
-   perl Makefile.PL or perl Makefile.PL PREFIX=GIVE PREFERRED PATH HERE
-   make
-   make test
-   make install
+    Google Hack supports two methods for finding sets of related words. These
+    are known as Algorithm 1 and Algorithm 2  
+    (http://search.cpan.org/~prath/WebService-GoogleHack-0.1/GoogleHack/GoogleHack.pm#PACKAGE_METHODS). 
+    These algorithms are implemented in the module GoogleHack.pm. You can see an example program
+    that calls these algorithms here 
+    (http://search.cpan.org/~prath/WebService-GoogleHack-0.1/GoogleHack/Examples/WordCluster.pl)
+    
+  Rate.pm
+    Rate.pm is the sub-module of GoogleHack that implements all the
+    sentiment classification and relatedness measures of GoogleHack.
+    Functions include,
 
-The advantage of Using CPAN to install the module is that it will also install 
-all the other modules required by WebSerivce::GoogleHack.
+            * Predict the semantic orientation of words
+            * Predict the semantic orientation of phrases
+            * Predict the semantic orientaiton of reviews
+            * Measure the semantic relatedness between words
 
-3) To install the web interface please follow the instructions given in 
+    Though the functions in this module can be accessed directly, it is
+    advised to use the GoogleHack module to interact with this module.
 
-WebInterface/CGIReadme.pod
+  Search.pm
+    Search.pm is the sub-module of GoogleHack that implements the feature
+    that interacts with the Google search engine. Though the search
+    functions in this module can be accessed directly, it is advised to use
+    the GoogleHack module to interact with this module.
+
+  Spelling.pm
+    Spelling.pm is the sub-module of GoogleHack that implements the spelling
+    suggestion feature of Google. Though the spelling suggestion functions
+    in this module can be accessed directly, it is advised to use the
+    GoogleHack module to interact with this module.
+
+  Text.pm
+    Text.pm is the sub-module of GoogleHack that implements the text
+    processing functions. Basic features include,
+
+            * Retrieve words from text
+            * Retrieve n-word sentences from text
+            * Remove formatting such as HTML tags from text
+
+    These features are used by some of the other modules of GoogleHack.
 
 DEPENDENCIES
+    This module requires these other modules and libraries:
 
-This module requires these other modules and libraries:
+    To use this package, you need to have a Google API ID, and the
+    GoogleSearch.WSDL File. You can register for this service and download
+    the required materials @ http://www.google.com/apis/
 
-To use this package, you need to have a Google API ID, and the 
-GoogleSearch.WSDL File. You can register for this service and download the 
-required materials @ 
-http://www.google.com/apis/ 
+    Other packages that you will need:
 
-Other packages that you will need:
+    (See INSTALL file more more information on how to install these
+    packages)
 
-1) SOAP::Lite
-2) HTML::TokeParser
-3) Text::English 
-4) LWP
+    * SOAP::Lite
 
-Additional Package if using Sentiment Classification functions:
+    * HTML::TokeParser
 
-1) Brill Tagger
+    * Text::English
 
+    * LWP
+
+    Additional Package if using Sentiment Classification functions:
+
+    * Brill Tagger (This is not a PERL module - See INSTALL file more more
+    information)
 
 DEMONSTRATION
--------------
+    To use the GoogleHack package include the following command at the
+    beginning of your program:
 
-To use the GoogleHack package include the following command at the beginning of  your program:
+    use WebService::GoogleHack;
 
-use WebService::GoogleHack;
+    This command creates a new instance of GoogleHack called "google":
 
-This command creates a new instance of GoogleHack called "search":
+    $google = new WebService::GoogleHack;
 
-$search = new WebService::GoogleHack;
+    $PATHCONFIG="";
 
-This command initializes the "key" and "Google WSDL" file path:
- 
-$search->init( "key","GoogleSearch.wsdl");
-$correction=$search->phraseSpelling("dulut");
-$results=$search->Search("duluth");
+    $PATHREVIEW="";
 
-print $search->{'searchTime'};
-print $search->{'snippet'}->[0];;
+    This command initializes the "key" and "Google WSDL" file path:
 
-$results=$search->measureSemanticRelatedness("knife","cut");
+    $google->initConfig("$PATHCONFIG");
 
-$search->initConfig("config.txt"); # A sample config file can be found in the 
-				   # GoogleHack/Extra directory.
+    $correction=$google->phraseSpelling("dulut");
 
-$search->printConfig();
+    $results=$google->Search("duluth");
 
-$search->predictSemanticOrientation("ggapi/googleapi/review.txt",
-"excellent","bad");
+    print $google->{'searchTime'};
 
+    print $google->{'snippet'}->[0];;
+
+    $results=$google->measureSemanticRelatedness("knife","cut");
+
+    $google->predictSemanticOrientation("$PATHREVIEW","excellent","poor");
+
+    my @terms=();
+
+    push(@terms,"gun");
+
+    push(@terms,"pistol");
+
+    $results=$google->wordClusterInPage(\@terms,10,25,1,"results.txt","true"
+    );
+
+    print "\n Algorithm 1 Results \n$results";
+
+    push(@terms,"machine gun");
+
+    $results=$google->Algorithm2(\@terms,10,15,10,1,1,35,"results.txt","true
+    ");
+
+    print "\n Algorithm 2 Results \n$results";
+
+    $google->predictWordSentiment("$PATHREVIEW","excellent","bad");
+
+    print "\n Word Sentiment Results \n$results";
 
 DOCUMENTATION
--------------
-POD style documentation is included in all modules and scripts
-You can look @ `perldoc GoogleHack` for more information about the specifics 
-of each module. The description of each method in the modules is also given.
+    POD style documentation is included in all modules and scripts You can
+    look @ `perldoc GoogleHack` for more information about the specifics of
+    each module. The description of each method in the modules is also
+    given.
 
 SUPPORT & CREDITS
------------------
-Questions about how to use this library should 
-If you have any questions or suggestions you e mail Pratheepan Raveendranathan 
-(rave0029@d.umn.edu) or Ted Pedersen (tpederse@d.umn.edu).
+    Questions about how to use this library should If you have any questions
+    or suggestions you e mail Pratheepan Raveendranathan
+    (rave0029@d.umn.edu) or Ted Pedersen (tpederse@d.umn.edu).
 
-Design - Ted Pedersen Pratheepan Raveendranathan
+    Design - Ted Pedersen Pratheepan Raveendranathan
 
-Implementation - Pratheepan Raveendranathan
+    Implementation - Pratheepan Raveendranathan
 
-Documentation - Ted Pedersen Pratheepan Raveendranathan
+    Documentation - Ted Pedersen Pratheepan Raveendranathan
 
-You can visit the developers web site @
+    You can visit the developers web site @
 
-Ted Pedersen - http://www.d.umn.edu/~tpederse
-Pratheepan Raveendranathan - http://www.d.umn.edu/~rave0029
-
-
+    Ted Pedersen - http://www.d.umn.edu/~tpederse Pratheepan Raveendranathan
+    - http://www.d.umn.edu/~rave0029
 
 COPYRIGHT AND LICENCE
+    Copyright (c) 2005 by Pratheepan Raveendranathan, Ted Pedersen
 
-Copyright (c) 2003 by Pratheepan Raveendranathan, Ted Pedersen
+    This program is free software; you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by the
+    Free Software Foundation; either version 2 of the License, or (at your
+    option) any later version.
 
-This program is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free Software
-Foundation; either version 2 of the License, or (at your option) any later
-version.
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
 
-This program is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to
 
-You should have received a copy of the GNU General Public License along with
-this program; if not, write to
-
-The Free Software Foundation, Inc.,
-59 Temple Place - Suite 330,
-Boston, MA  02111-1307, USA.
-
-
-
-
-
-
-
-
+    The Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+    MA 02111-1307, USA.
 

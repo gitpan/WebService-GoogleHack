@@ -13,24 +13,20 @@ WebService::GoogleHack::Search - This module is used to query Google.
 
     #Query Google.
     $search->searchPhrase($searchString);
+  
+    #The results variable will now contain the results of your query.
 
+    #Printing the searchtime
 
-    #If required you can set search parameters with following functions:
+    print "\n Search Time".$search->{'searchTime'};
 
-    #$search->setMaxResults($param);
-    #$search->setlr($param);
-    #$search->setoe($param);
-    #$search->setie($param);
-    #$search->setStartPos($param);
-    #$search->setFilter("bool");
-    #$search->setSafeSearch("bool");
-    #$search->setRestrict("bool");
+    #Printing the snippet element 0
+
+    print "\n\nSnippet".$search->{'snippet'}->[0];
 
 =head1 DESCRIPTION
 
-This module provides a simple interface to the Google API. It is used by the GoogleHack driver module.
-
-
+This module provides a simple interface to the Google API. It is used by the GoogleHack module.
 
 =head1 PACKAGE METHODS
 
@@ -136,18 +132,18 @@ Ted Pedersen, E<lt>tpederse@d.umn.eduE<gt>
 
 =head1 SEE ALSO
 
-L<GoogleHack home page|http://google-hack.sourceforge.net>  
+GoogleHack home page - http://google-hack.sourceforge.net
 
-L<Pratheepan Raveendranathan|http://www.d.umn.edu/~rave0029/research>
+Pratheepan Raveendranathan - http://www.d.umn.edu/~rave0029/research
 
-L<Ted Pedersen|www.d.umn.edu./~tpederse>
+Ted Pedersen - www.d.umn.edu./~tpederse
 
 Google-Hack Maling List E<lt>google-hack-users@lists.sourceforge.netE<gt>
 
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2003 by Pratheepan Raveendranathan, Ted Pedersen
+Copyright (c) 2005 by Pratheepan Raveendranathan, Ted Pedersen
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -169,7 +165,7 @@ Boston, MA  02111-1307, USA.
 
 package WebService::GoogleHack::Search;
 
-our $VERSION = '0.09';
+our $VERSION = '0.1';
 use SOAP::Lite;
 
 

@@ -21,7 +21,7 @@ WebService::GoogleHack::Rate - This module implements a simple relatedness measu
 
     my $rate = WebService::GoogleHack::Rate->new(); 
 
-    $results=$rate->measureSemanticRelatedness("dog", "cat");
+    $results=$rate->measureSemanticRelatedness1("dog", "cat");
 
     #The PMI measure is stored in the variable $results, and it can also 
     #be accessed as $rate->{'PMI'};
@@ -75,9 +75,11 @@ I<string>.  This the wsdl file name
 
 =back
 
-=head2 __PACKAGE__->measureSemanticRelatedness(searchString1,searchString2)
+=head2 __PACKAGE__->measureSemanticRelatedness1(searchString1,searchString2)
 
-Purpose: this is function is used to measure the relatedness between two words.
+Purpose: This function is used to measure the relatedness between two words.
+
+Formula used: log(hits(w1)) + log(hits(w2)) - log(hits(w1w2))
 
 Valid arguments are :
 
@@ -97,7 +99,59 @@ I<string>.   The search string which can be a phrase or word
 
 =back
 
-Returns: Returns the object containing the PMI measure.
+Returns: Returns the object containing the relatedness measure.
+
+=head2 __PACKAGE__->measureSemanticRelatedness2(searchString1,searchString2)
+
+Purpose: This function is used to measure the relatedness between two words.
+
+Formula used:  log(w1w2/(w1+w2))
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchString1>
+
+I<string>. The search string which can be a phrase or word
+
+=item *
+
+B<searchString2>
+
+I<string>.   The search string which can be a phrase or word
+
+=back
+
+Returns: Returns the object containing the relatedness measure.
+
+=head2 __PACKAGE__->measureSemanticRelatedness3(searchString1,searchString2)
+
+Purpose: This function is used to measure the relatedness between two words.
+
+Formula used:  log( hits(w1w2) / (hits(w1) * hits(w2)))
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchString1>
+
+I<string>. The search string which can be a phrase or word
+
+=item *
+
+B<searchString2>
+
+I<string>.   The search string which can be a phrase or word
+
+=back
+
+Returns: Returns the object containing the relatedness measure. 
 
 =head2 __PACKAGE__->predictSemanticOrientation(review_file,positive_inference,negative_inference,trace_file)
 
@@ -147,18 +201,18 @@ Ted Pedersen, E<lt>tpederse@d.umn.eduE<gt>
 
 =head1 SEE ALSO
 
-L<WebService::GoogleHack home page|http://google-hack.sourceforge.net>  
+WebService::GoogleHack home page - http://google-hack.sourceforge.net
 
-L<Pratheepan Raveendranathan|http://www.d.umn.edu/~rave0029/research>
+Pratheepan Raveendranathan - http://www.d.umn.edu/~rave0029/research
 
-L<Ted Pedersen|www.d.umn.edu./~tpederse>
+Ted Pedersen - www.d.umn.edu./~tpederse
 
 Google-Hack Maling List E<lt>google-hack-users@lists.sourceforge.netE<gt>
 
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2003 by Pratheepan Raveendranathan, Ted Pedersen
+Copyright (c) 2005 by Pratheepan Raveendranathan, Ted Pedersen
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -181,7 +235,7 @@ Boston, MA  02111-1307, USA.
 
 package WebService::GoogleHack::Rate;
 
-our $VERSION = '0.09';
+our $VERSION = '0.1';
 
 use strict;
 
@@ -211,7 +265,7 @@ sub init
     
 }
 
-sub measureSemanticRelatedness
+sub measureSemanticRelatedness3
 {
 #log( hits(w1w2) / (hits(w1) * hits(w2)))
     my $searchInfo = shift;
@@ -251,7 +305,7 @@ sub measureSemanticRelatedness
 
 } 
  
-sub relatednessScore2
+sub measureSemanticRelatedness2
 {
 
 #   log(w1w2/(w1+w2))
@@ -295,9 +349,9 @@ sub relatednessScore2
 
 } 
 
-sub relatednessScore1
+sub measureSemanticRelatedness1
 {
-# log(hits(w1)) + log(hits(w2)) - log(hits(w1w2))
+# log(hits(w1)) + log(hits(w2)) - log(2 * hits(w1w2))
     my $searchInfo = shift;
     my $searchString=shift;
  #   my $searchString2=shift; 
@@ -332,7 +386,7 @@ sub relatednessScore1
 	$w2=log($results1->{NumResults})/log(2);
     }
 
-   $score=$w1 + $w2 - $w1w2; 
+   $score=$w1 + $w2 - (2 * $w1w2); 
    $score=sprintf("%.4f",$score);
 
     return $score;

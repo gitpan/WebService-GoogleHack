@@ -1,11 +1,11 @@
-WebService::GoogleHack Version 0.08
+WebService::GoogleHack Version 0.1
 
 WebService::GoogleHack Installation Guide
 
 Requirements:
 =============
 
-1) Perl Version 5.8  or better Required for Evaluador.
+1) Perl Version 5.8  or better Required for WebService::GoogleHack.
 
    You can check the version of Perl you have by issuing the following command.
 
@@ -27,8 +27,8 @@ Requirements:
    HTML::LinkExtor;
    Data::Dumper;
 
-   Brill Tagger Installation Instructions
-   ======================================
+   Brill Tagger Installation Instructions (Required only For Sentiment Classification)
+   ===================================================================================
 
    Download the Brill Tagger Installation file from 
 
@@ -105,9 +105,9 @@ all the other modules required by WebSerivce::GoogleHack.
 
    2.1) Unzip and untar the GoogleHack installation files.
 
-   COMMAND: gunzip WebService-GoogleHack-0.06.tar.gz
+   COMMAND: gunzip WebService-GoogleHack-0.1.tar.gz
 
-   COMMAND: tar -xvf WebService-GoogleHack-0.06
+   COMMAND: tar -xvf WebService-GoogleHack-0.1
 
    2.2) Next, CD into the untarred GoogleHack directory.
 
@@ -176,17 +176,6 @@ all the other modules required by WebSerivce::GoogleHack.
 4) To install the web interface please follow the instructions given in 
 
 WebInterface/CGIReadme.pod
-
-PREREQUISITES
--------------
-SOAP::Lite
-Text::English 
-HTML::TokeParser
-LWP
-
-
-
-
 
 
 

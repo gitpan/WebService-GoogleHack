@@ -38,18 +38,17 @@ Ted Pedersen, E<lt>tpederse@d.umn.eduE<gt>
 
 =head1 SEE ALSO
 
-L<GoogleHack home page|http://google-hack.sourceforge.net>
+WebService::GoogleHack home page - http://google-hack.sourceforge.net
 
-L<Pratheepan Raveendranathan|http://www.d.umn.edu/~rave0029/research>
+Pratheepan Raveendranathan - http://www.d.umn.edu/~rave0029/research
 
-L<Ted Pedersen|www.d.umn.edu./~tpederse>
+Ted Pedersen - www.d.umn.edu./~tpederse
 
 Google-Hack Maling List E<lt>google-hack-users@lists.sourceforge.netE<gt>
 
-
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (c) 2003 by Pratheepan Raveendranathan, Ted Pedersen
+Copyright (c) 2005 by Pratheepan Raveendranathan, Ted Pedersen
 
 This program is free software; you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
@@ -127,14 +126,9 @@ $google->printConfig();
 push(@terms,"rachel");
 push(@terms,"ross");
 
-$results=$google->wordClusterInPage(\@terms,10,25,1,"results.txt","true");
+$results=$google->Algorithm1(\@terms,10,25,1,"results.txt","true");
 
-
-$measure=$google->measureSemanticRelatedness("bush","president");
-
-print "\nRelatedness measure $measure";
-
-
+print "\n $results";
 
 
 
