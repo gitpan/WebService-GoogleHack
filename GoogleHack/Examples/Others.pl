@@ -158,10 +158,13 @@ $google->getCachedSurroundingWords("duluth", "test2.txt");
 $google->getSearchCommonWords("knife", "scissors");
 
 
-#$search->getSearchCommonWords("toyota", "ford",10,"result.txt");
-#$search->getPairWordClusters("toyota", "ford",10,1,"result1.txt");
-#$search->getText("duluth","/home/vold/47/rave0029/Data/");
+$search->getSearchCommonWords("toyota", "ford",10,"result.txt");
 
+$search->getPairWordClusters("toyota", "ford",10,1,"result1.txt");
+
+$search->getText("duluth","/home/vold/47/rave0029/Data/");
+
+$results=$search->wordClusterInPage(\@terms,10,25,1,"results.txt","true");
 
 
 

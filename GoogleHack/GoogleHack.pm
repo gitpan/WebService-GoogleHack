@@ -63,12 +63,18 @@ it under the same terms as Perl itself.
 
 package WebService::GoogleHack;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use SOAP::Lite;
 use Set::Scalar;
 use Text::English;
 use LWP::Simple;
+use URI::URL;
+use LWP::UserAgent;
+use HTML::LinkExtor;
+use Data::Dumper;
+
+my $global_url="";
 
 =head1 PACKAGE METHODS
 
@@ -105,7 +111,7 @@ $this->{'PMIMeasure'}=undef;
 $this->{'prediction'}=undef;
 $this-> {'maxResults'} =10;
 $this-> {'StartPos'} =0;
-$this-> {'Filter'} =false;
+$this-> {'Filter'} ="false";
 $this-> {'Restrict'} ="";
 $this-> {'safeSearch'} ="false";
 $this-> {'lr'} ="";
@@ -480,12 +486,12 @@ sub measureSemanticRelatedness
 
  $results=WebService::GoogleHack::Rate::measureSemanticRelatedness($this, $searchString1, $searchString2);
 
-  print "\nRelatedness is ";
-
-#  print $results->{'PMI'};
+  #print "\nRelatedness is ";
+  #print "here $searchString1 , $searchString2";
+  #print $results->{'PMI'};
 #  print "\n\n";
 
- return $this;
+ return $results;
 
 }
 
@@ -782,12 +788,14 @@ sub getSearchSnippetWords
     my  $proximity = shift;
     require WebService::GoogleHack::Search;
 
-    $results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString,$numResults);
-
+  
     if(!defined($numResults))
     {
 	$numResults=10;
     }
+
+  $results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString,$numResults);
+
 
     @strings=();
     $count=0;
@@ -1154,7 +1162,7 @@ sub getSearchCommonWords
 
     if(!defined($stemmer))
     {
-	$stemmer=false;
+	$stemmer="false";
     }
 
  #   print $trace_file;
@@ -1217,6 +1225,7 @@ if($results2->{'snippet'}->[$count] ne "")
 while( ($Key, $Value) = each(%results_final1) ){
 
     $temp_string=""; 
+    $Key=~s/[\,\\\/\:\(\)\[\]\{\}\_\-\?]//g;
 
 if($stemmer eq "true")
 {
@@ -1342,11 +1351,12 @@ if($trace_file ne "")
 
 
 return %sequence_occs;
+#return $fileContent;
 
 }
 
 
-=head2 __PACKAGE__->getWordClusters(\%args)
+=head2 __PACKAGE__->getWordClustersInSnippets(\%args)
 
   Purpose:Given a search string, this function retreive the top frequency words
 , and does a search on those words, and builds a list of words that can be 
@@ -1382,7 +1392,7 @@ key being the web URL.
 
 =cut
 
-sub getWordClusters
+sub getWordClustersInSnippets
 {
     my  $searchInfo = shift;
     my $searchString=shift;
@@ -1437,7 +1447,7 @@ while( ($Key, $Value) = each(%stop_list) ){
 }
 
 
-=head2 __PACKAGE__->getPairWordClusters(\%args)
+=head2 __PACKAGE__->getClustersInSnippets(\%args)
 
   Purpose:Given two search strings, this function retreive the snippets for 
 each string, and then finds the intersection of words, and then repeats the 
@@ -1481,7 +1491,7 @@ returns : Returns a hash which contains the intersecting words as keys and the
 
 =cut
 
-sub getPairWordClusters
+sub getClustersInSnippets
 {
 
 # the google-hack object containing the searchInfo
@@ -1520,10 +1530,11 @@ $searchString1, $searchString2, $numResults,$trace_file);
     #we need to use this since we are using Set::Scalar to find the intersection of words
 
     while( ($Key, $Value) = each(%first_intersection) ){
-if($Key ne "")
-{
-    $intersection[$count++]= "$Key";
-}
+	$Key=~s/[\,\\\/\:\(\)\[\]\{\}\_\-\?]//g;
+	if($Key ne "")
+	{
+	    $intersection[$count++]= "$Key";
+	}
 	
     }
     
@@ -1541,7 +1552,7 @@ if($Key ne "")
 	#arrays would array0.array1 etc etc.
 
 	$varname="array$i";
-	#print "\n Array name is $varname\n";
+
 	#initializing the new array
 
 	@$varname=();
@@ -1573,10 +1584,6 @@ if($Key ne "")
 	$s = Set::Scalar->new;
 	$s = Set::Scalar->new(@$varname);
  
-#	print $s, "\n";
-	#now, i am going to check array0 against array1,2,3,4...
-	# in the next loop i am going to check array1 against array2,3,4...etc
-
 	for($j=$i + 1; $j < $count; $j++)
 	{	
 	    $tempvarname="array$j";
@@ -1591,12 +1598,8 @@ if($Key ne "")
 	    {
 		$temp_string="";
 		$temp_string=$e;
-		
-	#	if($e eq "car")
-#{
- #   print "\n\n\n Here ";
- #   print $cluster{"$temp_string"};
-#}
+
+
 		$cluster{"$temp_string"}++ if exists $cluster{"$temp_string"};
 		
 #else if the sequence does not in the array, then insert it into the array
@@ -1635,7 +1638,7 @@ $extended_fileContent="\n\n Extended Cluster for $searchString1 & $searchString2
 
 while( ($Key, $Value) = each(%cluster) ){
     
-    if($cluster{"$Key"} > $cutOff)    
+    if($cluster{"$Key"} >= $cutOff)    
 {
     $fileContent.="\n$Key, $Value";
 }
@@ -1669,7 +1672,7 @@ if($trace_file ne "")
 }
 
 
-    return %cluster;
+    return $fileContent;
     
 }
 
@@ -1758,7 +1761,7 @@ $date=$Month."-".$Day."-".$Year;
 	    @stem = Text::English::stem( "$searchString" );
 	    $file_name=  $path_to_write.$stem[0].".txt";
 	    
-	    print $webPaget;
+	    #print $webPaget;
        	    $temp="\n\nURL: $url, Date Retrieved:  $date\n\n";
 	    $temp=$temp.$webPaget;
     
@@ -1773,6 +1776,7 @@ $date=$Month."-".$Day."-".$Year;
 	}
     }
     
+return $temp;
     
 }
 
@@ -1816,6 +1820,371 @@ $date=$Month."-".$Day."-".$Year." @ ".$Hour.":".$Minute.":".$Second;
 
 return $date;
 
+}
+
+=head2 __PACKAGE__->getWordsInPage(\%args)
+
+  Purpose:Given a search string, this function will retreive the resulting 
+URLs from Google, it will then follow those links, and retrieve the text from there.  
+Once all the text is collected, the function finds the intersecting or co-occurring words
+between the top N results. This function is basically used by the function wordClusterInPage.
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchString> 
+
+I<string>.  The search string which can be a word or phrase.
+
+=item *
+
+B<iterations> 
+
+I<number>.  The number of iterations that you want the function to search and 
+build cluster on.
+
+=item *
+
+B<path_to_data_directory>.
+
+I<string>.   The location where the file containing the retrived information 
+has to be stored.
+
+=back
+
+returns : Returns nothing.
+
+=cut
+
+sub getWordsInPage
+{
+
+
+
+    my  $searchInfo = shift;# the google-hack object containing the searchInfo
+    my  $ref_searchStrings = shift;  #the search strings
+    my  $numResults=shift; # the number of results to look at
+    my  $cutOff=shift; #the cutoff -- remnove words which occur less than cutoff
+    my  $trace_file=shift;  #output to tracefile
+
+
+    #retrieving words in the stop list
+  
+
+    # setting default numresults and cut off 
+
+    if(!defined($numResults))
+    {
+	$numResults=10;
+    }
+    if(!defined($cutOff))
+    {
+	$cutOff=5;
+    }
+
+    #array of searchstrings
+
+    my @searchStrings=@{$ref_searchStrings};
+    my $size=$#searchStrings +1;
+    my @permutations=();
+    my @fileContent=();
+
+     # for the number of searchstrings
+     # creating all the permutations of the words
+     # the thing abt google is that "toyota and ford" doesnt give the same results as "ford and toyota".
+
+    for(my $i=0;$i< $size;$i++)
+     {
+	
+	 for(my $j=0;$j< $size;$j++)
+	 {
+	     if($i != $j)
+	     { 
+		 my $string=$searchStrings[$i]." AND ".$searchStrings[$j];
+#		 my $string="\"".$searchStrings[$i]." * ".$searchStrings[$j]."\"";
+		 push(@permutations,$string);
+	     }
+	 }
+     }
+
+    my $count=0;
+    foreach my $query (@permutations)
+    {
+
+	#doing the actual search
+
+	require WebService::GoogleHack::Search;
+	my $results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $query);
+#	print "\n\n\n Query is $query\n";
+	$t=$count+1;
+	#saving the url's
+	$global_url.="\n<B>URL Set $t</B>";
+	
+
+	# now for each url, I am going through the urls in the url.
+
+	for(my $i=0; $i< $numResults ; $i++)
+	{
+ 	    if(($results->{'url'}->[$i]) ne "")
+	    {
+	
+	 	my $url = $results->{'url'}->[$i];  # for instance 
+
+	#	print "\n\n$i, $url:";
+		my $ua = LWP::UserAgent->new; 
+		my @links = ();
+
+		sub callback {
+		    my($tag, %attr) = @_;
+		    return if $tag ne 'a';  # we only look closer at <img ...>
+		    push(@links, values %attr);
+		}
+
+		my $p = HTML::LinkExtor->new(\&callback); 
+		# Request document and parse it as it arrives
+		my $res = $ua->request(HTTP::Request->new(GET => $url),
+				    sub {$p->parse($_[0])});  
+		# Expand all image URLs to absolute ones
+		my $base = $res->base;
+		@links = map { $_ = url($_, $base)->abs; } @links; 
+		push(@links,$url);
+		
+		#for each link in a url
+ 		foreach my $webPage (@links)
+		{		  
+		    my $content=LWP::Simple::get("$webPage");
+		    $global_url.="\n<br><a href=\'$webPage\'>$webPage</a>";
+		    my $cachedPage=WebService::GoogleHack::Text::parseWebpage($content);	
+		    $cachedPage=lc($cachedPage);
+		    $fileContent[$count].="\n\n$cachedPage";
+ 		}
+            }
+	}
+	
+	$global_url.="\n\n<br>";
+
+$count++;
+    }
+
+  %stop_list=WebService::GoogleHack::Text::getWords("$searchInfo->{'stop_list'}");
+
+%matrix=();
+$count=0;
+
+# the array filecontent now has the text from each url and its subset of urls.
+
+foreach $context (@fileContent)
+{
+   
+    my @words=();
+    @words = split(/\s+|\,|\?|\./, $context);	
+    
+    foreach my $word (@words)
+    {
+	#$word=~s/[\"!;:\'\`\{\(\}\)\[\]\s\=\+\-\/0-9\|\&\$%]//g;
+	$word=~s/[^\w]//g;
+	if($word ne "")
+	{
+	  
+	    if (!exists $stop_list{"$word"})
+	    {  
+	    $matrix{"$permutations[$count]"}->{"$word"}++ if exists $matrix{"$permutations[$count]"}->{"$word"};
+	    
+	    $matrix{"$permutations[$count]"}->{"$word"}=1 if !exists $matrix{"$permutations[$count]"}->{"$word"};
+	}
+	}
+	
+	
+	
+    }
+    
+    $count++;
+}
+
+$count=0;
+
+
+#removing words below cutff
+
+for my $word ( keys %matrix ) {
+    
+    my $varname="var".$count;
+    @$varname=();
+    my $k=0;
+
+    for my $context ( keys %{ $matrix{$word} } ) {
+	
+	if($matrix{$word}{$context} >= $cutOff)
+	{
+	    $$varname[$k++]=$context;
+
+	}
+
+    }
+    $count++;
+}
+
+
+%cluster=();
+
+
+#finding the intersection
+ %stop_list=WebService::GoogleHack::Text::getWords("$searchInfo->{'stop_list'}");
+
+for(my $i=0;$i<$count; $i++)
+{
+	$varname="var$i";
+	
+	#initializing the variable $s to the base array. 
+	$s = Set::Scalar->new;
+	$s = Set::Scalar->new(@$varname);
+ 
+	for($j=$i + 1; $j < $count; $j++)
+	{	
+	    $tempvarname="var$j";
+	    $temp = Set::Scalar->new;
+	    $temp = Set::Scalar->new(@$tempvarname);
+	    
+	    $size = $temp->size; #
+
+	    $tempIntersect=  $temp * $s;
+
+	    while (defined(my $e = $tempIntersect->each))
+	    {
+		$temp_string="";
+		$temp_string=$e;
+	  if (!exists $stop_list{"$temp_string"})
+	    { 
+		$cluster{"$temp_string"}++ if exists $cluster{"$temp_string"};
+		
+#else if the sequence does not in the array, then insert it into the array
+		
+		$cluster{"$temp_string"}=1 if !exists $cluster{"$temp_string"};		       
+	    }
+
+	    }
+	}
+   
+}
+
+
+
+
+    return %cluster;
+    
+}
+
+
+=head2 __PACKAGE__->wordClusterInPage(\%args)
+
+  Purpose:Given two or more words, this function tries to find a se to related words.
+
+=over 4
+
+=item *
+
+B<searchString> 
+
+I<string>.  The search string which can be a word or phrase.
+
+=item *
+
+B<iterations> 
+
+I<number>.  The number of iterations that you want the function to search and 
+build cluster on.
+
+=item *
+
+B<path_to_data_directory>.
+
+I<string>.   The location where the file containing the retrived information 
+has to be stored.
+
+=back
+
+returns : Returns nothing.
+
+=cut
+
+sub wordClusterInPage
+{
+    my  $searchInfo = shift;
+    my  $ref_searchStrings = shift;  
+    my  $numResults=shift;
+    my  $cutOff=shift;
+    my  $iterations=shift;
+    my  $trace_file=shift;
+    my  $html=shift;
+
+    %results=WebService::GoogleHack::getWordsInPage($searchInfo, $ref_searchStrings, $numResults,$cutOff,$trace_file);
+
+
+    my $htmlContent="";
+    my $fileContent="";
+
+    $htmlContent.="<TABLE><TR><TD> <B> Result Set 1 </B> </TD></TR>";
+    $fileContent="\n Result Set 1 \n";
+
+    while( ($Key, $Value) = each(%results) ){     
+	$htmlContent.="<TR><TD>$Key</TD></TR>";   	
+	$fileContent.="\n $Key";   
+	$cluster{"$Key"}=$results{"$Key"};
+    }
+    
+    $htmlContent.="\n</TABLE>\n";
+    $fileContent.="\n ";
+
+    for(my $i=1; $i < $iterations; $i++)
+    {
+	@searchStrings=();
+	
+    
+	for my $word ( keys %cluster) {
+	   
+	    push(@searchStrings,$word);
+	}
+
+
+	%cluster=();
+	%cluster=WebService::GoogleHack::getWordsInPage($this, \@searchStrings, $numResults,$cutOff,$trace_file);
+
+	my $k=$i+1;
+	$htmlContent.="\n<br><TABLE><TR><TD> <B> Result Set $k </B> </TD></TR>";
+	$fileContent.="\n Result Set $k \n";
+
+	while( ($Key, $Value) = each(%cluster) ){     
+             $htmlContent.="\n<TR><TD>$Key</TD></TR>";
+	     $fileContent.="\n$Key";
+	    $results{"$Key"}=$cluster{"$Key"}  if !exists $results{"$Key"};;
+	}	
+
+        $htmlContent.="\n\n</TABLE><BR><BR>";  
+	$fileContent.="\n\n";
+	
+    }
+
+    $htmlContent.=$global_url;  
+    $fileContent.=$global_url;
+
+    if($trace_file ne "")
+    {
+	open(DAT,">$trace_file") || die("Cannot Open $trace_file to write");
+	print DAT $fileContent;	
+	close(DAT);      
+    }
+
+    
+    if($html eq "true")
+    {
+	return $htmlContent;
+    }
+    else
+    {
+	return $fileContent;
+    }
 }
 
 1;

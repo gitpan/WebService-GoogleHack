@@ -76,7 +76,7 @@ it under the same terms as Perl itself.
 package WebService::GoogleHack::Text;
 
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 =head1 PACKAGE METHODS
 
@@ -372,7 +372,6 @@ while( ($Key, $Value) = each(%sequence_occs) ){
    $count++;
 }
 
-
 return @semantic_strings;
 
 }
@@ -479,6 +478,7 @@ while (my $token = $parser->get_token) {
 
 }
 
+$content=~s/[\n\t]//g;
 
 return $content;
 
@@ -808,7 +808,7 @@ sub getSnippetSentences
 	    print "\n Number of sentences is $num_sentences \n\n";
 	    for($x=0;$x < $num_sentences; $x++)
 	    {
-		print "in here";
+		#print "in here";
 	
 		$sentences[$count]=$temp[$x];  
 	print $sentences[$count];	
@@ -961,7 +961,6 @@ sub getCachedSentences
 
 sub parseWebpage
 {
-    print "\n\n\n\n\n\n\n\n\here";
  my $webpage=shift;
 
 
@@ -984,7 +983,7 @@ while ($token = $parser->get_token) {
  $content=~ s/(#p#)^(#p#)/\n/g; 
  $content=~ s/(#p#)+/ /g;
  #$content=~ s/(\n\n)+//g;
-
+ $content=~ s/[\t]/ /g;
     return $content;
 
 }

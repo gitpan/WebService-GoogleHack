@@ -91,7 +91,7 @@ it under the same terms as Perl itself.
 
 package WebService::GoogleHack::Rate;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use SOAP::Lite;
 
@@ -197,42 +197,26 @@ sub measureSemanticRelatedness
     my $searchString=shift;
  #   my $searchString2=shift; 
     my $context=shift;
-    $temp_string1=$searchString." AND ".$context;    
+    $temp_string1="\"".$searchString." AND ".$context."\"";    
   #  $temp_string2=$searchString2." AND ".$context; 
    
     require WebService::GoogleHack::Search;
     
     $results1=WebService::GoogleHack::Search::searchPhrase($searchInfo, $searchString);
+   $result_counte=$results1->{NumResults}; 
+
     $results3=WebService::GoogleHack::Search::searchPhrase($searchInfo, $temp_string1);
+
+ $result_count1=$results3->{NumResults};
+
     $results5=WebService::GoogleHack::Search::searchPhrase($searchInfo, $context);
 
-
-    $result_counte=$results1->{NumResults};    
-    $result_count1=$results3->{NumResults};
-    $result_counti=$results5->{NumResults};
-
-    
-    if($result1 eq 0)
-    {
-	$result_count1=1;
-    }
-    
-    if($result_counte eq 0)
-    {
-	$result_counte=1;
-    }
-    
-    if($result_counti eq 0)
-    {
-	$result_counti=1;
-    }
-    
-    $this->{'PMI'}=log(($result_count1) / ($result_counte * $result_counti));
-
-    
-
-
-    return $this->{'PMI'};
+$result_counti=$results5->{NumResults};
+       
+    $pmi=log(($result_count1) / ($result_counte * $result_counti));
+    $pmi=sprintf("%.4f",$pmi);
+    #print "here rate pmi $pmi $result_count1,$result_counte,$result_counti";
+    return $pmi;
 
 } 
  
@@ -280,8 +264,7 @@ Returns : the PMI measure and the prediction which is 0 or 1.
 
 sub predictSemanticOrientation
 {
-    #$this=shift;
-    
+    #$this=shift;    
     my  $searchInfo = shift;
     my  $review_file=shift;
     my $positive_inference=shift;
@@ -301,9 +284,7 @@ sub predictSemanticOrientation
 
 
     @semantic_strings=WebService::GoogleHack::Text::getSentences($review_file,3,"false");
-    
-
-
+  
     $count=0;
     $temp_words=();
     $strings_count=@semantic_strings;
@@ -312,6 +293,8 @@ sub predictSemanticOrientation
     
     
     $check_string=();
+
+
     
     print "\n\n Making Phrases ";
   
@@ -320,8 +303,10 @@ sub predictSemanticOrientation
 
 	while($count < $strings_count)
 	{
-	    @temp_words = split(/ +/, "$semantic_strings[$count]");
+	    @temp_words = split(/\s+/, "$semantic_strings[$count]");
 	    $t= $#temp_words;
+
+	 
 	    
 #	    print "$count";
 	    
@@ -430,9 +415,16 @@ sub predictSemanticOrientation
 
     require WebService::GoogleHack::Search;
 
-    $results_positive=WebService::GoogleHack::Search::searchPhrase($searchInfo, $positive_inference);
-    $results_negative=WebService::GoogleHack::Search::searchPhrase($searchInfo, $negative_inference);
+    $rs_neg=0;
+    $rs_pos=0;
 
+    $results_positive=WebService::GoogleHack::Search::searchPhrase($searchInfo, $positive_inference,10);
+
+    $rs_pos=$results_positive->{NumResults};
+
+    $results_negative=WebService::GoogleHack::Search::searchPhrase($searchInfo, $negative_inference,10);
+
+    $rs_neg=$results_negative->{NumResults};
 
     $k=0;
     $write_file="";
@@ -440,27 +432,49 @@ sub predictSemanticOrientation
     
     if($trace_file)
     {
-	$write_file=" Querying Google \n\n"."Count of $positive_inference: ".$results_positive->{NumResults}. "\n Count of $negative_inference: ".$results_negative->{NumResults};
+	$write_file=" Querying Google \n\n"."Count of $positive_inference: ". $rs_pos . "\n Count of $negative_inference: ".$rs_neg;
     }
     
   #  print "\n so count is $so_count";
+    my $rs_query1=0;
+    my $rs_query2=0;
+   
+    $write_file.="\n Phrases Extracted\n\n";
 
 while($k< $so_count)
 {
+    $write_file.="\n".$so_strings[$k]." AND $positive_inference"."\n";
+    $write_file.="\n".$so_strings[$k]." AND $negative_inference"."\n";
+    $k++;
+}
+
+$k=0;
+
+while($k< $so_count)
+{
+
+
 $query1= $so_strings[$k]." AND $positive_inference";
+
 $query2= $so_strings[$k]." AND $negative_inference";
 
+
+
 $results_query1=WebService::GoogleHack::Search::searchPhrase($searchInfo,$query1);
+
+$rs_query1=$results_query1->{NumResults};
+
 $results_query2=WebService::GoogleHack::Search::searchPhrase($searchInfo,$query2);
+$rs_query2=$results_query2->{NumResults};
 
 if($trace_file)
 {
     $write_file=$write_file. "\n===============================================\n";
-    $write_file=$write_file."\n"."\nNumber of Results \"$query1\" is  ". $results_query1->{NumResults}."\n\n";
+    $write_file=$write_file."\n"."\nNumber of Results \"$query1\" is  ".$rs_query1."\n\n";
 }
 
-$num=  $results_query1->{NumResults} * $results_negative->{NumResults};
-$den=  $results_query2->{NumResults} * $results_positive->{NumResults} +0.01;
+$num=  $rs_query1 * $rs_neg;
+$den=  $rs_query2- * $rs_pos +0.01;
 
 if($num == 0)
 {
@@ -474,14 +488,10 @@ else
 
 if($trace_file)
 {
-    $write_file=$write_file."\n"."\nNumber of Results \"$query2\"s  ". $results_query2->{NumResults}."\n"."\n\nThe semantic orientation is $semantic_orientation[$k]\n\n";
+    $write_file=$write_file."\n"."\nNumber of Results \"$query2\"s  ".$rs_query2."\n"."\n\nThe semantic orientation is $semantic_orientation[$k]\n\n";
 }
 
 $k++;
-
-
-sleep(5);
-
 
 }
 

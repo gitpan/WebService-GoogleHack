@@ -1,18 +1,18 @@
 GoogleHack
 
-adjectives_list			::../Datafiles/adjectives_list.txt      
+adjectives_list			::/home/vold/47/rave0029/WebService/GoogleHack/Datafiles/adjectives_list.txt      
      # Give path to List of Adjectives
 
-verbs_list::../Datafiles/verbs_list.txt		    # Give path to List of Verbs
+verbs_list::/home/vold/47/rave0029/WebService/GoogleHack/Datafiles/verbs_list.txt		    # Give path to List of Verbs
 
-nouns_list::../Datafiles/nouns_list.txt		    # Give path to List of Nouns
+nouns_list::/home/vold/47/rave0029/WebService/GoogleHack/Datafiles/nouns_list.txt		    # Give path to List of Nouns
 
-stop_list::../Datafiles/smartstop.txt			    #Give path to List of 
+stop_list::/home/vold/47/rave0029/WebService/GoogleHack/Datafiles/smartstop.txt			    #Give path to List of 
 stop words
 
-adverbs_list::../Datafiles/adverbs_list.txt		    # Give path to List of 
+adverbs_list::/home/vold/47/rave0029/WebService/GoogleHack/Datafiles/adverbs_list.txt		    # Give path to List of 
 Adverbs
 
-key::ImbjULt0W3FuwYXOEM+AhN3/TWIRIwkg  	#give key to google access
+key::  	#give key to google access
 
 wsdl::/home/cs/rave0029/ggapi/googleapi/GoogleSearch.wsdl	#give path to wsdl file
