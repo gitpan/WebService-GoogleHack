@@ -1,41 +1,41 @@
 #!/usr/local/bin/perl
-=head1 NAME Spelling - This is a perl program that gives the example use of 
+=head1 NAME 
+
+Spelling - This is a perl program that gives the example use of 
 the Google-Hack function to retrieve a spelling suggestion.
 
 
 =head1 SYNOPSIS
+	
+	#include GoogleHack, so that it can be used
 
-use WebService::GoogleHack;
+	use WebService::GoogleHack;
 
-#Set your GoogleAPI Key
+	#Change this variable if you are running this program from a directory
+	#Other than WebService/GoogleHack/Example/
 
-$key="";
+	$PATHCONFIGFILE="../Datafiles/initconfig.txt";
 
-#Give the Entire location of your WSDL file
+	#Create an Object of type WebService::GoogleHack
 
-#eg "/dirname/dirname/GoogleSearch.wsdl"
-
-$wsdl="";
-
-#Create an Object of type WebService::GoogleHack
-
-$google = new WebService::GoogleHack;
+	$google = new WebService::GoogleHack;
  
-#Initialize WebService::GoogleHack object to the key and WSDL config file path.
+	#Initialize WebService::GoogleHack object to the key and WSDL 
+        #config file path through config file.
 
-$google->init( "$key","$wsdl");
+	 $google->initConfig("$PATHCONFIGFILE");
 
-#Issuing a search request to the spelling suggestion function
-#Retrieve a spelling suggestion for the search String "dulut"
+	#Issuing a search request to the spelling suggestion function
+	#Retrieve a spelling suggestion for the search String "dulut"
 
-$correction=$google->phraseSpelling("dulut");
+	$correction=$google->phraseSpelling("dulut");
 
-#If the string is "No Spelling Suggested", that means there was no spelling 
-#suggestions from Google.
+	#If the string is "No Spelling Suggested", that means there was no spelling 
+	#suggestions from Google.
 
-#I am just printing the suggested spelling
+	#I am just printing the suggested spelling
 
-print "\n\n The suggested spelling for dulut is : $correction\n\n";
+	print "\n\n The suggested spelling for dulut is : $correction\n\n";
 
 =head1 DESCRIPTION
 
@@ -53,7 +53,9 @@ Ted Pedersen, E<lt>tpederse@d.umn.eduE<gt>
 =head1 SEE ALSO
 
 L<GoogleHack home page|http://google-hack.sourceforge.net>
+
 L<Pratheepan Raveendranathan|http://www.d.umn.edu/~rave0029/research>
+
 L<Ted Pedersen|www.d.umn.edu./~tpederse>
 
 Google-Hack Maling List E<lt>google-hack-users@lists.sourceforge.netE<gt>
@@ -79,49 +81,25 @@ The Free Software Foundation, Inc.,
 59 Temple Place - Suite 330,
 Boston, MA  02111-1307, USA.
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
-
 =cut
-
-
-
-#Make sure to give path to the perl library if it is a local installation
-
-use lib "";
-
-
-###############################################################
-
 
 #include GoogleHack, so that it can be used
 
 use WebService::GoogleHack;
 
-#######################################################################
-# Your Google=hack key should go here
-# This is only if you intend to use the function init("$key","$wsdl")
-# Not when to using the initConfig file
-#######################################################################
-$key="";
+#Change this variable if you are running this program from a directory
+#Other than WebService/GoogleHack/Example/
+         
+$PATHCONFIGFILE="../Datafiles/initconfig.txt";
 
-
-
-#######################################################################
-# The path to the WSDL file should go here
-# eg: /home/dirname/GoogleSearch.wsdl
-#######################################################################
-
-$wsdl="";
-
-#create an instance of GoogleHack called "Search".
+#create an instance of GoogleHack called "google".
 
 $google = new WebService::GoogleHack;
 
-# initialize GoogleHack to the key and WSDL file path.
+#initialize the object to required parameters by giving path to config
+#file.
 
-$google->init( "$key","$wsdl");
-
+$google->initConfig("$PATHCONFIGFILE");
 
 # Retrieve a spelling suggestion for the search String "dulut" 
 # The suggested spelling will be stored in the variable correction
@@ -136,13 +114,13 @@ $correction=$google->phraseSpelling("dulut");
 
 # I am just printing the suggested spelling
 
-print "\n\n The suggested spelling for dulut is : $correction\n\n";
+print "\nThe suggested spelling for \"dulut\" is : \"$correction\"\n";
 
 
 $correction=$google->phraseSpelling("briney");
 
 
-print "\n\n The suggested spelling for briney is : $correction\n\n";
+print "\nThe suggested spelling for \"briney\" is : \"$correction\"\n";
 
 
 

@@ -5,25 +5,28 @@ WebService::GoogleHack::Text - This module implements some basic text processing
 
 =head1 SYNOPSIS
 
-use WebService::GoogleHack::Text;
+    use WebService::GoogleHack::Text;
 
-#create an object of type Text
-my $text = GoogleHack::Text->new(); 
+    #create an object of type Text
 
-# returns an hash words
-%results=$text->getWords("file location");
+    my $text = GoogleHack::Text->new(); 
 
-# returns an hash of 3 word sentences
-%results=$text->getSentences("file location", 3); 
+    # returns an hash words
 
-# this function reads the configuration file
-%results=$text->readConfig("location of configuration file");
+    %results=$text->getWords("file location");
 
-#removes HTML tags
-%results=$text->removeHTML("string");
+    # returns an hash of 3 word sentences
 
-#removes XML tags;
-%results=$text->removeHTML("string");
+    %results=$text->getSentences("file location", 3); 
+
+    # this function reads the configuration file
+
+    %results=$text->readConfig("location of configuration file");
+
+    #removes HTML tags
+
+    %results=$text->removeHTML("string");
+
 
 =head1 DESCRIPTION
 
@@ -245,7 +248,9 @@ Ted Pedersen, E<lt>tpederse@d.umn.eduE<gt>
 =head1 SEE ALSO
 
 L<GoogleHack home page|http://google-hack.sourceforge.net>  
+
 L<Pratheepan Raveendranathan|http://www.d.umn.edu/~rave0029/research>
+
 L<Ted Pedersen|www.d.umn.edu./~tpederse>
 
 Google-Hack Maling List E<lt>google-hack-users@lists.sourceforge.netE<gt>
@@ -276,16 +281,13 @@ The Free Software Foundation, Inc.,
 59 Temple Place - Suite 330,
 Boston, MA  02111-1307, USA.
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself. 
-
 =cut
 
 
 package WebService::GoogleHack::Text;
 
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 sub new
 {
@@ -665,7 +667,7 @@ sub getSurroundingWords
 
     if(!defined($stemmer))
     {
-	$stemmer=false;
+	$stemmer="false";
     }
 
     %wordsCount=();

@@ -71,14 +71,14 @@ my $google = new WebService::GoogleHack;
 
 $google->init("$key","$wsdl");
 
-$results = $google->Search("duluth");
+$google->Search("duluth");
 
 $correction= $google->phraseSpelling("dulut");
 
 diag("\n".     "The Suggested spelling for dulut is $correction".
      "\n");
 
-is($correction,"duluth", 1 );
+is($correction,"duluth");
 
 if($correction eq "No Spelling Suggested")
 {

@@ -6,25 +6,25 @@ WebService::GoogleHack::Search - This module is used to query Google.
 
 =head1 SYNOPSIS
 
-use WebService::GoogleHack::Search;
+    use WebService::GoogleHack::Search;
 
-#create an object of type search
-my $search = GoogleHack::Search->new();
+    #create an object of type search
+    my $search = GoogleHack::Search->new();
 
-#Query Google.
-$search->searchPhrase($searchString);
+    #Query Google.
+    $search->searchPhrase($searchString);
 
 
-If required you can set search parameters with following functions:
+    #If required you can set search parameters with following functions:
 
-$search->setMaxResults($param);
-$search->setlr($param);
-$search->setoe($param);
-$search->setie($param);
-$search->setStartPos($param);
-$search->setFilter("bool");
-$search->setSafeSearch("bool");
-$search->setRestrict("bool");
+    #$search->setMaxResults($param);
+    #$search->setlr($param);
+    #$search->setoe($param);
+    #$search->setie($param);
+    #$search->setStartPos($param);
+    #$search->setFilter("bool");
+    #$search->setSafeSearch("bool");
+    #$search->setRestrict("bool");
 
 =head1 DESCRIPTION
 
@@ -137,7 +137,9 @@ Ted Pedersen, E<lt>tpederse@d.umn.eduE<gt>
 =head1 SEE ALSO
 
 L<GoogleHack home page|http://google-hack.sourceforge.net>  
+
 L<Pratheepan Raveendranathan|http://www.d.umn.edu/~rave0029/research>
+
 L<Ted Pedersen|www.d.umn.edu./~tpederse>
 
 Google-Hack Maling List E<lt>google-hack-users@lists.sourceforge.netE<gt>
@@ -163,14 +165,11 @@ The Free Software Foundation, Inc.,
 59 Temple Place - Suite 330,
 Boston, MA  02111-1307, USA.
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself. 
-
 =cut
 
 package WebService::GoogleHack::Search;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 use SOAP::Lite;
 
 
@@ -184,7 +183,7 @@ $this-> {'Key'} = undef;
 $this-> {'File_Location'} = undef;
 $this-> {'maxResults'} =10;
 $this-> {'StartPos'} =0;
-$this-> {'Filter'} =false;
+$this-> {'Filter'} ="false";
 $this-> {'Restrict'} ="";
 $this-> {'safeSearch'} ="false";
 $this-> {'lr'} ="";

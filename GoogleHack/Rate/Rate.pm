@@ -6,23 +6,33 @@ WebService::GoogleHack::Rate - This module implements a simple relatedness measu
 
 =head1 SYNOPSIS
 
-#create an object of type Rate
-use WebService::GoogleHack::Rate;
+    
+    use WebService::GoogleHack::Rate;
 
-my $rate = WebService::GoogleHack::Rate->new(); 
+    #GIVE PATH TO INPUT FILE HERE
 
-$results=$rate->measureSemanticRelatedness("string 1", "string 2");
+    my $INPUTFILE="";
 
-#The PMI measure is stored in the variable $results, and it can also 
-#be accessed as $rate->{'PMI'};
+    #GIVE PATH TO TRACE FILE HERE
 
-$results=$rate->predictSemanticOrientation("file", "positive", "negative","trace file");
+    my $TRACEFILE="";
 
-#The resutls can be accessed through 
-#$results->{'prediction'} 
-#$results->{'PMI Measure'}
-#$rate->{'prediction'} &
-#$rate->{'PMI Measure'}
+    #create an object of type Rate
+
+    my $rate = WebService::GoogleHack::Rate->new(); 
+
+    $results=$rate->measureSemanticRelatedness("dog", "cat");
+
+    #The PMI measure is stored in the variable $results, and it can also 
+    #be accessed as $rate->{'PMI'};
+
+    $results=$rate->predictSemanticOrientation($INPUTFILE, "excellent", "bad",$TRACEFILE);
+
+    #The resutls can be accessed through 
+    print $results->{'prediction'}."\n"; 
+    $results->{'PMI Measure'}."\n"; 
+    $rate->{'prediction'} &."\n"; 
+    $rate->{'PMI Measure'}."\n"; 
 
 
 =head1 DESCRIPTION
@@ -138,7 +148,9 @@ Ted Pedersen, E<lt>tpederse@d.umn.eduE<gt>
 =head1 SEE ALSO
 
 L<WebService::GoogleHack home page|http://google-hack.sourceforge.net>  
+
 L<Pratheepan Raveendranathan|http://www.d.umn.edu/~rave0029/research>
+
 L<Ted Pedersen|www.d.umn.edu./~tpederse>
 
 Google-Hack Maling List E<lt>google-hack-users@lists.sourceforge.netE<gt>
@@ -164,15 +176,12 @@ The Free Software Foundation, Inc.,
 59 Temple Place - Suite 330,
 Boston, MA  02111-1307, USA.
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself. 
-
 =cut
 
 
 package WebService::GoogleHack::Rate;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 use SOAP::Lite;
 
@@ -189,7 +198,7 @@ $this-> {'adjectives_list'} = undef;
 $this-> {'adverbs_list'} = undef;
 $this-> {'verbs_list'} = undef;
 $this-> {'nouns_list'} = undef;
-this-> {'stop_list'} = undef;
+$this-> {'stop_list'} = undef;
 
  bless $this;
  
@@ -225,10 +234,19 @@ sub measureSemanticRelatedness
     $results5=WebService::GoogleHack::Search::searchPhrase($searchInfo, $context);
 
 $result_counti=$results5->{NumResults};
-       
-    $pmi=log(($result_count1) / ($result_counte * $result_counti));
+
+    my $denom=$result_counte * $result_counti;
+
+    if($denom==0 || $result_count1==0)
+    {
+	$pmi=0.0;
+    }
+    else
+    {
     $pmi=sprintf("%.4f",$pmi);
-    #print "here rate pmi $pmi $result_count1,$result_counte,$result_counti";
+    $pmi=log(($result_count1) / $denom);
+    }   
+
     return $pmi;
 
 } 

@@ -6,21 +6,21 @@ WebService::GoogleHack::Spelling - Retrieves spelling suggestion given a string.
 
 =head1 SYNOPSIS
     
-use WebService::GoogleHack::Spelling;
+    use WebService::GoogleHack::Spelling;
 
-#create an object of type spelling
-my $spelling = WebService::GoogleHack::Spelling->new(); 
+    #create an object of type spelling
+    my $spelling = WebService::GoogleHack::Spelling->new(); 
 
-#make sure to initialize the correct wsdl file
-$spelling->init("key","wsdl file"); 
+    #make sure to initialize the correct wsdl file
+    $spelling->init("key","wsdl file"); 
 
-$results = $spelling->spellingSuggestion($searchString);
+    $results = $spelling->spellingSuggestion($searchString);
 
-$result will be a string containing the suggestion (If there is a suggestion given by Google, otherwise it would be a null variable).
+    #$results will be a string containing the suggestion (If there is a suggestion given by Google, otherwise it would be a null variable).
     
-The suggested "correction" string can also be accessed by,
+    #The suggested "correction" string can also be accessed by,
     
-$spelling->{'correction'};
+    #$spelling->{'correction'};
 
 
 =head1 DESCRIPTION
@@ -88,8 +88,10 @@ Ted Pedersen, E<lt>tpederse@d.umn.eduE<gt>
 
 =head1 SEE ALSO
 
-L<WebService::GoogleHack home page|http://google-hack.sourceforge.net>  
+L<WebService::GoogleHack home page|http://google-hack.sourceforge.net>
+  
 L<Pratheepan Raveendranathan|http://www.d.umn.edu/~rave0029/research>
+
 L<Ted Pedersen|www.d.umn.edu./~tpederse>
 
 Google-Hack Maling List E<lt>google-hack-users@lists.sourceforge.netE<gt>
@@ -122,7 +124,7 @@ it under the same terms as Perl itself.
 
 package WebService::GoogleHack::Spelling;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 use SOAP::Lite;
 

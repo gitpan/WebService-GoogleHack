@@ -2,3 +2,8 @@ Revision history for Perl extension WebService::GoogleHack.
 
 0.05  2004-12/08
       * Updated documentation.
+
+0.06 2005-01/02
+     * Updated readme and install instructions.
+     * added ranking measure to sets of related words.
+     * 0.05 and previous modules had problem with perldoc, so made changes to that.

@@ -7,38 +7,38 @@ WebService::GoogleHack - Perl package that ties together all GoogleHack modules.
 
 =head1 SYNOPSIS
 
-use WebService::GoogleHack;
+    use WebService::GoogleHack;
 
-my $google = new WebService::GoogleHack;
+    my $google = new WebService::GoogleHack;
 
-#Initializing the object to the contents of the configuration file
-# API Key, GoogleSearch.wsdl file location.
+    #Initializing the object to the contents of the configuration file
+    # API Key, GoogleSearch.wsdl file location.
 
-$google->initConfig("initconfig.txt");
+    $google->initConfig("initconfig.txt");
 
-#Printing the contents of the configuration file
-$google->printConfig();
+    #Printing the contents of the configuration file
+    $google->printConfig();
 
-#Measure the semantic relatedness between the words "white house" and 
-#"president".
+    #Measure the semantic relatedness between the words "white house" and 
+    #"president".
 
-$measure=$google->measureSemanticRelatedness("white house","president");
+    $measure=$google->measureSemanticRelatedness("white house","president");
 
-print "\nRelatedness measure between white house and president is: ";
-print $measure."\n";
+    print "\nRelatedness measure between white house and president is: ";
+    print $measure."\n";
 
-#Going to search for words that are related to "toyota" and "ford" 
-my @terms=();
-push(@terms,"toyota");
-push(@terms,"ford");
+    #Going to search for words that are related to "toyota" and "ford" 
+    my @terms=();
+    push(@terms,"toyota");
+    push(@terms,"ford");
 
-#The parameters are the search terms, number of web page results to look at,
-#the number of iterations,output file and the "true" indicates that the
-#diagnostic data should be stored in the file "results.txt"
+    #The parameters are the search terms, number of web page results to look 
+    #at, the number of iterations,output file and the "true" indicates that the
+    #diagnostic data should be stored in the file "results.txt"
 
-$results=$google->wordClusterInPage(\@terms,10,25,1,"results.txt","true");
+    $results=$google->wordClusterInPage(\@terms,10,25,1,"results.txt","true");
 
-print $results;
+    print $results;
 
 
 =head1 DESCRIPTION
@@ -119,7 +119,7 @@ Valid arguments are :
 
 B<lr>
 
-I<string>. Language Restricion eg, "lang_eng", This will restric the google 
+I<string>. Language Restricion eg, "lang_eng", This will restrict the google 
 search to web pages in english.
 
 =back
@@ -322,7 +322,7 @@ returns : Returns an object which contains the parsed information
 
 =head2 __PACKAGE__->getCachedSurroundingWords(searchString,trace_file)
 
-  Purpose:  Given a search word, this function tries to retreive the text 
+Purpose:  Given a search word, this function tries to retreive the text 
 surrounding the search word in the retrieved CACHED Web pages. It basically 
 does the search and passes the search results to the 
 WebService::GoogleHack::Text::getCachedSurroundingWords function.
@@ -403,7 +403,7 @@ key being the web URL.
 
 =head2 __PACKAGE__->getSearchCommonWords(searchString1,searchString2,trace_file,stemmer)
 
-  Purpose:Given two search words, this function tries to retreive the common 
+Purpose:Given two search words, this function tries to retreive the common 
 text/words surrounding the search strings in the retrieved snippets.
 
 Valid arguments are :
@@ -475,7 +475,7 @@ returns : Returns a set of words as a hash.
 
 =head2 __PACKAGE__->getClustersInSnippets(searchString1,searchString2,iterations,number,trace_file)
 
-  Purpose:Given two search strings, this function retreive the snippets for 
+Purpose:Given two search strings, this function retreive the snippets for 
 each string, and then finds the intersection of words, and then repeats the 
 search with the intersection of words.
 
@@ -517,7 +517,7 @@ returns : Returns a hash which contains the intersecting words as keys and the
 
 =head2 __PACKAGE__->getText(searchString,iterations,number,path_to_data_directory)
 
-  Purpose:Given a search string, this function will retreive the resulting 
+Purpose:Given a search string, this function will retreive the resulting 
 URLs from Google, follow those links, and retrieve the text from there.  The 
 function will then clean up the text and store it in a file along with the URL,
  Date and time of retrieval.The file will be stored under the name of the 
@@ -553,7 +553,7 @@ returns : Returns nothing.
 
 =head2 __PACKAGE__->getWordsInPage(searchString,iterations,number,path_to_data_directory)
 
-  Purpose:Given a search string, this function will retreive the resulting 
+Purpose:Given a search string, this function will retreive the resulting 
 URLs from Google, it will then follow those links, and retrieve the text from there.  
 Once all the text is collected, the function finds the intersecting or co-occurring words
 between the top N results. This function is basically used by the function wordClusterInPage.
@@ -587,7 +587,7 @@ returns : Returns nothing.
 
 =head2 __PACKAGE__->wordClusterInPage(searchString,iterations,number,path_to_data_directory)
 
-  Purpose:Given two or more words, this function tries to find a set of related words.
+Purpose:Given two or more words, this function tries to find a set of related words.
 
 =over 4
 
@@ -626,7 +626,9 @@ Ted Pedersen, E<lt>tpederse@d.umn.eduE<gt>
 =head1 SEE ALSO
 
 L<WebService::GoogleHack home page|http://google-hack.sourceforge.net>  
+
 L<Pratheepan Raveendranathan|http://www.d.umn.edu/~rave0029/research>
+
 L<Ted Pedersen|www.d.umn.edu./~tpederse>
 
 Google-Hack Maling List E<lt>google-hack-users@lists.sourceforge.netE<gt>
@@ -660,7 +662,7 @@ it under the same terms as Perl itself.
 
 package WebService::GoogleHack;
 
-our $VERSION = '0.05';
+our $VERSION = '0.06';
 
 use SOAP::Lite;
 use Set::Scalar;
@@ -757,23 +759,6 @@ sub setlr
 
 }
 
-=head2 __PACKAGE__->setoe(\%args)
-
-Purpose: This this function can used to set oe
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<oe>
-
-I<string>.
-
-=back
-
-=cut
 
 sub setoe
 {
@@ -842,6 +827,7 @@ sub measureSemanticRelatedness
   my $searchString1=shift;
   my $searchString2=shift;
 
+  print "i am here";
 
  require WebService::GoogleHack::Rate;
 
@@ -1804,8 +1790,9 @@ sub getWordsInPage
      # the thing abt google is that "toyota and ford" doesnt give the same results as "ford and toyota".
 
     for(my $i=0;$i< $size;$i++)
-     {
-	
+     {	
+#	 push(@permutations,$searchStrings[$i]);
+
 	 for(my $j=0;$j< $size;$j++)
 	 {
 	     if($i != $j)
@@ -1862,18 +1849,28 @@ sub getWordsInPage
 		#for each link in a url
  		foreach my $webPage (@links)
 		{		  
-		    my $content=LWP::Simple::get("$webPage");
+                  if($webPage=~m/(.pdf)/gs)
+                   {
+                    print "\n Matched $url";
+                    }
+                 else
+                 {
+		   
+		    my $content=LWP::Simple::get("$webPage");  
+#print "\n".$content;
 		    $global_url.="\n<br><a href=\'$webPage\'>$webPage</a>";
 		    my $cachedPage=WebService::GoogleHack::Text::parseWebpage($content);	
 		    $cachedPage=lc($cachedPage);
 		    $fileContent[$count].="\n\n$cachedPage";
+                   }
+
  		}
             }
 	}
 	
 	$global_url.="\n\n<br>";
 
-$count++;
+$count++;$searchStrings[$i]
     }
 
   %stop_list=WebService::GoogleHack::Text::getWords("$searchInfo->{'stop_list'}");
@@ -1887,6 +1884,7 @@ foreach $context (@fileContent)
 {
    
     my @words=();
+    $context=~s/[0-9]//gs;
     @words = split(/\s+|\,|\?|\./, $context);	
     
     foreach my $word (@words)
@@ -1998,15 +1996,32 @@ sub wordClusterInPage
 
     %results=WebService::GoogleHack::getWordsInPage($searchInfo, $ref_searchStrings, $numResults,$cutOff,$trace_file);
 
+    my @searchTerms=@{$ref_searchStrings};
 
     my $htmlContent="";
     my $fileContent="";
+
+    my $Relatedness="No Score";
+    my $tempScore="";
 
     $htmlContent.="<TABLE><TR><TD> <B> Result Set 1 </B> </TD></TR>";
     $fileContent="\n Result Set 1 \n";
 
     while( ($Key, $Value) = each(%results) ){     
-	$htmlContent.="<TR><TD>$Key</TD></TR>";   	
+
+	$Relatedness="";
+	$tempScore=0;
+
+	foreach my $term (@searchTerms)
+	{
+	    require WebService::GoogleHack::Rate;
+	    $Relatedness = WebService::GoogleHack::Rate::measureSemanticRelatedness($searchInfo,$term,$Key); 
+	    $tempScore+=$Relatedness;	 
+}
+	$tempScore=$tempScore/2;
+	$tempScore=abs($tempScore);
+	$tempScore=sprintf("%.4f",$tempScore);
+	$htmlContent.="<TR><TD>$Key   $tempScore</TD></TR>";   	
 	$fileContent.="\n $Key";   
 	$cluster{"$Key"}=$results{"$Key"};
     }
@@ -2031,11 +2046,23 @@ sub wordClusterInPage
 	my $k=$i+1;
 	$htmlContent.="\n<br><TABLE><TR><TD> <B> Result Set $k </B> </TD></TR>";
 	$fileContent.="\n Result Set $k \n";
+	
+	$Relatedness="No Score";
+	$tempScore="";
 
-	while( ($Key, $Value) = each(%cluster) ){     
-             $htmlContent.="\n<TR><TD>$Key</TD></TR>";
+	while( ($Key, $Value) = each(%cluster) ){
+#jumbo     
+	    foreach my $term (@searchTerms)
+	    {
+		print "here";
+		$Relatedness = measureSemanticRelatedness($searchInfo,$term,$Key);		
+		$tempScore.=$Relatedness.",\n";
+	    }
+
+             $htmlContent.="\n<TR><TD>$Key:$tempScore</TD></TR>";
 	     $fileContent.="\n$Key";
 	    $results{"$Key"}=$cluster{"$Key"}  if !exists $results{"$Key"};;
+
 	}	
 
         $htmlContent.="\n\n</TABLE><BR><BR>";  

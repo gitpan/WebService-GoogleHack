@@ -1,4 +1,4 @@
-GoogleHack version 0.05
+GoogleHack version 0.06
 =======================
 GoogleHack is a set of Perl modules that does a variety of things.
 The Module GoogleHack.pm acts as the "driver" module for all the sub-modules such as Search, Spelling, Text, and Rate.
@@ -50,8 +50,8 @@ There are multiple ways to install the modules.
 
 2) Otherwise, :
 
-   gunzip WebService-GoogleHack-0.05.tar.gz
-   tar -xvf WebService-GoogleHack-0.05
+   gunzip WebService-GoogleHack-0.06.tar.gz
+   tar -xvf WebService-GoogleHack-0.06
    cd WebService/GoogleHack/
    perl Makefile.PL or perl Makefile.PL PREFIX=GIVE PREFERRED PATH HERE
    make
@@ -96,11 +96,11 @@ DEMONSTRATION
 
 To use the GoogleHack package include the following command at the beginning of  your program:
 
-use GoogleHack;
+use WebService::GoogleHack;
 
 This command creates a new instance of GoogleHack called "search":
 
-$search = new GoogleHack;
+$search = new WebService::GoogleHack;
 
 This command initializes the "key" and "Google WSDL" file path:
  
@@ -166,9 +166,6 @@ this program; if not, write to
 The Free Software Foundation, Inc.,
 59 Temple Place - Suite 330,
 Boston, MA  02111-1307, USA.
-
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself. 
 
 
 

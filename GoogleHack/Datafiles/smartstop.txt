@@ -137,6 +137,7 @@ done
 down
 downwards
 during
+dr
 each
 edu
 eg
@@ -180,6 +181,7 @@ furthermore
 get
 gets
 getting
+gif
 given
 gives
 go
@@ -262,6 +264,7 @@ it'll
 it's
 its
 itself
+jpg
 just
 keep
 keeps
@@ -300,6 +303,7 @@ meanwhile
 menu
 merely
 might
+mischa
 more
 moreover
 most
@@ -320,6 +324,7 @@ neither
 never
 nevertheless
 new
+news
 next
 nine
 no

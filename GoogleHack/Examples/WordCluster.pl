@@ -1,67 +1,32 @@
 #!/usr/local/bin/perl
+
 =head1 NAME 
 
-Text - This is a perl program that gives the example use of the 
-Google-Hack Text functions which manipulate the text retrieved
-from the web.
+	WordCluster - Simple program that interacts with GoogleHack to 
+        retrieve related set of words.
 
 =head1 SYNOPSIS
 
-	#include GoogleHack, so that it can be used
-
-	use WebService::GoogleHack;
-
 	#Change this variable if you are running this program from a directory
+
 	#Other than WebService/GoogleHack/Example/
 
 	$PATHCONFIGFILE="../Datafiles/initconfig.txt";
 
-
-	#create an instance of GoogleHack called "google".
+	#Create an Object of type WebService::GoogleHack
 
 	$google = new WebService::GoogleHack;
-
-
+ 
 	#initialize the object to required parameters by giving path to config
+
 	#file.
 
 	$google->initConfig("$PATHCONFIGFILE");
-
-	# given a search word, this function tries to retreive the
-
-	# text surrounding the search word in the retrieved snippets.
-
-	# in this case the search word is "knife" and the results
-
-	# will be written out to test.txt
-
-	$google->getSearchSnippetWords("knife", 5,"test.txt");
-
-	# by passing the search string and the tracefile
-
-	# Given a search word, this function tries to retreive the
-
-	# sentences in the cached web page.
-
-	# in this case the search word is "knife" and the results
-
-	# will be written out to test2.txt
-
-	$google->getCachedSurroundingWords("knife", "test2.txt");
-
-	# Given a search word, this function tries to retreive the
-
-	# sentences in the snippet
-
-	# in this case the search word is "knife" and the results
-
-	# will be written out to test.txt
-
-	$google->getSnippetSentences("knife", "test.txt");
-
+	
 =head1 DESCRIPTION
 
-Example usage Text functions.
+The examples in this module are meant to serve as a means of introducing to the user how to use GoogleHack some of the special features of GoogleHack.
+
 
 =head1 AUTHOR
 
@@ -74,9 +39,7 @@ Ted Pedersen, E<lt>tpederse@d.umn.eduE<gt>
 =head1 SEE ALSO
 
 L<GoogleHack home page|http://google-hack.sourceforge.net>
-
 L<Pratheepan Raveendranathan|http://www.d.umn.edu/~rave0029/research>
-
 L<Ted Pedersen|www.d.umn.edu./~tpederse>
 
 Google-Hack Maling List E<lt>google-hack-users@lists.sourceforge.netE<gt>
@@ -113,7 +76,7 @@ use WebService::GoogleHack;
 
 $PATHCONFIGFILE="../Datafiles/initconfig.txt";
 
-#create an instance of GoogleHack called "Search".
+#create an instance of WebService::GoogleHack called "google".
 
 $google = new WebService::GoogleHack;
 
@@ -122,32 +85,55 @@ $google = new WebService::GoogleHack;
 
 $google->initConfig("$PATHCONFIGFILE");
 
-# given a search word, this function tries to retreive the
-# text surrounding the search word in the retrieved snippets.
-# in this case the search word is "knife" and the results
-# will be written out to test.txt
+#print the config file information that has been parsed
 
-$google->getSearchSnippetWords("knife", 5,"test.txt");
+$google->printConfig();
+
+#predict the semantic orientation of the given review file, and use the word 
+#"excellent" to denote a positive semantic orientation and the word "bad" to 
+#denote a negative semanctic orientation.
+#write the output to the exp,txt file.
+
+#######################################################################
+#
+# Given a search word, this function tries to retreive the
+# text surrounding the search word in the retrieved snippets.
+#######################################################################
+
+#$google->getSearchSnippetWords("knife", 5,"test.txt");
 
 # by passing the search string and the tracefile
-# Given a search word, this function tries to retreive the
+# Given a google word, this function tries to retreive the
 # sentences in the cached web page.
-# in this case the search word is "knife" and the results
-# will be written out to test2.txt
-
-$google->getCachedSurroundingWords("knife", "test2.txt");
+#$google->getCachedSurroundingWords("duluth", "test2.txt");
 
 # Given a search word, this function tries to retreive the
-# sentences in the snippet
-# in this case the search word is "knife" and the results
-# will be written out to test.txt
-
-$google->getSnippetSentences("knife", "test.txt");
+# sentences in the snippet.
+#$google->getSnippetSentences("knife", "test.txt");
 
 
 # given two search words, this function tries to retreive the
 # common text surrounding the search words in the retrieved snippets.
-$google->getSearchCommonWords("knife", "scissors");
+#$google->getSearchCommonWords("knife", "scissors");
+
+#$google->getSearchCommonWords("toyota", "ford",10,"result.txt");
+#$google->getPairWordClusters("toyota", "ford",10,1,"result1.txt");
+#$google->getText("duluth","/home/vold/47/rave0029/Data/");
+
+#Predict Set of Related words for Rachel and Ross.
+@terms=();
+push(@terms,"rachel");
+push(@terms,"ross");
+
+$results=$google->wordClusterInPage(\@terms,10,25,1,"results.txt","true");
+
+
+$measure=$google->measureSemanticRelatedness("bush","president");
+
+print "\nRelatedness measure $measure";
+
+
+
 
 
 

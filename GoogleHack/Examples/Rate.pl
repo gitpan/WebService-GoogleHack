@@ -7,23 +7,32 @@ retrieved from the web to .
 
 =head1 SYNOPSIS
 
-#Create an Object of type WebService::GoogleHack
+	#include GoogleHack, so that it can be used
 
-$rate = new WebService::GoogleHack;
+	use WebService::GoogleHack;
 
-#Initialize WebService::GoogleHack object using the config file.
+	#Change this variable if you are running this program from a directory
+	#Other than WebService/GoogleHack/Example/
+
+	$PATHCONFIGFILE="../Datafiles/initconfig.txt";
+
+	#Create an Object of type WebService::GoogleHack
+
+	$rate = new WebService::GoogleHack;
+
+	#Initialize WebService::GoogleHack object using the config file.
  
-$rate->initConfig("PATH TO CONFIG FILE");
+	$rate->initConfig("$PATHCONFIGFILE");
 
-#Now call measureSemanticRelatedness function like this to find the 
-#relatedness measure between the words "knife" and "cut":
+	#Now call measureSemanticRelatedness function like this to find the 
+	#relatedness measure between the words "knife" and "cut":
 
-$Relatedness = $rate-> measureSemanticRelatedness("knife", "cut");
+	$Relatedness = $rate-> measureSemanticRelatedness("knife", "cut");
 
-#The variable $Relatedness will now contain the results of your query.
+	#The variable $Relatedness will now contain the results of your query.
  
-$rate->predictSemanticOrientation("PATH TO REVIEW FILE","excellent","bad","
-PATH TO TRACE FILE");
+	$rate->predictSemanticOrientation("PATH TO REVIEW FILE","excellent","bad","
+	PATH TO TRACE FILE");
 
 =head1 DESCRIPTION
 
@@ -41,7 +50,9 @@ Ted Pedersen, E<lt>tpederse@d.umn.eduE<gt>
 =head1 SEE ALSO
 
 L<GoogleHack home page|http://google-hack.sourceforge.net>
+
 L<Pratheepan Raveendranathan|http://www.d.umn.edu/~rave0029/research>
+
 L<Ted Pedersen|www.d.umn.edu./~tpederse>
 
 Google-Hack Maling List E<lt>google-hack-users@lists.sourceforge.netE<gt>
@@ -67,30 +78,10 @@ The Free Software Foundation, Inc.,
 59 Temple Place - Suite 330,
 Boston, MA  02111-1307, USA.
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.
-
 =cut
 
-
-=head1  SEARCH FUNCTION EXAMPLE
-
-=cut
-
-
-###############################################################
-
-#Make sure to give path to the perl library if it is a local installation
-# make sure to change it to you path
-# however, if you have super user access, then once you install it in
-# the perl directories, you dont have to do this
-
-###############################################################
-
-use lib "";
 
 use WebService::GoogleHack;
-
 
 #######################################################################
 # Preferred initialization method
@@ -103,22 +94,19 @@ use WebService::GoogleHack;
 # Make sure to pass the ENTIRE path to the configuration file
 # Config file should be in WebService/GoogleHack/Datafiles/
 #######################################################################
+$PATHCONFIGFILE="../Datafiles/initconfig.txt";
 
-$rate->initConfig("PATH TO CONFIG FILE");
+$rate->initConfig("$PATHCONFIGFILE");
 
 #printing the config file information that has been parsed
 
 $rate->printConfig();
-
-
 
 # Given two words, this function will try to predict the relatedness between
 # the two words. This relatedness is a measure of calculated using the PMI
 # formula.
 
 $Relatedness = $rate-> measureSemanticRelatedness("knife", "cut");
-
-
 
 #predict the semantic orientation of the given review file, and use the word 
 #"excellent" to denote a positive semantic orientation and the word "bad" to 
@@ -132,7 +120,11 @@ $Relatedness = $rate-> measureSemanticRelatedness("knife", "cut");
 # An example REVIEW FILE is given in the Webservice/GoogleHack/Datafiles 
 #######################################################################
 
-$rate->predictSemanticOrientation("PATH TO REVIEW FILE","excellent","bad","PATH TO TRACE FILE");
+$PATHREVIEWFILE="";
+
+#output would be written to the file trace.txt
+
+$rate->predictSemanticOrientation("$PATHREVIEWFILE","excellent","bad","trace,txt");
 
 
 
