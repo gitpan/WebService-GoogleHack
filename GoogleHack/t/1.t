@@ -31,6 +31,8 @@ diag("\n".
      "http://www.google.com/apis/\n".
      "\n");
 
+diag("\n"."Please Enter your Google API key here:\n");
+
 $key = <STDIN>;
 chomp $key;
 #print $key;

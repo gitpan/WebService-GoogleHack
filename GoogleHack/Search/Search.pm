@@ -1,20 +1,23 @@
 #!/usr/local/bin/perl 
 
-=head1 Name
+=head1 NAME
 
-GoogleHack::Search - this is a very simple interface to the Google API.
-It makes it easier for querying Google.
-
+WebService::GoogleHack::Search - This module is used to query Google.
 
 =head1 SYNOPSIS
 
- use GoogleHack::Search;
- my $search = GoogleHack::Search->new();
- $search->searchPhrase($searchString);
+use WebService::GoogleHack::Search;
+
+#create an object of type search
+my $search = GoogleHack::Search->new();
+
+#Query Google.
+$search->searchPhrase($searchString);
+
 
 If required you can set search parameters with following functions:
 
-    $search->setMaxResults($param);
+$search->setMaxResults($param);
 $search->setlr($param);
 $search->setoe($param);
 $search->setie($param);
@@ -26,6 +29,102 @@ $search->setRestrict("bool");
 =head1 DESCRIPTION
 
 This module provides a simple interface to the Google API. It is used by the GoogleHack driver module.
+
+
+
+=head1 PACKAGE METHODS
+
+=head2 __PACKAGE__->new()
+
+Purpose: This function creates an object of type Search and returns a blessed 
+reference.
+
+=head2 __PACKAGE__->init(key,wsdl_location)
+
+Purpose: This this function can used to inititalize the member variables.
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<key>
+
+I<string>. key to the google-api
+
+=item *
+
+B<wsdl_location>
+
+I<string>.  This the wsdl file name
+
+=back
+
+=head2 __PACKAGE__->Search(searchString,num_results,integer)
+
+Purpose: This function is used to query googles 
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchString> 
+
+I<string>.  Need to pass the search string, which can be a single word or 
+phrase, maximum ten words
+
+=item *
+
+B<num_results> 
+
+I<integer>. The number of results you wast to retrieve, default is 10. 
+Maximum is 1000. Give in terms of multiples of ten.
+
+
+=back
+
+Returns: Returns a Search object containing the search results.
+
+=head2 __PACKAGE__->getEstimateNo()
+
+Purpose: This function returns the number of results predicted by google for a specific search term.
+
+
+No Valid arguments.
+
+=over 4
+
+=back
+
+Returns: Returns the total number of results for a search string..
+
+=head2 __PACKAGE__->IamFeelingLucky()
+
+Purpose: This function imitates the "I am Feeling Lucky" search feature of 
+Google. It basically returns the URL of the first result of your search.
+
+No Valid arguments.
+
+=over 4
+
+=back
+
+Returns: Returns the URL of the first result of your search.
+
+=head2 __PACKAGE__->getCachedPage()
+
+Purpose: This function retrieves a cached webpage, given the URL.
+
+No Valid arguments.
+
+=over 4
+
+=back
+
+Returns: Returns the contents of as web page given a URL.
 
 =head1 AUTHOR
 
@@ -71,24 +170,10 @@ it under the same terms as Perl itself.
 
 package WebService::GoogleHack::Search;
 
-our $VERSION = '0.03';
+our $VERSION = '0.05';
 use SOAP::Lite;
 
 
-
-
-=head1 PACKAGE METHODS
-
-=cut
-
-
-
-=head2 __PACKAGE__->new(\%args)
-
-Purpose: This function creates an object of type Search and returns a blessed 
-reference.
-
-=cut
 
 
 sub new
@@ -119,61 +204,7 @@ return $this;
 }
 
 
-=head2 __PACKAGE__->init(\%args)
 
-Purpose: This this function can used to inititalize the member variables.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<key>
-
-I<string>. key to the google-api
-
-=item *
-
-B< File_location>
-
-I<string>.  This the wsdl file name
-
-=item *
-
-B< adverbs_list >
-
-I<string>. The location of the adverbs list file
-
-
-=item *
-
-B< verbs_list >
-
-I<string>. The location of the verbs list file
-
-=item *
-
-B< adjectives_list >
-
-I<string>. The location of the adjectives list file
-
-
-=item *
-
-B< nouns_list >
-
-I<string>. The location of the nouns list file
-
-=item *
-
-B< stop_list >
-
-I<string>. The location of the stop_words list file
-
-=back
-
-=cut
 
 sub init
 {
@@ -193,27 +224,6 @@ $this-> {'ie'} =shift;
 }
 
 # this functions sets the maximum number of results retrived
-
-=head2 __PACKAGE__->setMaxResults(\%args)
-
-Purpose: This this function can used to set the maximum number of results 
-retrieved.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<maxResults>
-
-I<number>. Number of results you want to be able to retrieve .
-
-=back
-
-=cut
-
-
 sub setMaxResults
 {
     my $this = shift;
@@ -225,24 +235,6 @@ sub setMaxResults
 }
 
 
-=head2 __PACKAGE__->setlr(\%args)
-
-Purpose: This this function can used to set the language restriction
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<lr>
-
-I<string>. Language Restricion eg lang_eng
-
-=back
-
-=cut
-
 sub setlr
 {
     my $this = shift;
@@ -252,25 +244,6 @@ sub setlr
 
 
 }
-
-
-=head2 __PACKAGE__->setoe(\%args)
-
-Purpose: This this function can used to set oe
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<oe>
-
-I<string>.
-
-=back
-
-=cut
 
 sub setoe
 {
@@ -282,24 +255,6 @@ sub setoe
 
 }
 
-=head2 __PACKAGE__->setie(\%args)
-
-Purpose: This this function can used to set ie
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<ie>
-
-I<string>.
-
-=back
-
-=cut
-
 sub setie
 {
     my $this = shift;
@@ -309,25 +264,6 @@ sub setie
 
 
 }
-
-
-=head2 __PACKAGE__->setStartPos(\%args)
-
-Purpose: This function sets the startposition for the search results
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<StartPos>
-
-I<string>.
-
-=back
-
-=cut
 
 sub setStartPos
 {
@@ -339,26 +275,6 @@ sub setStartPos
 
 }
 
-
-
-=head2 __PACKAGE__->setFilter(\%args)
-
-Purpose: This functions sets the search filter as on or off
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<Filter>
-
-I<boolean>. True or False
-
-=back
-
-=cut
-
 sub setFilter
 {
     my $this = shift;
@@ -368,25 +284,6 @@ sub setFilter
 
 
 }
-
-
-=head2 __PACKAGE__->setRestrict(\%args)
-
-Purpose: this funciton restricts the search to a specific domains
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<Restrict>
-
-I<String>. UncleSam for the US Government
-
-=back
-
-=cut
 
 sub setRestrict
 {
@@ -398,27 +295,6 @@ sub setRestrict
 
 }
 
-
-=head2 __PACKAGE__->setSafeSearch(\%args)
-
-Purpose: This functions enables safe search, Restricts search to non-abusive 
-material.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<Restrict>
-
-I<Boolean>. "True" or "False".
-
-
-=back
-
-=cut
-
 sub setSafeSearch
 {
     my $this = shift;
@@ -429,35 +305,6 @@ sub setSafeSearch
 
 }
 
-
-=head2 __PACKAGE__->Search(\%args)
-
-Purpose: This function is used to query googles 
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<$searchString> 
-
-I<string>.  Need to pass the search string, which can be a single word or 
-phrase, maximum ten words
-
-=item *
-
-B<num_results> 
-
-I<integer>. The number of results you wast to retrieve, default is 10. 
-Maximum is 1000. Give in terms of multiples of ten.
-
-
-=back
-
-Returns: Returns a Search object containing the search results.
-
-=cut
 
 sub searchPhrase
 {
@@ -570,22 +417,6 @@ return $this;
 }
 
 
-
-=head2 __PACKAGE__->getEstimateNo(\%args)
-
-Purpose: This function returns the number of results predicted by google for a specific search term.
-
-
-No Valid arguments.
-
-=over 4
-
-=back
-
-Returns: Returns the total number of results for a search string..
-
-=cut
-
 sub getEstimateNo
 {
     my $this = shift;
@@ -593,22 +424,6 @@ sub getEstimateNo
 return   $this-> {'NumResults'};
 
 }
-
-
-=head2 __PACKAGE__->IamFeelingLucky(\%args)
-
-Purpose: This function imitates the "I am Feeling Lucky" search feature of 
-Google. It basically returns the URL of the first result of your search.
-
-No Valid arguments.
-
-=over 4
-
-=back
-
-Returns: Returns the URL of the first result of your search.
-
-=cut
 
 sub IamFeelingLucky
 {
@@ -618,19 +433,6 @@ sub IamFeelingLucky
 }
 
 
-=head2 __PACKAGE__->getCachedPage(\%args)
-
-Purpose: This function retrieves a cached webpage, given the URL.
-
-No Valid arguments.
-
-=over 4
-
-=back
-
-Returns: Returns the contents of as web page given a URL.
-
-=cut
 
 sub getCachedPage
 {

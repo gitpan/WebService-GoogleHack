@@ -1,22 +1,29 @@
 #!/usr/local/bin/perl 
-=head1 Name
+=head1 NAME 
 
-GoogleHack::Text
+WebService::GoogleHack::Text - This module implements some basic text processing such as parsing data etc.
 
 =head1 SYNOPSIS
 
-use GoogleHack::Text;
-my $search = GoogleHack::Text->new(); #create an object of type Text
-%results=$search->getWords("file location"); # returns an hash words
+use WebService::GoogleHack::Text;
 
-%results=$search->getSentences("file location", 3); # returns an hash of 3 
-word sentences
+#create an object of type Text
+my $text = GoogleHack::Text->new(); 
 
-%results=$search->readConfig("file name") # this function reads a 
-#configuration file
+# returns an hash words
+%results=$text->getWords("file location");
 
-%results=$search->removeHTML("string") #removes HTML tags
-%results=$search->removeHTML("string") #removes XML tags
+# returns an hash of 3 word sentences
+%results=$text->getSentences("file location", 3); 
+
+# this function reads the configuration file
+%results=$text->readConfig("location of configuration file");
+
+#removes HTML tags
+%results=$text->removeHTML("string");
+
+#removes XML tags;
+%results=$text->removeHTML("string");
 
 =head1 DESCRIPTION
 
@@ -24,6 +31,208 @@ This is a simple Text processing package which aids GoogleHack and Rate
 modules. Given a file of words, it retreives the words in the file and stores 
 it in a simple hash format. In addition, given a file of text, it can also 
 form n word sentences.
+
+
+=head1 PACKAGE METHODS
+
+=head2 __PACKAGE__->new()
+
+Purpose: This function creates an object of type Text and returns a blessed reference.
+
+=head2 __PACKAGE__->init(Params Given Below)
+
+Purpose: This this function can used to inititalize the member variables.
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<key>
+
+I<string>. key to the google-api
+
+=item *
+
+B<wsdl_location>
+
+I<string>.  This the wsdl file name
+
+=item *
+
+B<adverbs_list>
+
+I<string>. The location of the adverbs list file
+
+
+=item *
+
+B<verbs_list>
+
+I<string>. The location of the verbs list file
+
+=item *
+
+B<adjectives_list>
+
+I<string>. The location of the adjectives list file
+
+
+=item *
+
+B<nouns_list>
+
+I<string>. The location of the nouns list file
+
+=item *
+
+B<stop_list>
+
+I<string>. The location of the stop_words list file
+
+=back
+
+=head2 __PACKAGE__->getSentences(file_name,sentence_length,trace_file)
+
+Purpose:  Given a file of text or a variable containing text, this function tries to retrieve sentences from it.
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<file_name>
+
+I<string>. Name of file to retrieve sentences from.
+
+=item *
+
+B<sentence_length>
+
+I<Number>. Number of words in a sentence. 
+
+=item *
+
+B<trace_file>.
+
+I<string>.   The location of the trace file. If a file_name is given, the results are stored in this file
+
+=back
+
+Returns: Returns an array of strings.
+
+
+
+=head2 __PACKAGE__->getSentences(file_name,trace_file)
+
+Purpose:Given a file of text this function tries to retrieve words from it.
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<file_name>
+
+I<string>. Name of file to retrieve sentences from.
+
+=item *
+
+B<trace_file>.
+
+I<string>.   The location of the trace file. If a file_name is given, the results are stored in this file
+
+=back
+
+Returns:  Returns a hash of words.
+
+
+=head2 __PACKAGE__->getSentences(text)
+
+Purpose: Remove XML tags. Package XML::TokeParser must be installed 
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<text>
+
+I<string>. The text to be de-tagged.
+
+=back
+
+Returns:  Returns a XML less text.
+
+
+
+=head2 __PACKAGE__->getSentences(text)
+
+Purpose: Remove HTML tags. Package HTML::TokeParser must be installed 
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<text>
+
+I<string>. The text to be de-tagged.
+
+=back
+
+Returns:  Returns a HTML less text.
+
+
+=head2 __PACKAGE__->getSurroundingWords(filename,stemmer)
+
+Purpose:  this function is used to read a configuration file containing informaiton such as the Google-API key, the words list etc.
+
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<filename> 
+
+I<string>.  Location of the configuration file.
+
+=item *
+
+B<stemmer>.
+
+I<bool>. Porter Stemmer on or off.
+
+=back
+
+returns : Returns an object which contains the parsed information.
+
+
+=head2 __PACKAGE__->readConfig(filename)
+
+Purpose:  this function is used to read a configuration file containing informaiton such as the Google-API key, the words list etc.
+
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<filename> 
+
+I<string>.  Location of the configuration file.
+
+=back
+
+returns : Returns an object which contains the parsed information.
 
 =head1 AUTHOR
 
@@ -76,19 +285,7 @@ it under the same terms as Perl itself.
 package WebService::GoogleHack::Text;
 
 
-our $VERSION = '0.04';
-
-=head1 PACKAGE METHODS
-
-=cut
-
-
-
-=head2 __PACKAGE__->new(\%args)
-
-Purpose: This function creates an object of type Text and returns a blessed reference.
-
-=cut
+our $VERSION = '0.05';
 
 sub new
 {
@@ -118,61 +315,6 @@ return $this;
 # @params  adjectives_list - the path to the adjectives list
 # @params  stop_list - the path to the stop list
 
-=head2 __PACKAGE__->init(\%args)
-
-Purpose: This this function can used to inititalize the member variables.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<key>
-
-I<string>. key to the google-api
-
-=item *
-
-B< File_location>
-
-I<string>.  This the wsdl file name
-
-=item *
-
-B< adverbs_list >
-
-I<string>. The location of the adverbs list file
-
-
-=item *
-
-B< verbs_list >
-
-I<string>. The location of the verbs list file
-
-=item *
-
-B< adjectives_list >
-
-I<string>. The location of the adjectives list file
-
-
-=item *
-
-B< nouns_list >
-
-I<string>. The location of the nouns list file
-
-=item *
-
-B< stop_list >
-
-I<string>. The location of the stop_words list file
-
-=back
-
-=cut
 
 sub init
  {
@@ -200,37 +342,6 @@ sub init
 # the file or the actual content of the file.
 # returns : an array of sentences.
 
-=head2 __PACKAGE__->getSentences(\%args)
-
-Purpose:  Given a file of text or a variable containing text, this function tries to retrieve sentences from it.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<file_name>
-
-I<string>. Name of file to retrieve sentences from.
-
-=item *
-
-B<sentence_length>
-
-I<Number>. Number of words in a sentence. 
-
-=item *
-
-B<trace_file>.
-
-I<string>.   The location of the trace file. If a file_name is given, the results are stored in this file
-
-=back
-
-Returns: Returns an array of strings.
-
-=cut
 
 sub getSentences
 {
@@ -377,35 +488,6 @@ return @semantic_strings;
 }
 
 
-
-=head2 __PACKAGE__->getSentences(\%args)
-
-Purpose:Given a file of text this function tries to retrieve words from it.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<file_name>
-
-I<string>. Name of file to retrieve sentences from.
-
-=item *
-
-B<trace_file>.
-
-I<string>.   The location of the trace file. If a file_name is given, the results are stored in this file
-
-=back
-
-Returns:  Returns a hash of words.
-
-=cut
-
-
-
 sub getWords
 {
    my $file_name=shift;
@@ -437,29 +519,6 @@ sub getWords
 }
 
 
-
-=head2 __PACKAGE__->getSentences(\%args)
-
-Purpose: Remove HTML tags. Package HTML::TokeParser must be installed 
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<text>
-
-I<string>. The text to be de-tagged.
-
-=back
-
-Returns:  Returns a HTML less text.
-
-=cut
-
-
-
 sub removeHTML
 {
 
@@ -484,26 +543,6 @@ return $content;
 
 }
 
-=head2 __PACKAGE__->getSentences(\%args)
-
-Purpose: Remove XML tags. Package XML::TokeParser must be installed 
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<text>
-
-I<string>. The text to be de-tagged.
-
-=back
-
-Returns:  Returns a XML less text.
-
-=cut
-
 
 sub removeXML
 {
@@ -520,28 +559,6 @@ sub removeXML
     return $text;
     
 }
-
-
-=head2 __PACKAGE__->readConfig(\%args)
-
-Purpose:  this function is used to read a configuration file containing informaiton such as the Google-API key, the words list etc.
-
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<filename> 
-
-I<string>.  Location of the configuration file.
-
-=back
-
-returns : Returns an object which contains the parsed information.
-
-=cut
 
 sub readConfig
 {
@@ -638,34 +655,6 @@ sub readConfig
 # @params  proximity -  The number of words surrounding the searchString
 # @params  trace_file -  The results of the search will be stored in this file
 # returns : A hash of words and frequency of occurence
-
-
-=head2 __PACKAGE__->getSurroundingWords(\%args)
-
-Purpose:  this function is used to read a configuration file containing informaiton such as the Google-API key, the words list etc.
-
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<filename> 
-
-I<string>.  Location of the configuration file.
-
-=item *
-
-B<stemmer>.
-
-I<bool>. Porter Stemmer on or off.
-
-=back
-
-returns : Returns an object which contains the parsed information.
-
-=cut
 
 sub getSurroundingWords
 {
@@ -953,9 +942,6 @@ sub getCachedSentences
 }
 
 1;
-
-
-
 
 
 

@@ -1,9 +1,17 @@
 #!/usr/local/bin/perl
-=head1 InitExample
+=head1 NAME
+
+InitExample - This program provides examples of the initialization functions.
 
 =head1 SYNOPSIS
 
-InitExamples - This program provides examples of the initialization functions.
+#Create an Object of type WebService::GoogleHack
+
+$google = new WebService::GoogleHack;
+
+#Give the path to the configuration file to the config functions.
+
+$google->initConfig("initconfig.txt");
 
 =head1 DESCRIPTION
 
@@ -79,38 +87,7 @@ use lib "";
 
 #include GoogleHack, so that it can be used
 
-use GoogleHack;
-
-
-
-=head1 INITIALIZATION FUNCTIONS
-
-=cut
-
-
-
-=head2 INIT METHOD 1 - init(\%args)
-
-Set your GoogleAPI Key
-
-$key="";
-
-Give the Entire location of your WSDL file
-
-eg "/dirname/dirname/GoogleSearch.wsdl"
-
-$wsdl="";
-
-Create an Object of type WebService::GoogleHack
-
-$google = new WebService::GoogleHack;
- 
-Initialize WebService::GoogleHack object to the key and WSDL config file path.
-
-$google->init( "$key","$wsdl");
-
-=cut
-
+use WebService::GoogleHack;
 
 #######################################################################
 # Your Google=hack key should go here
@@ -135,11 +112,6 @@ $google = new WebService::GoogleHack;
 # initialize GoogleHack to the key and WSDL config file path.
 $google->init( "$key","$wsdl");
 
-
-
-
-
-
 #######################################################################
 #
 # Another method of initialization would be 
@@ -147,19 +119,6 @@ $google->init( "$key","$wsdl");
 # When using this method of initialization you do not need to
 # initialize the $key, and $wsdl variables.
 #######################################################################
-
-
-=head2 INIT METHOD 2 - initConfig(\%args)
-
-Create an Object of type WebService::GoogleHack
-
-$google = new WebService::GoogleHack;
-
-Give the path to the configuration file to the config functions.
-
-$google->initConfig("../config.txt");
-
-=cut
 
 $google->initConfig("../config.txt");
 

@@ -1,12 +1,43 @@
 #!/usr/local/bin/perl
 
-=head1 Search
+=head1 NAME
+
+Search Examples - Examples of GoogleHack search functions.
 
 =head1 SYNOPSIS
 
-GoogleHack - Is a Perl package that interacts with the Google API, and has some basic functionalities that allow the 
-user to issues queries to Google and manipulate the results. The Search.pl program shows the user how to
-use Google-Hack to issue search requests to Google.
+#Set your GoogleAPI Key
+
+$key="";
+
+#Give the Entire location of your WSDL file
+#eg "/dirname/dirname/GoogleSearch.wsdl"
+
+$wsdl="";
+
+#Create an Object of type WebService::GoogleHack
+
+$google = new WebService::GoogleHack;
+
+#Initialize WebService::GoogleHack object to the key and WSDL config file path.
+
+$google->init( "$key","$wsdl");
+
+#Now call search function like this
+
+#Here I am searching for duluth.
+
+$results=$google->Search("duluth");
+
+#The results variable will now contain the results of your query.
+
+#Printing the searchtime
+
+print $google->{'searchTime'};
+
+#Printing the snippet element 0
+
+print $google->{'snippet'}->[0];
 
 =head1 DESCRIPTION
 
@@ -55,54 +86,7 @@ it under the same terms as Perl itself.
 
 =cut
 
-
-
-=head1  SEARCH FUNCTION EXAMPLE
-
-=cut
-
-=head2 SEARCH FUNCTION - search(\%args)
-
-Set your GoogleAPI Key
-
-$key="";
-
-Give the Entire location of your WSDL file
-
-eg "/dirname/dirname/GoogleSearch.wsdl"
-
-$wsdl="";
-
-Create an Object of type WebService::GoogleHack
-
-$google = new WebService::GoogleHack;
- 
-Initialize WebService::GoogleHack object to the key and WSDL config file path.
-
-$google->init( "$key","$wsdl");
-
-
-Now call search function like this:
-
-Here I am searching for duluth.
-
-$results=$google->Search("duluth");
-
-The results variable will now contain the results of your query.
- 
-Printing the searchtime
-
-print $google->{'searchTime'};
-
-Printing the snippet element 0
-
-print $google->{'snippet'}->[0];
-
-Printing URL of the first result of the search for duluth.
-
 print $google->{'url'}->[0];
-
-=cut
 
 
 ###############################################################

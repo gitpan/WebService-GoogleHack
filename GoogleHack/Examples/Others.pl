@@ -1,11 +1,39 @@
 #!/usr/local/bin/perl
-=head1 Search
+=head1 NAME 
+
+GoogleHack - Is a Perl package that interacts with the Google API, 
+and has some basic functionalities that allow the user to issues queries to 
+Google and manipulate the results. The Search.pl program shows the user how to
+use Google-Hack to issue search requests to Google.
 
 =head1 SYNOPSIS
 
-GoogleHack - Is a Perl package that interacts with the Google API, and has some basic functionalities that allow the 
-user to issues queries to Google and manipulate the results. The Search.pl program shows the user how to
-use Google-Hack to issue search requests to Google.
+#Create an Object of type WebService::GoogleHack
+
+$google = new WebService::GoogleHack;
+ 
+#Initialize WebService::GoogleHack object to the key and WSDL config file path etc using the config file.
+
+$google->initConfig("PATH TO CONFIG FILE");
+
+#Given a search word, this function tries to retreive the text surrounding the search word in the retrieved snippets.
+
+$google->getSearchSnippetWords("knife", 5,"test.txt");
+
+#By passing the search string and the tracefile
+#Given a search word, this function tries to retreive the
+#sentences in the cached web page.
+
+$google->getCachedSurroundingWords("duluth", "test2.txt");
+
+#Given a search word, this function tries to retreive the sentences in the snippet
+
+$google->getSnippetSentences("knife", "test.txt");
+
+#Given two search words, this function tries to retreive the common text surrounding the google words in the retrieved snippets.
+
+$google->getSearchCommonWords("knife", "scissors");
+
 
 =head1 DESCRIPTION
 
@@ -54,45 +82,6 @@ it under the same terms as Perl itself.
 
 =cut
 
-
-
-=head1  SPECIAL FEATURES EXAMPLE
-
-=cut
-
-=head2 FUNCTIONS
-
-Create an Object of type WebService::GoogleHack
-
-$google = new WebService::GoogleHack;
- 
-Initialize WebService::GoogleHack object to the key and WSDL config file path etc using the config file.
-
-$google->initConfig("PATH TO CONFIG FILE");
-
-
-Given a search word, this function tries to retreive the text surrounding the search word in the retrieved snippets.
-
-$google->getSearchSnippetWords("knife", 5,"test.txt");
-
-By passing the search string and the tracefile
-Given a search word, this function tries to retreive the
-sentences in the cached web page.
-
-$google->getCachedSurroundingWords("duluth", "test2.txt");
-
-Given a search word, this function tries to retreive the sentences in the snippet
-
-
-$google->getSnippetSentences("knife", "test.txt");
-
-
-Given two search words, this function tries to retreive the common text surrounding the google words in the retrieved snippets.
-
-$google->getSearchCommonWords("knife", "scissors");
-
-
-=cut
 
 ###############################################################
 

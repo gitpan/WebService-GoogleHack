@@ -1,27 +1,26 @@
 #!/usr/local/bin/perl 
 
-=head1 Name
+=head1 NAME
 
-WebService::GoogleHack
-::Spelling - This package does the simple function of retrieving a spelling suggestion given a search string.
-
-
+WebService::GoogleHack::Spelling - Retrieves spelling suggestion given a string. 
 
 =head1 SYNOPSIS
     
 use WebService::GoogleHack::Spelling;
-my $search = WebService::GoogleHack
-::Spelling->new(); #create an object of type spelling
 
-$search->init("key","wsdl file"); #make sure to initialize the correct wsdl file
-$results = $search->spellingSuggestion($searchString);
+#create an object of type spelling
+my $spelling = WebService::GoogleHack::Spelling->new(); 
+
+#make sure to initialize the correct wsdl file
+$spelling->init("key","wsdl file"); 
+
+$results = $spelling->spellingSuggestion($searchString);
 
 $result will be a string containing the suggestion (If there is a suggestion given by Google, otherwise it would be a null variable).
     
-    The suggested "correction" string can also be accessed by
+The suggested "correction" string can also be accessed by,
     
-    $search->{'correction'};
-
+$spelling->{'correction'};
 
 
 =head1 DESCRIPTION
@@ -29,6 +28,55 @@ $result will be a string containing the suggestion (If there is a suggestion giv
 This module interacts with Google to retrieve a spelling suggestion given a string. It is used by the WebService::GoogleHack
  driver module.
 
+
+=head1 PACKAGE METHODS
+
+=head2 __PACKAGE__->new()
+
+Purpose: This function creates an object of type Spelling and returns a 
+blessed reference.
+
+=head2 __PACKAGE__->init(Key,wsdl_location)
+
+Purpose: This this function can used to inititalize the member variables.
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<Key>
+
+I<string>. key to the google-api
+
+=item *
+
+B<wsdl_location>
+
+I<string>.  This the wsdl file name
+
+=back
+
+
+=head2 __PACKAGE__->spellingSuggestion(searchString)
+
+Purpose: This is function is used to retrieve a spelling suggestion from Google
+
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchString> 
+
+I<string>.  Need to pass the search string, which can be a single word 
+
+=back
+
+Returns: Returns suggested spelling if there is one, otherwise returns "No Spelling Suggested".
 
 =head1 AUTHOR
 
@@ -40,8 +88,7 @@ Ted Pedersen, E<lt>tpederse@d.umn.eduE<gt>
 
 =head1 SEE ALSO
 
-L<WebService::GoogleHack
- home page|http://google-hack.sourceforge.net>  
+L<WebService::GoogleHack home page|http://google-hack.sourceforge.net>  
 L<Pratheepan Raveendranathan|http://www.d.umn.edu/~rave0029/research>
 L<Ted Pedersen|www.d.umn.edu./~tpederse>
 
@@ -75,24 +122,9 @@ it under the same terms as Perl itself.
 
 package WebService::GoogleHack::Spelling;
 
-our $VERSION = '0.03';
+our $VERSION = '0.05';
 
 use SOAP::Lite;
-
-
-
-=head1 PACKAGE METHODS
-
-=cut
-
-
-=head2 __PACKAGE__->new(\%args)
-
-Purpose: This function creates an object of type Spelling and returns a 
-blessed reference.
-
-=cut
-
 
 sub new
 {
@@ -108,31 +140,6 @@ return $this;
 }
 
 
-
-=head2 __PACKAGE__->init(\%args)
-
-Purpose: This this function can used to inititalize the member variables.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<key>
-
-I<string>. key to the google-api
-
-=item *
-
-B< File_location>
-
-I<string>.  This the wsdl file name
-
-=back
-
-=cut
-
 sub init
 {
 my $this = shift;
@@ -142,30 +149,6 @@ $this->{'File_Location'} = shift;
 
 }
 
-
-=head2 __PACKAGE__->spellingSuggestion(\%args)
-
-Purpose: This is function is used to retrieve a spelling suggestion from Google
-
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<$searchString> 
-
-I<string>.  Need to pass the search string, which can be a single word 
-
-
-
-=back
-
-Returns: Returns suggested spelling if there is one, otherwise returns "No Spelling Suggested":
-
-
-=cut
 sub spellingSuggestion
 {
     my $searchInfo=shift;
@@ -195,7 +178,6 @@ if($correction eq "")
 
 }
 
- # remember to end the module with this
 1;
 
 

@@ -1,22 +1,619 @@
 #!/usr/local/bin/perl 
 
-=head1 WebService::GoogleHack Package
+=head1 NAME 
+
+WebService::GoogleHack - Perl package that ties together all GoogleHack modules.
+
 
 =head1 SYNOPSIS
+
+use WebService::GoogleHack;
+
+my $google = new WebService::GoogleHack;
+
+#Initializing the object to the contents of the configuration file
+# API Key, GoogleSearch.wsdl file location.
+
+$google->initConfig("initconfig.txt");
+
+#Printing the contents of the configuration file
+$google->printConfig();
+
+#Measure the semantic relatedness between the words "white house" and 
+#"president".
+
+$measure=$google->measureSemanticRelatedness("white house","president");
+
+print "\nRelatedness measure between white house and president is: ";
+print $measure."\n";
+
+#Going to search for words that are related to "toyota" and "ford" 
+my @terms=();
+push(@terms,"toyota");
+push(@terms,"ford");
+
+#The parameters are the search terms, number of web page results to look at,
+#the number of iterations,output file and the "true" indicates that the
+#diagnostic data should be stored in the file "results.txt"
+
+$results=$google->wordClusterInPage(\@terms,10,25,1,"results.txt","true");
+
+print $results;
+
+
+=head1 DESCRIPTION
 
 WebService::GoogleHack - Is a Perl package that interacts with the Google API,
 and has some basic functionalities that allow the user to interact with 
 Googleand retrieve results. It also  has some Natural Language Processing 
 capabilities, such as the ability to predict the semantic orienation of words, 
-build word clusters, find words that are common to a pair of words etc.
+build word clusters, and find words that are common to a pair of words.
 
-=head1 DESCRIPTION
+Related Modules:
 
-This module acts as a driver module. Basically it acts as an interface between
-the user and the modules. The modules that are controlled by 
-WebService::GoogleHack are:
+WebService::GoogleHack::Text 
 
-WebService::GoogleHack::Text, Search, Rate, Spelling
+WebService::GoogleHack::Search
+
+WebService::GoogleHack::Rate 
+
+WebService::GoogleHack::Spelling
+
+=head1 PACKAGE METHODS
+
+=head2 __PACKAGE__->new()
+
+Purpose: This function creates an object of type GoogleHack and returns a blessed reference.
+
+=head2 __PACKAGE__->initConfig(configLocation)
+
+Purpose:  This function is used to read a configuration file containing 
+informaiton such as the Google-API key, the words list etc.
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<configLocation> 
+
+I<string>.  Location of the configuration file.
+
+=back
+
+returns : Returns an object which contains the parsed information.
+
+=head2 __PACKAGE__->printConfig()
+
+Purpose:  This function is used to print the information read from a 
+configuration file 
+
+No arguments.
+
+=head2 __PACKAGE__->setMaxResults(maxResults)
+
+Purpose: This function sets the maximum number of results retrieved
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<maxResults>
+
+I<Number>. The maximum number of results we want to be able to retrieve from a Google search. Should be less than 10.
+
+=back
+
+=head2 __PACKAGE__->setlr(lr)
+
+Purpose: This this function used to set the language restriction.
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<lr>
+
+I<string>. Language Restricion eg, "lang_eng", This will restric the google 
+search to web pages in english.
+
+=back
+
+=head2 __PACKAGE__->setStartPos(StartPos)
+
+Purpose: This function sets the startposition for the search results. This should be an integer
+between 0 and 1000.
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<StartPos>
+
+I<string>.
+
+=back
+
+=head2 __PACKAGE__->setRestrict(Restrict)
+
+Purpose: This function sets the restrict search to a specific domain on.
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<Restrict>
+
+I<String>. UncleSam for the US Government
+
+=back
+
+=head2 __PACKAGE__->setSafeSearch(Restrict)
+
+Purpose: This functions enables safe search, Restricts search to non-abusive material.
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<Restrict>
+
+I<Boolean>. "True" or "False".
+
+=back
+
+=head2 __PACKAGE__->measureSemanticRelatedness(searchString1,searchString2)
+
+Purpose: this is function is used to measure the relatedness between two words it basically 
+calls the measureSemanticRelatedness function which is in  the Rate class
+
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchString1>
+
+I<string>. The search string which can be a phrase or word
+
+=item *
+
+B<searchString2>
+
+I<string>.   The search string which can be a phrase or word
+
+=back
+
+Returns: Returns the object containing the PMI measure. ($search->{'PMI'}).
+
+=head2 __PACKAGE__->predictSemanticOrientation(reviewfile,positive_inference,negative_inference,trace_file)
+
+Purpose: this function tries to predict the semantic orientation of a paragraph of text need
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<reviewfile> 
+
+I<string>. The location of the review file
+
+=item *
+
+B<positive_inference>. 
+
+I<string>.   Positive inference such as excellent 
+
+=item *
+
+B<negative_inference>.
+
+I<string>.    Negative inference such a poor
+
+
+=item *
+
+B<trace_file>.
+
+I<string>.   The location of the trace file. If a file_name is given, the results are stored in this file
+
+
+=back
+
+Returns : the PMI measure and the prediction which is 0 or 1.
+
+=head2 __PACKAGE__->phraseSpelling(searchString)
+
+Purpose: This is function is used to retrieve a spelling suggestion from Google
+
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchString> 
+
+I<string>.  Need to pass the search string, which can be a single word 
+
+=back
+
+Returns: Returns suggested spelling if there is one, otherwise returns "No Spelling Suggested":
+
+
+=head2 __PACKAGE__->Search(searchString,num_results)
+
+Purpose: This function is used to query googles 
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchString> 
+
+I<string>.  Need to pass the search string, which can be a single word or phrase, maximum ten words
+
+=item *
+
+B<num_results> 
+
+I<integer>. The number of results you wast to retrieve, default is 10. Maximum is 1000.
+
+
+=back
+
+Returns: Returns a GoogleHack object containing the search results.
+
+=head2 __PACKAGE__->getSearchSnippetWords(searchString,numResults,trace_file)
+
+Purpose:  Given a search word, this function tries to retreive the text 
+surrounding the search word in the retrieved snippets. 
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchString> 
+
+I<string>.  The search string which can be a word or phrase
+
+=item *
+
+B<numResults> 
+
+I<string>. The number of results to be processed from google.
+
+=item *
+
+B<trace_file>.
+
+I<string>.   The location of the trace file. If a file_name is given, the results are stored in this file
+
+=item *
+
+B<proximity> 
+
+I<string>. The number of words surrounding the searchString (Not Implemented) 
+yet 
+
+=back
+
+returns : Returns an object which contains the parsed information
+
+=head2 __PACKAGE__->getCachedSurroundingWords(searchString,trace_file)
+
+  Purpose:  Given a search word, this function tries to retreive the text 
+surrounding the search word in the retrieved CACHED Web pages. It basically 
+does the search and passes the search results to the 
+WebService::GoogleHack::Text::getCachedSurroundingWords function.
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchString> 
+
+I<string>.  The search string which can be a word or phrase
+
+=item *
+
+B<trace_file>.
+
+I<string>.   The location of the trace file. If a file_name is given, the results are stored in this file
+
+=back
+
+returns : Returns a hash with the keys being the words and the values being the frequency of occurence.
+
+=head2 __PACKAGE__->getSearchSnippetSentences(searchString,trace_file)
+
+Purpose:  Given a search word, this function tries to retreive the 
+sentences in the snippet.It basically does the search and passes the 
+search results to the WebService::GoogleHack::Text::getSnippetSentences 
+function
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchString> 
+
+I<string>.  The search string which can be a word or phrase
+
+=item *
+
+B<trace_file>.
+
+I<string>.   The location of the trace file. If a file_name is given, the results are stored in this file
+
+=back
+
+returns : Returns an array of strings.
+
+=head2 __PACKAGE__->getCachedSurroundingSentences(searchString,trace_file)
+
+Purpose:  Given a search word, this function tries to retreive the 
+sentences in the cached web page.
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchString> 
+
+I<string>.  The search string which can be a word or phrase
+
+=item *
+
+B<trace_file>.
+
+I<string>.   The location of the trace file. If a file_name is given, 
+the results are stored in this file
+
+=back
+
+returns : Returns a hash which contains the parsed sentences as values and the
+key being the web URL.
+
+=head2 __PACKAGE__->getSearchCommonWords(searchString1,searchString2,trace_file,stemmer)
+
+  Purpose:Given two search words, this function tries to retreive the common 
+text/words surrounding the search strings in the retrieved snippets.
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchString1> 
+
+I<string>.  The search string which can be a word or phrase
+
+
+=item *
+
+B<searchString2> 
+
+I<string>.  The search string which can be a word or phrase
+
+=item *
+
+B<trace_file>.
+
+I<string>.   The location of the trace file. If a file_name is given, the 
+results are stored in this file
+
+=item *
+
+B<stemmer>.
+
+I<bool>. Porter Stemmer on or off.
+
+=back
+
+returns : Returns a hash which contains the intersecting words.
+
+=head2 __PACKAGE__->getWordClustersInSnippets(searchString1,iterations,number,trace_file)
+
+Purpose:Given a search string, this function retreive the top frequency words
+, and does a search on those words, and builds a list of words that can be 
+regarded as a cluster of related words.
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchString1> 
+
+I<string>.  The search string which can be a word or phrase
+
+=item *=item *
+
+B<iterations> 
+
+I<number>.  The number of iterations that you want the function to search and 
+build cluster on.
+
+
+B<trace_file>.
+
+I<string>.   The location of the trace file. If a file_name is given, the 
+results are stored in this file
+
+=back
+
+returns : Returns a set of words as a hash.
+
+=head2 __PACKAGE__->getClustersInSnippets(searchString1,searchString2,iterations,number,trace_file)
+
+  Purpose:Given two search strings, this function retreive the snippets for 
+each string, and then finds the intersection of words, and then repeats the 
+search with the intersection of words.
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchString1> 
+
+I<string>.  The search string which can be a word or phrase
+
+=item *
+
+B<searchString2> 
+
+I<string>.  The search string which can be a word or phrase
+
+
+=item *
+
+B<iterations> 
+
+I<number>.  The number of iterations that you want the function to search and 
+build cluster on.
+
+=item *
+
+B<trace_file>.
+
+I<string>.   The location of the trace file. If a file_name is given, the 
+results are stored in this file
+
+=back
+
+returns : Returns a hash which contains the intersecting words as keys and the
+ values being the frequency of occurence.
+
+=head2 __PACKAGE__->getText(searchString,iterations,number,path_to_data_directory)
+
+  Purpose:Given a search string, this function will retreive the resulting 
+URLs from Google, follow those links, and retrieve the text from there.  The 
+function will then clean up the text and store it in a file along with the URL,
+ Date and time of retrieval.The file will be stored under the name of the 
+search string.
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchString> 
+
+I<string>.  The search string which can be a word or phrase.
+
+=item *
+
+B<iterations> 
+
+I<number>.  The number of iterations that you want the function to search and 
+build cluster on.
+
+=item *
+
+B<path_to_data_directory>.
+
+I<string>.   The location where the file containing the retrived information 
+has to be stored.
+
+=back
+
+returns : Returns nothing.
+
+=head2 __PACKAGE__->getWordsInPage(searchString,iterations,number,path_to_data_directory)
+
+  Purpose:Given a search string, this function will retreive the resulting 
+URLs from Google, it will then follow those links, and retrieve the text from there.  
+Once all the text is collected, the function finds the intersecting or co-occurring words
+between the top N results. This function is basically used by the function wordClusterInPage.
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchString> 
+
+I<string>.  The search string which can be a word or phrase.
+
+=item *
+
+B<iterations> 
+
+I<number>.  The number of iterations that you want the function to search and 
+build cluster on.
+
+=item *
+
+B<path_to_data_directory>.
+
+I<string>.   The location where the file containing the retrived information 
+has to be stored.
+
+=back
+
+returns : Returns nothing.
+
+=head2 __PACKAGE__->wordClusterInPage(searchString,iterations,number,path_to_data_directory)
+
+  Purpose:Given two or more words, this function tries to find a set of related words.
+
+=over 4
+
+=item *
+
+B<searchString> 
+
+I<string>.  The search string which can be a word or phrase.
+
+=item *
+
+B<iterations> 
+
+I<number>.  The number of iterations that you want the function to search and 
+build cluster on.
+
+=item *
+
+B<path_to_data_directory>.
+
+I<string>.   The location where the file containing the retreived information 
+has to be stored.
+
+=back
+
+returns : Returns an html or text version of the results.
 
 =head1 AUTHOR
 
@@ -63,7 +660,7 @@ it under the same terms as Perl itself.
 
 package WebService::GoogleHack;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 use SOAP::Lite;
 use Set::Scalar;
@@ -75,18 +672,6 @@ use HTML::LinkExtor;
 use Data::Dumper;
 
 my $global_url="";
-
-=head1 PACKAGE METHODS
-
-=cut
-
-
-
-=head2 __PACKAGE__->new(\%args)
-
-Purpose: This function creates an object of type GoogleHack and returns a blessed reference.
-
-=cut
 
 sub new
 {
@@ -129,63 +714,6 @@ return $this;
 }
 
 
-=head2 __PACKAGE__->init(\%args)
-
-Purpose: This this function can used to inititalize the member variables.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<key>
-
-I<string>. key to the google-api
-
-=item *
-
-B< File_location>
-
-I<string>.  This the wsdl file name
-
-=item *
-
-B< adverbs_list >
-
-I<string>. The location of the adverbs list file
-
-
-=item *
-
-B< verbs_list >
-
-I<string>. The location of the verbs list file
-
-=item *
-
-B< adjectives_list >
-
-I<string>. The location of the adjectives list file
-
-
-=item *
-
-B< nouns_list >
-
-I<string>. The location of the nouns list file
-
-=item *
-
-B< stop_list >
-
-I<string>. The location of the stop_words list file
-
-=back
-
-=cut
-
-
 
 
 sub init
@@ -206,24 +734,6 @@ $this-> {'stop_list'} = shift;
 }
 
 
-=head2 __PACKAGE__->setMaxResults(\%args)
-
-Purpose: This function  sets the maximum number of results retrived
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<maxResults>
-
-I<Number>. The maximum number of results we want to be able to retrieve. Should be less than 10.
-
-=back
-
-=cut
-
 sub setMaxResults
 {
     my $this = shift;
@@ -236,23 +746,6 @@ sub setMaxResults
 
 #this function sets the language restriction
 
-=head2 __PACKAGE__->setlr(\%args)
-
-Purpose: This this function can used to set the language restriction
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<lr>
-
-I<string>. Language Restricion eg lang_eng
-
-=back
-
-=cut
 
 sub setlr
 {
@@ -293,25 +786,6 @@ sub setoe
 }
 
 
-
-=head2 __PACKAGE__->setie(\%args)
-
-Purpose: This this function can used to set ie
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<ie>
-
-I<string>.
-
-=back
-
-=cut
-
 sub setie
 {
     my $this = shift;
@@ -321,26 +795,6 @@ sub setie
 
 
 }
-
-
-=head2 __PACKAGE__->setStartPos(\%args)
-
-Purpose: This function sets the startposition for the search results
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<StartPos>
-
-I<string>.
-
-=back
-
-=cut
-
 
 sub setStartPos
 {
@@ -352,26 +806,6 @@ sub setStartPos
 
 }
 
-
-
-=head2 __PACKAGE__->setFilter(\%args)
-
-Purpose: This functions sets the search filter as on or off
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<Filter>
-
-I<boolean>. True or False
-
-=back
-
-=cut
-
 sub setFilter
 {
     my $this = shift;
@@ -381,26 +815,6 @@ sub setFilter
 
 
 }
-
-
-
-=head2 __PACKAGE__->setRestrict(\%args)
-
-Purpose: this funciton restricts the search to a specific domains
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<Restrict>
-
-I<String>. UncleSam for the US Government
-
-=back
-
-=cut
 
 sub setRestrict
 {
@@ -412,28 +826,6 @@ sub setRestrict
 
 }
 
-
-=head2 __PACKAGE__->setSafeSearch(\%args)
-
-Purpose: This functions enables safe search, Restricts search to non-abusive material.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<Restrict>
-
-I<Boolean>. "True" or "False".
-
-
-=back
-
-=cut
-
-#
-
 sub setSafeSearch
 {
     my $this = shift;
@@ -443,37 +835,6 @@ sub setSafeSearch
 
 
 }
-
-
-
-=head2 __PACKAGE__->measureSemanticRelatedness(\%args)
-
-Purpose: this is function is used to measure the relatedness between two words it basically 
-calls the measureSemanticRelatedness function which is in  the Rate class
-
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<searchString1>
-
-I<string>. The search string which can be a phrase or word
-
-=item *
-
-B<searchString2>
-
-I<string>.   The search string which can be a phrase or word
-
-=back
-
-Returns: Returns the object containing the PMI measure. ($search->{'PMI'}).
-
-=cut
-
 
 sub measureSemanticRelatedness
 {
@@ -496,48 +857,6 @@ sub measureSemanticRelatedness
 }
 
 
-=head2 __PACKAGE__->predictSemanticOrientation(\%args)
-
-Purpose: this function tries to predict the semantic orientation of a paragraph of text need
-
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<config_file> 
-
-I<string>. The location of the review file
-
-=item *
-
-B<positive_inference>. 
-
-I<string>.   Positive inference such as excellent 
-
-=item *
-
-B<negative_inference>.
-
-I<string>.    Negative inference such a poor
-
-
-=item *
-
-B<trace_file>.
-
-I<string>.   The location of the trace file. If a file_name is given, the results are stored in this file
-
-
-=back
-
-Returns : the PMI measure and the prediction which is 0 or 1.
-
-
-=cut
-
 sub predictSemanticOrientation
 {
   my $searchInfo=shift;
@@ -550,37 +869,12 @@ sub predictSemanticOrientation
  
     $results=WebService::GoogleHack::Rate::predictSemanticOrientation($searchInfo, $config_file ,$positive_inference,$negative_inference,$trace_file);
 
-    $this->{'PMIMeasure'}=$results->{'PMIMeasure'};
-    $this->{'prediction'}=$results->{'prediction'};
+#    $this->{'PMIMeasure'}=$results->{'PMIMeasure'};
+ #   $this->{'prediction'}=$results->{'prediction'};
 
-    return $this;
+    return $results;
 
 }
-
-
-=head2 __PACKAGE__->phraseSpelling(\%args)
-
-Purpose: This is function is used to retrieve a spelling suggestion from Google
-
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<$searchString> 
-
-I<string>.  Need to pass the search string, which can be a single word 
-
-
-
-=back
-
-Returns: Returns suggested spelling if there is one, otherwise returns "No Spelling Suggested":
-
-
-=cut
 
 sub phraseSpelling
 {
@@ -592,34 +886,6 @@ sub phraseSpelling
 
  return $this->{'correction'};
 }
-
-
-=head2 __PACKAGE__->Search(\%args)
-
-Purpose: This function is used to query googles 
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<$searchString> 
-
-I<string>.  Need to pass the search string, which can be a single word or phrase, maximum ten words
-
-=item *
-
-B<num_results> 
-
-I<integer>. The number of results you wast to retrieve, default is 10. Maximum is 1000.
-
-
-=back
-
-Returns: Returns a GoogleHack object containing the search results.
-
-=cut
 
 
 sub Search
@@ -643,28 +909,6 @@ sub Search
 }
 
 
-
-=head2 __PACKAGE__->initConfig(\%args)
-
-Purpose:  this function is used to read a configuration file containing 
-informaiton such as the Google-API key, the words list etc.
-
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<filename> 
-
-I<string>.  Location of the configuration file.
-
-=back
-
-returns : Returns an object which contains the parsed information.
-
-=cut
 
 sub initConfig
 {
@@ -691,15 +935,6 @@ return $this;
 
 }
 
-
-=head2 __PACKAGE__->printConfig(\%args)
-
-Purpose:  This function is used to print the information read from a 
-configuration file 
-
-No arguments.
-
-=cut
 
 sub printConfig
 {
@@ -732,49 +967,6 @@ sub printConfig
 
 }
 
-
-
-=head2 __PACKAGE__->getSearchSnippetWords(\%args)
-
-Purpose:  Given a search word, this function tries to retreive the text 
-surrounding the search word in the retrieved snippets. 
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<searchString> 
-
-I<string>.  The search string which can be a word or phrase
-
-=item *
-
-B<numResults> 
-
-I<string>. The number of results to be processed from google.
-
-
-=item *
-
-B<trace_file>.
-
-I<string>.   The location of the trace file. If a file_name is given, the results are stored in this file
-
-
-=item *
-
-B<proximity> 
-
-I<string>. The number of words surrounding the searchString (Not Implemented 
-yet 
-
-=back
-
-returns : Returns an object which contains the parsed information
-
-=cut
 
 sub getSearchSnippetWords
 {
@@ -839,35 +1031,6 @@ close(DAT);
 
 }
 
-
-=head2 __PACKAGE__->getCachedSurroundingWords(\%args)
-
-  Purpose:  Given a search word, this function tries to retreive the text 
-surrounding the search word in the retrieved CACHED Web pages. It basically 
-does the search and passes the search results to the 
-WebService::GoogleHack::Text::getCachedSurroundingWords function.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<searchString> 
-
-I<string>.  The search string which can be a word or phrase
-
-=item *
-
-B<trace_file>.
-
-I<string>.   The location of the trace file. If a file_name is given, the results are stored in this file
-
-=back
-
-returns : Returns a hash with the keys being the words and the values being the frequency of occurence.
-
-=cut
 
 sub getCachedSurroundingWords
 {
@@ -956,36 +1119,6 @@ sub getCachedSurroundingWords
 
 
 
-=head2 __PACKAGE__->getSearchSnippetSentences(\%args)
-
-  Purpose:  Given a search word, this function tries to retreive the 
-sentences in the snippet.It basically does the search and passes the 
-search results to the WebService::GoogleHack::Text::getSnippetSentences 
-function
-
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<searchString> 
-
-I<string>.  The search string which can be a word or phrase
-
-=item *
-
-B<trace_file>.
-
-I<string>.   The location of the trace file. If a file_name is given, the results are stored in this file
-
-=back
-
-returns : Returns an array of strings.
-
-=cut
-
 sub getSnippetSentences
 { 
     my  $searchInfo = shift;
@@ -1039,34 +1172,6 @@ sub getSnippetSentences
 }
 
 
-=head2 __PACKAGE__->getCachedSurroundingSentences(\%args)
-
-  Purpose:  Given a search word, this function tries to retreive the 
-sentences in the cached web page.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<searchString> 
-
-I<string>.  The search string which can be a word or phrase
-
-=item *
-
-B<trace_file>.
-
-I<string>.   The location of the trace file. If a file_name is given, 
-the results are stored in this file
-
-=back
-
-returns : Returns a hash which contains the parsed sentences as values and the
-key being the web URL.
-
-=cut
 
 sub getCachedSurroundingSentences
 { 
@@ -1099,48 +1204,6 @@ sub getCachedSurroundingSentences
 
 
 
-
-=head2 __PACKAGE__->getSearchCommonWords(\%args)
-
-  Purpose:Given two search words, this function tries to retreive the common 
-text/words surrounding the search strings in the retrieved snippets.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<searchString1> 
-
-I<string>.  The search string which can be a word or phrase
-
-
-=item *
-
-B<searchString2> 
-
-I<string>.  The search string which can be a word or phrase
-
-=item *
-
-B<trace_file>.
-
-I<string>.   The location of the trace file. If a file_name is given, the 
-results are stored in this file
-
-=item *
-
-B<stemmer>.
-
-I<bool>. Porter Stemmer on or off.
-
-=back
-
-returns : Returns a hash which contains the parsed sentences as values and the
- key being the web URL.
-
-=cut
 
 sub getSearchCommonWords
 {
@@ -1356,42 +1419,6 @@ return %sequence_occs;
 }
 
 
-=head2 __PACKAGE__->getWordClustersInSnippets(\%args)
-
-  Purpose:Given a search string, this function retreive the top frequency words
-, and does a search on those words, and builds a list of words that can be 
-regarded as a cluster of related words.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<searchString1> 
-
-I<string>.  The search string which can be a word or phrase
-
-=item *=item *
-
-B<iterations> 
-
-I<number>.  The number of iterations that you want the function to search and 
-build cluster on.
-
-
-B<trace_file>.
-
-I<string>.   The location of the trace file. If a file_name is given, the 
-results are stored in this file
-
-=back
-
-returns : Returns a hash which contains the parsed sentences as values and the
-key being the web URL.
-
-=cut
-
 sub getWordClustersInSnippets
 {
     my  $searchInfo = shift;
@@ -1447,49 +1474,6 @@ while( ($Key, $Value) = each(%stop_list) ){
 }
 
 
-=head2 __PACKAGE__->getClustersInSnippets(\%args)
-
-  Purpose:Given two search strings, this function retreive the snippets for 
-each string, and then finds the intersection of words, and then repeats the 
-search with the intersection of words.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<searchString1> 
-
-I<string>.  The search string which can be a word or phrase
-
-=item *
-
-B<searchString2> 
-
-I<string>.  The search string which can be a word or phrase
-
-
-=item *
-
-B<iterations> 
-
-I<number>.  The number of iterations that you want the function to search and 
-build cluster on.
-
-=item *
-
-B<trace_file>.
-
-I<string>.   The location of the trace file. If a file_name is given, the 
-results are stored in this file
-
-=back
-
-returns : Returns a hash which contains the intersecting words as keys and the
- values being the frequency of occurence.
-
-=cut
 
 sub getClustersInSnippets
 {
@@ -1676,46 +1660,6 @@ if($trace_file ne "")
     
 }
 
-
-
-=head2 __PACKAGE__->getText(\%args)
-
-  Purpose:Given a search string, this function will retreive the resulting 
-URLs from Google, follow those links, and retrieve the text from there.  The 
-function will then clean up the text and store it in a file along with the URL,
- Date and time of retrieval.The file will be stored under the name of the 
-search string.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<searchString> 
-
-I<string>.  The search string which can be a word or phrase.
-
-=item *
-
-B<iterations> 
-
-I<number>.  The number of iterations that you want the function to search and 
-build cluster on.
-
-=item *
-
-B<path_to_data_directory>.
-
-I<string>.   The location where the file containing the retrived information 
-has to be stored.
-
-=back
-
-returns : Returns nothing.
-
-=cut
-
 sub getText
 {
     my  $searchInfo = shift;
@@ -1822,46 +1766,10 @@ return $date;
 
 }
 
-=head2 __PACKAGE__->getWordsInPage(\%args)
 
-  Purpose:Given a search string, this function will retreive the resulting 
-URLs from Google, it will then follow those links, and retrieve the text from there.  
-Once all the text is collected, the function finds the intersecting or co-occurring words
-between the top N results. This function is basically used by the function wordClusterInPage.
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<searchString> 
-
-I<string>.  The search string which can be a word or phrase.
-
-=item *
-
-B<iterations> 
-
-I<number>.  The number of iterations that you want the function to search and 
-build cluster on.
-
-=item *
-
-B<path_to_data_directory>.
-
-I<string>.   The location where the file containing the retrived information 
-has to be stored.
-
-=back
-
-returns : Returns nothing.
-
-=cut
 
 sub getWordsInPage
 {
-
-
 
     my  $searchInfo = shift;# the google-hack object containing the searchInfo
     my  $ref_searchStrings = shift;  #the search strings
@@ -1917,7 +1825,7 @@ sub getWordsInPage
 
 	require WebService::GoogleHack::Search;
 	my $results=WebService::GoogleHack::Search::searchPhrase($searchInfo, $query);
-#	print "\n\n\n Query is $query\n";
+	print "\n\n\n Query is $query\n";
 	$t=$count+1;
 	#saving the url's
 	$global_url.="\n<B>URL Set $t</B>";
@@ -1932,7 +1840,7 @@ sub getWordsInPage
 	
 	 	my $url = $results->{'url'}->[$i];  # for instance 
 
-	#	print "\n\n$i, $url:";
+		print "\n\n$i, $url:";
 		my $ua = LWP::UserAgent->new; 
 		my @links = ();
 
@@ -2077,37 +1985,6 @@ for(my $i=0;$i<$count; $i++)
 }
 
 
-=head2 __PACKAGE__->wordClusterInPage(\%args)
-
-  Purpose:Given two or more words, this function tries to find a se to related words.
-
-=over 4
-
-=item *
-
-B<searchString> 
-
-I<string>.  The search string which can be a word or phrase.
-
-=item *
-
-B<iterations> 
-
-I<number>.  The number of iterations that you want the function to search and 
-build cluster on.
-
-=item *
-
-B<path_to_data_directory>.
-
-I<string>.   The location where the file containing the retrived information 
-has to be stored.
-
-=back
-
-returns : Returns nothing.
-
-=cut
 
 sub wordClusterInPage
 {

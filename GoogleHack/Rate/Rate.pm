@@ -1,50 +1,131 @@
 #!/usr/local/bin/perl 
 
-=head1 Name
+=head1 NAME
 
-WebService::GoogleHack::Rate
+WebService::GoogleHack::Rate - This module implements a simple relatedness measure and semantic orientation related type functions.
 
 =head1 SYNOPSIS
 
-To use this module you would also need some extra files. They are:
-adjectives_list.txt
-nouns_list.txt
-adverbs_list.txt
-verbs_list.txt.
-
-You would also need the WebService::GoogleHack::Text package to use this module.
-
+#create an object of type Rate
 use WebService::GoogleHack::Rate;
-my $search = WebService::GoogleHack::Rate->new(); #create an object of type Rate
-$results=$search->measureSemanticRelatedness("string 1", "string 2");
 
-The PMI measure is stored in the variable $results, and it can also 
-    be accessed as $search->{'PMI'};
+my $rate = WebService::GoogleHack::Rate->new(); 
 
-$results=$search->predictSemanticOrientation("file", "positive", 
-"negative","trace file");
+$results=$rate->measureSemanticRelatedness("string 1", "string 2");
 
-The resutls can be accessed through 
-    $results->{'prediction'} &
-    $results->{'PMI Measure'}
+#The PMI measure is stored in the variable $results, and it can also 
+#be accessed as $rate->{'PMI'};
 
-or
-    $search->{'prediction'} &
-    $search->{'PMI Measure'}
+$results=$rate->predictSemanticOrientation("file", "positive", "negative","trace file");
+
+#The resutls can be accessed through 
+#$results->{'prediction'} 
+#$results->{'PMI Measure'}
+#$rate->{'prediction'} &
+#$rate->{'PMI Measure'}
 
 
 =head1 DESCRIPTION
 
-WebService::GoogleHack::Rate - This package uses Google to do some basic natural language
-processing. For example, given two words, say "knife" and "cut", the module 
-has the ability to retrieve a semantic relatedness measure, commonly known 
-as the PMI (Pointwise mututal information) measure. The larger the measure 
-the more related the words are.
+WebService::GoogleHack::Rate - This package uses Google to do some basic 
+natural language processing. For example, given two words, say "knife" and 
+"cut", the module has the ability to retrieve a semantic relatedness measure,
+ commonly known as the PMI (Pointwise mututal information) measure. The 
+larger the measure the more related the words are.
 The package can also predict the semantic orientation of a given paragraph of 
 english text. A positive measure means that the paragraph has a positive 
 meaning, and negative measure means the opposite.
 
-WebService::GoogleHack::Text, Search, Rate, Spelling
+=head1 PACKAGE METHODS
+
+=head2 __PACKAGE__->new()
+
+Purpose: This function creates an object of type Rate and returns a blessed reference.
+
+=head2 __PACKAGE__->init(Params Given Below)
+
+Purpose: This this function can used to inititalize the member variables.
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<key>
+
+I<string>. key to the google-api
+
+=item *
+
+B< File_location>
+
+I<string>.  This the wsdl file name
+
+
+=back
+
+=head2 __PACKAGE__->measureSemanticRelatedness(searchString1,searchString2)
+
+Purpose: this is function is used to measure the relatedness between two words.
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchString1>
+
+I<string>. The search string which can be a phrase or word
+
+=item *
+
+B<searchString2>
+
+I<string>.   The search string which can be a phrase or word
+
+=back
+
+Returns: Returns the object containing the PMI measure.
+
+=head2 __PACKAGE__->predictSemanticOrientation(review_file,positive_inference,negative_inference,trace_file)
+
+Purpose: this function tries to predict the semantic orientation of a paragraph of text.
+
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<review_file> 
+
+I<string>. The location of the review file
+
+=item *
+
+B<positive_inference>. 
+
+I<string>.   Positive inference such as excellent 
+
+=item *
+
+B<negative_inference>.
+
+I<string>.    Negative inference such a poor
+
+
+=item *
+
+B<trace_file>.
+
+I<string>.   The location of the trace file. If a file_name is given, the results are stored in this file
+
+=back
+
+Returns : the PMI measure and the prediction which is 0 or 1.
 
 =head1 AUTHOR
 
@@ -91,22 +172,9 @@ it under the same terms as Perl itself.
 
 package WebService::GoogleHack::Rate;
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 use SOAP::Lite;
-
-=head1 PACKAGE METHODS
-
-=cut
-
-
-
-=head2 __PACKAGE__->new(\%args)
-
-Purpose: This function creates an object of type Rate and returns a blessed reference.
-
-=cut
-
 
 sub new
 {
@@ -127,32 +195,6 @@ this-> {'stop_list'} = undef;
  
 return $this;
 } 
- 
-
-=head2 __PACKAGE__->init(\%args)
-
-Purpose: This this function can used to inititalize the member variables.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<key>
-
-I<string>. key to the google-api
-
-=item *
-
-B< File_location>
-
-I<string>.  This the wsdl file name
-
-
-=back
-
-=cut
 
 sub init
  {
@@ -161,35 +203,6 @@ sub init
     $this->{'File_Location'} = shift;
     
 }
-
-
-
-=head2 __PACKAGE__->measureSemanticRelatedness(\%args)
-
-Purpose: this is function is used to measure the relatedness between two words.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<searchString1>
-
-I<string>. The search string which can be a phrase or word
-
-=item *
-
-B<searchString2>
-
-I<string>.   The search string which can be a phrase or word
-
-=back
-
-Returns: Returns the object containing the PMI measure. ($google->{'PMI'}).
-
-=cut
-
 
 sub measureSemanticRelatedness
 {
@@ -220,47 +233,6 @@ $result_counti=$results5->{NumResults};
 
 } 
  
-=head2 __PACKAGE__->predictSemanticOrientation(\%args)
-
-Purpose: this function tries to predict the semantic orientation of a paragraph of text.
-
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<config_file> 
-
-I<string>. The location of the review file
-
-=item *
-
-B<positive_inference>. 
-
-I<string>.   Positive inference such as excellent 
-
-=item *
-
-B<negative_inference>.
-
-I<string>.    Negative inference such a poor
-
-
-=item *
-
-B<trace_file>.
-
-I<string>.   The location of the trace file. If a file_name is given, the results are stored in this file
-
-
-=back
-
-Returns : the PMI measure and the prediction which is 0 or 1.
-
-
-=cut
 
 sub predictSemanticOrientation
 {
@@ -270,7 +242,7 @@ sub predictSemanticOrientation
     my $positive_inference=shift;
     my $negative_inference=shift;
     my $trace_file=shift;
-    
+    my $flag;
  
     print "\n The review file is $review_file";
     print "\n";
@@ -282,9 +254,16 @@ sub predictSemanticOrientation
   %adjectives_list=WebService::GoogleHack::Text::getWords("$searchInfo->{'adjectives_list'}");
    %adverbs_list=WebService::GoogleHack::Text::getWords("$searchInfo->{'adverbs_list'}");
 
-
-    @semantic_strings=WebService::GoogleHack::Text::getSentences($review_file,3,"false");
-  
+if($flag eq "false")
+{
+    @semantic_strings=WebService::GoogleHack::Text::getSentences
+($review_file,3,"false");
+}
+else
+{    
+@semantic_strings=WebService::GoogleHack::Text::getSentences($review_file,3,"true");
+}
+ 
     $count=0;
     $temp_words=();
     $strings_count=@semantic_strings;
@@ -505,7 +484,7 @@ while($i < $k)
     $i++;
 }
 
-$average_so=$average_so/$k;
+$average_so=$average_so/($k+1);
 
 $this->{'PMIMeasure'}=$average_so;
 
@@ -526,8 +505,9 @@ print DAT $write_file;
 
 close(DAT);
 
+return $write_file;
 
-return $this;
+#return $this;
 }
 
 

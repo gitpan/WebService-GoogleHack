@@ -1,10 +1,41 @@
 #!/usr/local/bin/perl
-=head1 Spelling
+=head1 NAME Spelling - This is a perl program that gives the example use of 
+the Google-Hack function to retrieve a spelling suggestion.
+
 
 =head1 SYNOPSIS
 
-This is a perl program that gives the example use of the 
-Google-Hack function to retrieve a spelling suggestion.
+use WebService::GoogleHack;
+
+#Set your GoogleAPI Key
+
+$key="";
+
+#Give the Entire location of your WSDL file
+
+#eg "/dirname/dirname/GoogleSearch.wsdl"
+
+$wsdl="";
+
+#Create an Object of type WebService::GoogleHack
+
+$google = new WebService::GoogleHack;
+ 
+#Initialize WebService::GoogleHack object to the key and WSDL config file path.
+
+$google->init( "$key","$wsdl");
+
+#Issuing a search request to the spelling suggestion function
+#Retrieve a spelling suggestion for the search String "dulut"
+
+$correction=$google->phraseSpelling("dulut");
+
+#If the string is "No Spelling Suggested", that means there was no spelling 
+#suggestions from Google.
+
+#I am just printing the suggested spelling
+
+print "\n\n The suggested spelling for dulut is : $correction\n\n";
 
 =head1 DESCRIPTION
 
@@ -57,7 +88,7 @@ it under the same terms as Perl itself.
 
 #Make sure to give path to the perl library if it is a local installation
 
-use lib "/home/vold/47/rave0029/lib/perl5/site_perl/5.8.0";
+use lib "";
 
 
 ###############################################################
@@ -65,50 +96,7 @@ use lib "/home/vold/47/rave0029/lib/perl5/site_perl/5.8.0";
 
 #include GoogleHack, so that it can be used
 
-use GoogleHack;
-
-
-
-=head1 INITIALIZATION FUNCTIONS
-
-=cut
-
-
-
-=head2 INIT METHOD 1 - init(\%args)
-
-Set your GoogleAPI Key
-
-$key="";
-
-Give the Entire location of your WSDL file
-
-eg "/dirname/dirname/GoogleSearch.wsdl"
-
-$wsdl="";
-
-Create an Object of type WebService::GoogleHack
-
-$google = new WebService::GoogleHack;
- 
-Initialize WebService::GoogleHack object to the key and WSDL config file path.
-
-$google->init( "$key","$wsdl");
-
-
-Issuing a search request to the spelling suggestion function
-Retrieve a spelling suggestion for the search String "dulut"
-
-$correction=$google->phraseSpelling("dulut");
-
-If the string is "No Spelling Suggested", that means there was no spelling suggestions from Google.
-
-I am just printing the suggested spelling
-
-print "\n\n The suggested spelling for dulut is : $correction\n\n";
-
-=cut
-
+use WebService::GoogleHack;
 
 #######################################################################
 # Your Google=hack key should go here

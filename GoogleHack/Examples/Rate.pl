@@ -1,15 +1,33 @@
 #!/usr/local/bin/perl
-=head1 Rate
+=head1 NAME 
 
-=head1 SYNOPSIS
-
-This is a perl program that gives the example use of the 
+Rate - This is a perl program that gives the example use of the 
 Google-Hack Rate functions which manipulate the text 
 retrieved from the web to .
 
+=head1 SYNOPSIS
+
+#Create an Object of type WebService::GoogleHack
+
+$rate = new WebService::GoogleHack;
+
+#Initialize WebService::GoogleHack object using the config file.
+ 
+$rate->initConfig("PATH TO CONFIG FILE");
+
+#Now call measureSemanticRelatedness function like this to find the 
+#relatedness measure between the words "knife" and "cut":
+
+$Relatedness = $rate-> measureSemanticRelatedness("knife", "cut");
+
+#The variable $Relatedness will now contain the results of your query.
+ 
+$rate->predictSemanticOrientation("PATH TO REVIEW FILE","excellent","bad","
+PATH TO TRACE FILE");
+
 =head1 DESCRIPTION
 
-This program gives an example of calling the relatedness
+This program gives examples of calling the relatedness
 functions (NLP related functions).
 
 =head1 AUTHOR
@@ -59,32 +77,6 @@ it under the same terms as Perl itself.
 
 =cut
 
-=head2 SEARCH FUNCTION - search(\%args)
-
-Create an Object of type WebService::GoogleHack
-
-$google = new WebService::GoogleHack;
-
-Initialize WebService::GoogleHack object using the config file.
- 
-$google->initConfig("PATH TO CONFIG FILE");
-
-
-
-Now call measureSemanticRelatedness function like this to find the relatedness measure between the words "knife" and "cut":
-
-$Relatedness = $google-> measureSemanticRelatedness("knife", "cut");
-
-The variable $Relatedness will now contain the results of your query.
- 
-
-
-$google->predictSemanticOrientation("PATH TO REVIEW FILE","excellent","bad","
-PATH TO TRACE FILE");
-
-=cut
-
-
 
 ###############################################################
 
@@ -112,11 +104,11 @@ use WebService::GoogleHack;
 # Config file should be in WebService/GoogleHack/Datafiles/
 #######################################################################
 
-$google->initConfig("PATH TO CONFIG FILE");
+$rate->initConfig("PATH TO CONFIG FILE");
 
 #printing the config file information that has been parsed
 
-$google->printConfig();
+$rate->printConfig();
 
 
 
@@ -124,7 +116,7 @@ $google->printConfig();
 # the two words. This relatedness is a measure of calculated using the PMI
 # formula.
 
-$Relatedness = $google-> measureSemanticRelatedness("knife", "cut");
+$Relatedness = $rate-> measureSemanticRelatedness("knife", "cut");
 
 
 
@@ -140,7 +132,7 @@ $Relatedness = $google-> measureSemanticRelatedness("knife", "cut");
 # An example REVIEW FILE is given in the Webservice/GoogleHack/Datafiles 
 #######################################################################
 
-$google->predictSemanticOrientation("PATH TO REVIEW FILE","excellent","bad","PATH TO TRACE FILE");
+$rate->predictSemanticOrientation("PATH TO REVIEW FILE","excellent","bad","PATH TO TRACE FILE");
 
 
 

@@ -1,0 +1,36 @@
+INSTALLATION
+-------------
+
+Make sure to install the entire package.
+
+There are multiple ways to install the modules. 
+
+
+1) You can use CPAN.pm to install WebSerivce::GoogleHack. To install the module type the following commands in the Unix command prompt:
+
+   perl -MCPAN -e 'install WebSerice::GoogleHack'
+
+
+2) Otherwise, :
+
+   gunzip WebService-GoogleHack-0.05.tar.gz
+   tar -xvf WebService-GoogleHack-0.05
+   cd WebService/GoogleHack/
+   perl Makefile.PL or perl Makefile.PL PREFIX=GIVE PREFERRED PATH HERE
+   make
+   make test
+   make install
+
+The advantage of Using CPAN to install the module is that it will also install 
+all the other modules required by WebSerivce::GoogleHack.
+
+3) To install the web interface please follow the instructions given in 
+
+WebInterface/CGIReadme.pod
+
+PREREQUISITES
+-------------
+SOAP::Lite
+Text::English 
+HTML::TokeParser
+LWP

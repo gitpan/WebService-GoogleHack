@@ -1,17 +1,63 @@
 #!/usr/local/bin/perl
-=head1 Text
+=head1 NAME 
 
-=head1 SYNOPSIS
-
-This is a perl program that gives the example use of the 
+Text - This is a perl program that gives the example use of the 
 Google-Hack Text functions which manipulate the text retrieved
 from the web.
 
+=head1 SYNOPSIS
+
+#include GoogleHack, so that it can be used
+
+use WebService::GoogleHack;
+
+#make sure to fill in the key and path to the wsdl file
+
+$key="Your Key goes Here";
+$wsdl="Path to WSDL File Goes Here";
+
+#create an instance of GoogleHack called "Search".
+
+$google = new GoogleHack;
+
+# initialize GoogleHack to the key and WSDL config file path.
+
+$google->init( "$key","$wsdl");
+
+#initialize search to the contents of the configuration file
+$google->initConfig("config.txt");
+
+#print the config file information that has been parsed
+
+$google->printConfig();
+
+
+
+# given a search word, this function tries to retreive the
+# text surrounding the search word in the retrieved snippets.
+# in this case the search word is "knife" and the results
+# will be written out to test.txt
+
+$google->getSearchSnippetWords("knife", 5,"test.txt");
+
+# by passing the search string and the tracefile
+# Given a search word, this function tries to retreive the
+# sentences in the cached web page.
+# in this case the search word is "knife" and the results
+# will be written out to test2.txt
+
+$google->getCachedSurroundingWords("knife", "test2.txt");
+
+# Given a search word, this function tries to retreive the
+# sentences in the snippet
+# in this case the search word is "knife" and the results
+# will be written out to test.txt
+
+$google->getSnippetSentences("knife", "test.txt");
+
 =head1 DESCRIPTION
 
-Example calls remove HTMl from text, find intersecting/common 
-words in search results. For example, when given two search strings,
-retrieve the snippets, and find the common words.
+Example usage Text functions.
 
 =head1 AUTHOR
 
@@ -66,7 +112,7 @@ use lib "";
 
 #include GoogleHack, so that it can be used
 
-use GoogleHack;
+use WebService::GoogleHack;
 
 #make sure to fill in the key and path to the wsdl file
 
