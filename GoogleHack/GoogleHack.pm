@@ -214,12 +214,11 @@ I<string>.   The search string which can be a phrase or word
 
 Returns: Returns the object containing the relatedness measure. 
 
-=head2 __PACKAGE__->predictSemanticOrientation(reviewfile,positive_inference,negative_inference,trace_file)
+=head2 __PACKAGE__->predictSemanticOrientation(rfile,posInf,negInf,trace)
 
-Purpose: This function tries to predict the semantic orientation of a paragraph of text. The semantic orientation of a paragraph is calculated according to the paper 
-"Thumbs Up or Thumbs Down? Semantic Orientation Applied to Unsupervised Classification of Reviews" By Peter Turney. The difference between Peter Turney's implementation of the PMI-IR algorithm and the implementation of the PMI-IR algorithm in Google Hack is small, but very important. 
+Purpose: This function tries to predict the semantic orientation of a paragraph of text. The semantic orientation of a paragraph is calculated according to the paper "Thumbs Up or Thumbs Down? Semantic Orientation Applied to Unsupervised Classification of Reviews" By Peter Turney. The difference between Peter Turneys implementation of the PMI-IR algorithm and the implementation of the PMI-IR algorithm in Google Hack is small, but very important. 
 
-In Peter Turney's implementation, the PMI-IR algorithm uses the search engine Alta Vista. However, in Google-Hack, we are using Google as our search engine. More importantly, AltaVista provides a "near" operator which the original PMI=IRuses, however, Google does not. Hence, we are using the "AND" operator.
+In Peter Turneys implementation, the PMI-IR algorithm uses the search engine Alta Vista. However, in Google-Hack, we are using Google as our search engine. More importantly, AltaVista provides a "near" operator which the original PMI=IRuses, however, Google does not. Hence, we are using the "AND" operator.
 
 Valid arguments are :
 
@@ -227,26 +226,25 @@ Valid arguments are :
 
 =item *
 
-B<reviewfile> 
+B<rfile> 
 
 I<string>. The location of the review file
 
 =item *
 
-B<positive_inference>. 
+B<posInf>. 
 
 I<string>.   Positive inference such as excellent 
 
 =item *
 
-B<negative_inference>.
+B<negInf>.
 
 I<string>.    Negative inference such a poor
 
-
 =item *
 
-B<trace_file>.
+B<trace>.
 
 I<string>.   The location of the trace file. If a file_name is given, the results are stored in this file
 
@@ -254,8 +252,7 @@ I<string>.   The location of the trace file. If a file_name is given, the result
 
 Returns : the PMI measure and the prediction which is 0 or 1.
 
-=head2 __PACKAGE__->getWordsInPage(searchTerms,numResults,frequencyCutoff,iteration,
-                    numberofSearchTerms,bigrams,trace_file_path)
+=head2 __PACKAGE__->getWordsInPage(searchTerms,numResults,frequencyCutoff,iteration, numberofSearchTerms,bigrams,trace_file_path)
 
 Purpose:Given a set of search terms, this function will retreive the resulting 
 URLs from Google, it will then follow those links, and retrieve the text from there.  
@@ -477,7 +474,7 @@ returns : Returns an html or text version of the results.
 
 Purpose:Given an file containing text, this function tries to find the positive and negative words.
 The formula used to calculate the sentiment of a word is based on 
-          the PMI-IR formula given in Peter Turney's paper.
+          the PMI-IR formula given in Peter Turneys paper.
 
               (hits(word AND "excellent") hits (poor))
 
@@ -526,7 +523,7 @@ returns : Returns an html or text version of the results.
 =head2 __PACKAGE__->predictPhraseSentiment(infile,positive_inference,negative_inference,htmlFlag,traceFile)
 
 Purpose:Given an file containing text, this function tries to find the positive and negative phrases. 
-The formula used to calculate the sentiment of a phrase is based on the PMI-IR formula given in Peter Turney's paper.
+The formula used to calculate the sentiment of a phrase is based on the PMI-IR formula given in Peter Turneys paper.
 
               (hits(phrase AND "excellent") hits (poor))
 
@@ -930,7 +927,7 @@ Boston, MA  02111-1307, USA.
 
 package WebService::GoogleHack;
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 use SOAP::Lite;
 use Set::Scalar;

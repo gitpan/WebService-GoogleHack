@@ -236,7 +236,7 @@ Boston, MA  02111-1307, USA.
 
 package WebService::GoogleHack::Rate;
 
-our $VERSION = '0.11';
+our $VERSION = '0.12';
 
 use strict;
 

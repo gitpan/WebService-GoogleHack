@@ -33,3 +33,6 @@ mRevision history for Perl extension WebService::GoogleHack.
 0.1 2005-04-4
     - Changed measureSemanticRelatedness1 from log(hits(w1)) + log(hits(w2)) -  log(hits(w1w2)) to log(hits(w1)) + log(hits(w2)) - 2 * log(hits(w1w2)).
     - Updated README and PERLDOC.
+
+0.12 2005-04-07
+    - Trying to figure out the missing functions links
