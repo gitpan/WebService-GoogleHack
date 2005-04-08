@@ -36,3 +36,7 @@ mRevision history for Perl extension WebService::GoogleHack.
 
 0.12 2005-04-07
     - Trying to figure out the missing functions links
+
+0.13 2005-04-08
+   - Documentation updated
+

@@ -165,7 +165,7 @@ Boston, MA  02111-1307, USA.
 
 package WebService::GoogleHack::Search;
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 use SOAP::Lite;
 
 

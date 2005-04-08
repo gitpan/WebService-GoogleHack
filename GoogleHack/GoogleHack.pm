@@ -3,7 +3,7 @@
 
 =head1 NAME 
 
-WebService::GoogleHack - Perl package that ties together all GoogleHack modules. Use this package to access all the functionality of Google-Hack.
+WebService::GoogleHack - Perl package that ties together all GoogleHack modules (Webservice::GoogleHack::Search, Webservice::GoogleHack::Spelling, Webservice::GoogleHack::Rate, and Webservice::GoogleHack::Text) to implement Natural Language Processing techniques that use the World Wide Web as a source of information. Use this package to access all the functionality of GoogleHack.
 
 =head1 SYNOPSIS
 
@@ -43,46 +43,57 @@ WebService::GoogleHack - Perl package that ties together all GoogleHack modules.
 
 =head1 DESCRIPTION
 
-WebService::GoogleHack - Is a Perl package that interacts with the Google API,
-and has some basic functionalities that allow the user to interact with 
-Googleand retrieve results. It also does a fair amount of Natural Language Processing 
-using the World Wide Web as a source of information. 
+WebService::GoogleHack is a PERL package that interacts with the Google API,
+and implements basic functions that allow the user to interact with 
+Google and retrieve results in an easy to use format. GoogleHack also 
+implements and extends a number of Natural Language Processing by using the 
+World Wide Web as a source of information. 
 
 Some of the features are:
 
-    * Find the Pointwise Mututal Information (PMI) measure between two words
+    * Issue queries to Google (WebService::GoogleHack, WebService::GoogleHack::Search)
 
-    * Given a paragraph find if the paragraph has a positive or negative semantic orientation.
+    * Retrieve Spelling suggestions from Google (WebService::GoogleHack, WebService::GoogleHack::Spelling)
+
+    * Find the Pointwise Mututal Information (PMI) measure between two words (WebService::GoogleHack,WebService::GoogleHack::Rate)
+
+    * Given a paragraph find if the paragraph has a positive or negative semantic orientation.(WebService::GoogleHack,WebService::GoogleHack::Rate)
          
     * Given a set of words along with a positively oriented word such as "excellent" and a negatively oriented 
-      word such as "poor", find if the word has a positive or negative semantic orientation.
+      word such as "poor", find if the word has a positive or negative semantic orientation.(WebService::GoogleHack,WebService::GoogleHack::Rate)
 
     * Given a set of phrases along with a positively oriented word such  as "excellent" and a negatively oriented word 
-      such as "poor", predict if the given phrases are positive or negative in sentiment.
+      such as "poor", predict if the given phrases are positive or negative in sentiment.(WebService::GoogleHack,WebService::GoogleHack::Rate)
 
-    * Given two or more words finds a set of related words. 
+    * Given two or more words finds a set of related words. (WebService::GoogleHack)
 
 
  
-Related Modules:
+=head2 Related Modules:
+ GoogleHack uses 4 sub-modules to interact with Google and Process text. Though the functions in these modules can be accessed directly, it is advised to use the GoogleHack module's interface to access the functions in the sub-modules.
 
-WebService::GoogleHack::Text 
 
-WebService::GoogleHack::Search
+WebService::GoogleHack::Text - GoogleHack uses this module to manipulate text retrieved from the web (Get n-word sentences, words,and  parse HTML etc).
 
-WebService::GoogleHack::Rate 
+WebService::GoogleHack::Search - GoogleHack uses this module to query Google. 
 
-WebService::GoogleHack::Spelling
+WebService::GoogleHack::Rate - GoogleHack users this module to implement some of the Sentiment Classification algorithms.
 
-=head1 Required Packages
+WebService::GoogleHack::Spelling -  GoogleHack uses this module to query Google for spelling suggestions. 
 
-Brill Tagger (If using Sentiment Classification stuff)
+=head1 REQUIRED PACKAGES
+
+1) Google API (http://www.google.com/apis/)
+
+2) Brill Tagger (If using Sentiment Classification stuff)
 
     Installation file and instructions @ : 
    
     http://www.cs.jhu.edu/~brill/RBT1_14.tar.Z
 
-Required PERL Modules
+    Instructions also available in GoogleHack INSTALL file.
+
+3) Required PERL Modules
 
     SOAP::Lite;
 
@@ -100,15 +111,19 @@ Required PERL Modules
  
     Data::Dumper;
 
-=head1 PACKAGE METHODS
+=head1 FUNCTIONS
 
-=head2 __PACKAGE__->new()
+=head2 GENERAL FUNCTIONALITY
+
+These are the GoogleHack functions that are common to all sort of operations. These functions are used to create and initialize GoogleHack objects.
+
+=head3 __PACKAGE__->new()
 
 Purpose: This function creates an object of type GoogleHack and returns a blessed reference. 
 
 returns: A blessed reference to a GoogleHack object.
 
-=head2 __PACKAGE__->initConfig(configLocation)
+=head3 __PACKAGE__->initConfig(configLocation)
 
 Purpose:  This function is used to read the configuration file containing information such 
 as the Google-API key, the base directory path, and the path to the Brill Tagger. The configuration file is in the WebService/GoogleHack/Datafiles directory.
@@ -129,13 +144,17 @@ I<string>.  Location of the configuration file.
 
 returns : Returns an object which contains the parsed information.
 
-=head2 __PACKAGE__->printConfig()
+=head3 __PACKAGE__->printConfig()
 
 Purpose:  This function is used to print the information read from the configuration file 
 
 No arguments.
 
-=head2 __PACKAGE__->measureSemanticRelatedness1(searchString1,searchString2)
+=head2 SETS OF RELATED WORDS
+
+This set of functions deal with the problem of finding sets of related words by using the World Wide Web as a source of information.
+
+=head3 __PACKAGE__->measureSemanticRelatedness1(searchString1,searchString2)
 
 
 Purpose: This function is used to measure the relatedness between two words.
@@ -162,7 +181,7 @@ I<string>.   The search string which can be a phrase or word
 
 Returns: Returns the object containing the relatedness measure.
 
-=head2 __PACKAGE__->measureSemanticRelatedness2(searchString1,searchString2)
+=head3 __PACKAGE__->measureSemanticRelatedness2(searchString1,searchString2)
 
 Purpose: This function is used to measure the relatedness between two words.
 
@@ -188,7 +207,7 @@ I<string>.   The search string which can be a phrase or word
 
 Returns: Returns the object containing the relatedness measure.
 
-=head2 __PACKAGE__->measureSemanticRelatedness3(searchString1,searchString2)
+=head3 __PACKAGE__->measureSemanticRelatedness3(searchString1,searchString2)
 
 Purpose: This function is used to measure the relatedness between two words.
 
@@ -214,7 +233,219 @@ I<string>.   The search string which can be a phrase or word
 
 Returns: Returns the object containing the relatedness measure. 
 
-=head2 __PACKAGE__->predictSemanticOrientation(rfile,posInf,negInf,trace)
+=head3 __PACKAGE__->Algorithm1(searchTerms,N,C,I,trace, html)
+
+Purpose:Given two or more words, this function tries to find a set of related words. 
+This is the Google-Hack baseline algorithm 1. For example, given the two words gun and pistol, 
+an example of an expanded set of related words would be, 
+
+{laser,paintball, case,bullet, machine gun, rifle} etc.
+
+  The features of Initial Approach (Algorithm 1) is given below
+
+                  - Frequency Based
+ 
+                  - Accepts only 2 terms
+
+                  - Results also contain only unigrams
+		
+                  - A frequency cutoff is used
+		
+                  - Stop words and web stop words are removed.
+
+=over 4
+
+=item *
+
+B<searchTerms> 
+
+I<string>.  The array of search terms (Can only be a word).
+=item *
+
+B<N> 
+
+I<number>.  The number of web pages results to be looked at.
+
+=item *
+
+B<C> 
+
+I<number>.  Words occuring less than the frequencyCutoff would be excluded from results.
+
+=item *
+
+B<I> 
+
+I<number>.  The number of iterations that you want the function to search and build cluster on.
+
+=item *
+
+B<trace>.
+
+I<string>.   The location where the file containing the retreived information 
+has to be stored.
+
+=item *
+
+B<html>.
+
+I<bool>. If set to "true" then the results returned by the algorithm is in HTML format. If not "true", the results are in plain text format.  
+
+=back
+
+returns : Returns an html or text version of the results.
+
+=head3 __PACKAGE__->Algorithm2(searchTerms,N,C,BC, I,S,SC,trace, html)
+
+Purpose:Given two or more words, this function tries to find a set of related words. 
+This is the Google-Hack algorithm 2.
+
+   The features of Second Approach (Algorithm 2) is given below
+
+                  - Accepts more than 2 terms
+
+		  - Has 3 relatedness scores
+		
+                  - Accepts unigrams and 2-word collocation as input
+		
+                  - Results also contain 2-word collocations
+		
+                  - A score cutoff is also included along with frequency cutoff
+		
+                  - A bigram cutoff is also included.
+
+                  - Stop words and web stop words are removed.
+
+                  - Stop phrases and web stop phrases are removed.
+
+
+=over 4
+
+=item *
+
+B<searchTerms> 
+
+I<string>.  The array of search terms (Can only be a word).
+=item *
+
+B<N> 
+
+I<number>.  The number of web pages results to be looked at.
+
+=item *
+
+=item *
+
+B<F> 
+
+I<number>.  Words occuring less than the frequencyCutoff would be excluded from results.
+
+=item *
+
+B<BC> 
+
+I<number>. Bigrams occuring less than the bigramCutoff would be excluded from results.
+
+=item *
+
+B<I> 
+
+I<number>.  The number of iterations that you want the function to search and build cluster on.
+
+=item *
+
+B<S>
+
+I<number>.  Takes on the values 1,2 or 3 indicating the relatedness measure to be used.
+
+=item *
+
+B<SC> 
+
+I<number>. Words and Bigrams with relatedness score greater than the scoreCutOff would be excluded from results.
+
+=item *
+
+B<trace>.
+
+I<string>.   The location where the file containing the retreived information 
+has to be stored.
+
+=item *
+
+B<html>.
+
+I<bool>. If set to "true" then the results returned by the algorithm is in HTML format. If not "true", the
+results are in plain text format.  
+
+=back
+
+returns : Returns an html or text version of the results.
+
+=head3 __PACKAGE__->getWordsInPage(searchTerms,N,C,I, NT,BI,trace)
+
+Purpose:Given a set of search terms, this function will retreive the resulting 
+URLs from Google, it will then follow those links, and retrieve the text from there.  
+Once all the text is collected, the function finds the intersecting or co-occurring words
+between the top N results. This function is basically used by the function Algorithm1.
+
+Valid arguments are :
+
+=over 4
+
+=item *
+
+B<searchTerms> 
+
+I<string>.  An array which contains each search term (It can only be a word not phrase).
+
+=item *
+
+B<N> 
+
+I<number>.  The number of web pages to be looked at.
+
+=item *
+
+B<C> 
+
+I<number>.  Words occuring less than the frequencyCutoff would be excluded from results.
+
+
+=item *
+
+B<I> 
+
+I<number>.  The current iteration number.
+
+=item *
+
+B<NT> 
+
+I<number>.  The number of search terms in the initial set.
+
+=item *
+
+B<BI> 
+
+I<number>.  The bigram cutoff.Set to 0 to exclude bigrams.
+
+
+=item *
+
+B<trace>.
+
+I<string>.   The location of the trace file.
+
+=back
+
+returns : Returns nothing.
+
+=head2 SENTIMENT CLASSIFICATION
+
+    This set of functions deal with sentiment classification. The functions include the PMI-IR, and some other similar functions that try to classify if a given word or phrase is positively or negatively oriented in its sentiment.
+
+=head3 __PACKAGE__->predictSemanticOrientation(rfile,posInf,negInf,trace)
 
 Purpose: This function tries to predict the semantic orientation of a paragraph of text. The semantic orientation of a paragraph is calculated according to the paper "Thumbs Up or Thumbs Down? Semantic Orientation Applied to Unsupervised Classification of Reviews" By Peter Turney. The difference between Peter Turneys implementation of the PMI-IR algorithm and the implementation of the PMI-IR algorithm in Google Hack is small, but very important. 
 
@@ -252,225 +483,7 @@ I<string>.   The location of the trace file. If a file_name is given, the result
 
 Returns : the PMI measure and the prediction which is 0 or 1.
 
-=head2 __PACKAGE__->getWordsInPage(searchTerms,numResults,frequencyCutoff,iteration, numberofSearchTerms,bigrams,trace_file_path)
-
-Purpose:Given a set of search terms, this function will retreive the resulting 
-URLs from Google, it will then follow those links, and retrieve the text from there.  
-Once all the text is collected, the function finds the intersecting or co-occurring words
-between the top N results. This function is basically used by the function Algorithm1.
-
-Valid arguments are :
-
-=over 4
-
-=item *
-
-B<searchTerms> 
-
-I<string>.  An array which contains each search term (It can only be a word not phrase).
-
-=item *
-
-B<numResults> 
-
-I<number>.  The number of web pages results to be looked at.
-
-=item *
-
-B<frequencyCutoff> 
-
-I<number>.  Words occuring less than the frequencyCutoff would be excluded from results.
-
-
-=item *
-
-B<iteration> 
-
-I<number>.  The current iteration number.
-
-=item *
-
-B<numberofSearchTerms> 
-
-I<number>.  The number of search terms in the initial set.
-
-=item *
-
-B<bigrams> 
-
-I<number>.  The bigram cutoff.Set to 0 to exclude bigrams.
-
-
-=item *
-
-B<trace_file_path>.
-
-I<string>.   The location of the trace file.
-
-=back
-
-returns : Returns nothing.
-
-=head2 __PACKAGE__->Algorithm1(searchTerms,numResults,frequencyCutoff,numIterations,
-                    path_to_data_directory, html)
-
-Purpose:Given two or more words, this function tries to find a set of related words. 
-This is the Google-Hack baseline algorithm 1. For example, given the two words gun and pistol, 
-an example of an expanded set of related words would be, 
-
-{laser,paintball, case,bullet, machine gun, rifle} etc.
-
-  The features of Initial Approach (Algorithm 1) is given below
-
-                  - Frequency Based
- 
-                  - Accepts only 2 terms
-
-                  - Results also contain only unigrams
-		
-                  - A frequency cutoff is used
-		
-                  - Stop words and web stop words are removed.
-
-=over 4
-
-=item *
-
-B<searchTerms> 
-
-I<string>.  The array of search terms (Can only be a word).
-=item *
-
-B<numResults> 
-
-I<number>.  The number of web pages results to be looked at.
-
-=item *
-
-B<frequencyCutoff> 
-
-I<number>.  Words occuring less than the frequencyCutoff would be excluded from results.
-
-=item *
-
-B<numIterations> 
-
-I<number>.  The number of iterations that you want the function to search and build cluster on.
-
-=item *
-
-B<path_to_data_directory>.
-
-I<string>.   The location where the file containing the retreived information 
-has to be stored.
-
-=item *
-
-B<html_flag>.
-
-I<bool>. If set to "true" then the results returned by the algorithm is in HTML format. If not "true", the
-results are in plain text format.  
-
-=back
-
-returns : Returns an html or text version of the results.
-
-=head2 __PACKAGE__->Algorithm2(searchTerms,numResults,frequencyCutoff,bigramCutoff,
-                    numIterations,scoreType,scoreCutOff,path_to_data_directory, html)
-
-Purpose:Given two or more words, this function tries to find a set of related words. 
-This is the Google-Hack algorithm 2.
-
-   The features of Second Approach (Algorithm 2) is given below
-
-                  - Accepts more than 2 terms
-
-		  - Has 3 relatedness scores
-		
-                  - Accepts unigrams and 2-word collocation as input
-		
-                  - Results also contain 2-word collocations
-		
-                  - A score cutoff is also included along with frequency cutoff
-		
-                  - A bigram cutoff is also included.
-
-                  - Stop words and web stop words are removed.
-
-                  - Stop phrases and web stop phrases are removed.
-
-
-=over 4
-
-=item *
-
-B<searchTerms> 
-
-I<string>.  The array of search terms (Can only be a word).
-=item *
-
-B<numResults> 
-
-I<number>.  The number of web pages results to be looked at.
-
-=item *
-
-B<numResults> 
-
-I<number>.  The number of web pages results to be looked at.
-
-
-=item *
-
-B<frequencyCutoff> 
-
-I<number>.  Words occuring less than the frequencyCutoff would be excluded from results.
-
-=item *
-
-B<bigramCutoff> 
-
-I<number>. Bigrams occuring less than the bigramCutoff would be excluded from results.
-
-=item *
-
-B<numIterations> 
-
-I<number>.  The number of iterations that you want the function to search and build cluster on.
-
-=item *
-
-B<scoreType>
-
-I<number>.  Takes on the values 1,2 or 3 indicating the relatedness measure to be used.
-
-=item *
-
-B<scoreCutOff> 
-
-I<number>. Words and Bigrams with relatedness score greater than the scoreCutOff would be excluded from results.
-
-=item *
-
-B<path_to_data_directory>.
-
-I<string>.   The location where the file containing the retreived information 
-has to be stored.
-
-=item *
-
-B<html_flag>.
-
-I<bool>. If set to "true" then the results returned by the algorithm is in HTML format. If not "true", the
-results are in plain text format.  
-
-
-=back
-
-returns : Returns an html or text version of the results.
-
-=head2 __PACKAGE__->predictWordSentiment(infile,positive_inference,
-                    negative_inference,htmlFlag,traceFile)
+=head3 __PACKAGE__->predictWordSentiment(infile,posInf,negInf,html,trace)
 
 Purpose:Given an file containing text, this function tries to find the positive and negative words.
 The formula used to calculate the sentiment of a word is based on 
@@ -496,23 +509,23 @@ I<string>. The input file
 
 =item *
 
-B<positive_inference> 
+B<posInf> 
 
 I<string>. A positive word such as "Excellent"
 
 =item *
 
-B<negative_inference>.
+B<negInf>.
 
 I<string>. A negative word such as "Bad"
 
 =item *
 
-B<htmlFlag>.
+B<html>.
 
 I<string>. Set to "true" if you want the results to be HTML formatted
 
-B<tracefile>.
+B<trace>.
 
 I<string>. Set to a file if you want the results to be written to the given filename.
 
@@ -520,7 +533,7 @@ I<string>. Set to a file if you want the results to be written to the given file
 
 returns : Returns an html or text version of the results.
 
-=head2 __PACKAGE__->predictPhraseSentiment(infile,positive_inference,negative_inference,htmlFlag,traceFile)
+=head3 __PACKAGE__->predictPhraseSentiment(infile,,posInf,negInf,html,trace)
 
 Purpose:Given an file containing text, this function tries to find the positive and negative phrases. 
 The formula used to calculate the sentiment of a phrase is based on the PMI-IR formula given in Peter Turneys paper.
@@ -545,23 +558,23 @@ I<string>. The input file
 
 =item *
 
-B<positive_inference> 
+B<posInf> 
 
 I<string>. A positive word such as "Excellent"
 
 =item *
 
-B<negative_inference>.
+B<negInf>.
 
 I<string>. A negative word such as "Bad"
 
 =item *
 
-B<htmlFlag>.
+B<html>.
 
 I<string>. Set to "true" if you want the results to be HTML formatted
 
-B<tracefile>.
+B<trace>.
 
 I<string>. Set to a file if you want the results to be written to the given filename.
 
@@ -569,7 +582,9 @@ I<string>. Set to a file if you want the results to be written to the given file
 
 returns : Returns an html or text version of the results.
 
-=head2 __PACKAGE__->phraseSpelling(searchString)
+=head2 SPELLING SUGGESTION 
+
+=head3 __PACKAGE__->phraseSpelling(searchString)
 
 Purpose: This is function is used to retrieve a spelling suggestion from Google
 
@@ -588,8 +603,11 @@ I<string>.  Need to pass the search string, which can be a single word
 
 Returns: Returns suggested spelling if there is one, otherwise returns "No Spelling Suggested":
 
+=head2 GOOGLE SEARCH
 
-=head2 __PACKAGE__->Search(searchString,num_results)
+Use this function to issue queries to Google.
+
+=head3 __PACKAGE__->Search(searchString,num_results)
 
 Purpose: This function is used to query googles 
 
@@ -614,7 +632,11 @@ I<integer>. The number of results you wast to retrieve, default is 10. Maximum i
 
 Returns: Returns a GoogleHack object containing the search results.
 
-=head2 __PACKAGE__->getSearchSnippetWords(searchString,numResults,trace_file)
+=head2  MANIPULATE WEB TEXT
+
+This set of functions deal with retrieving text from the World Wide Web. Basically, the user can use these functions to retrieve sentences, words, or phrases that occur in web pages (In snippets, cached web pages, links etc.
+
+=head3 __PACKAGE__->getSearchSnippetWords(searchString,numResults,trace_file)
 
 Purpose:  Given a search word, this function tries to retreive the text 
 surrounding the search word in the retrieved snippets. 
@@ -652,7 +674,7 @@ yet
 
 returns : Returns an object which contains the parsed information
 
-=head2 __PACKAGE__->getCachedSurroundingWords(searchString,trace_file)
+=head3 __PACKAGE__->getCachedSurroundingWords(searchString,trace_file)
 
 Purpose:  Given a search word, this function tries to retreive the text 
 surrounding the search word in the retrieved CACHED Web pages. It basically 
@@ -679,7 +701,7 @@ I<string>.   The location of the trace file. If a file_name is given, the result
 
 returns : Returns a hash with the keys being the words and the values being the frequency of occurence.
 
-=head2 __PACKAGE__->getSearchSnippetSentences(searchString,trace_file)
+=head3 __PACKAGE__->getSearchSnippetSentences(searchString,trace_file)
 
 Purpose:  Given a search word, this function tries to retreive the 
 sentences in the snippet.It basically does the search and passes the 
@@ -706,7 +728,7 @@ I<string>.   The location of the trace file. If a file_name is given, the result
 
 returns : Returns an array of strings.
 
-=head2 __PACKAGE__->getCachedSurroundingSentences(searchString,trace_file)
+=head3 __PACKAGE__->getCachedSurroundingSentences(searchString,trace_file)
 
 Purpose:  Given a search word, this function tries to retreive the 
 sentences in the cached web page.
@@ -733,7 +755,7 @@ the results are stored in this file
 returns : Returns a hash which contains the parsed sentences as values and the
 key being the web URL.
 
-=head2 __PACKAGE__->getSearchCommonWords(searchString1,searchString2,trace_file,stemmer)
+=head3 __PACKAGE__->getSearchCommonWords(searchString1,searchString2,trace_file,stemmer)
 
 Purpose:Given two search words, this function tries to retreive the common 
 text/words surrounding the search strings in the retrieved snippets.
@@ -772,7 +794,7 @@ I<bool>. Porter Stemmer on or off.
 
 returns : Returns a hash which contains the intersecting words.
 
-=head2 __PACKAGE__->getWordClustersInSnippets(searchString1,iterations,number,trace_file)
+=head3 __PACKAGE__->getWordClustersInSnippets(searchString1,iterations,number,trace_file)
 
 Purpose:Given a search string, this function retreive the top frequency words
 , and does a search on those words, and builds a list of words that can be 
@@ -805,7 +827,7 @@ results are stored in this file
 
 returns : Returns a set of words as a hash.
 
-=head2 __PACKAGE__->getClustersInSnippets(searchString1,searchString2,iterations,number,trace_file)
+=head3 __PACKAGE__->getClustersInSnippets(searchString1,searchString2,iterations,number,trace_file)
 
 Purpose:Given two search strings, this function retreive the snippets for 
 each string, and then finds the intersection of words, and then repeats the 
@@ -847,7 +869,7 @@ results are stored in this file
 returns : Returns a hash which contains the intersecting words as keys and the
  values being the frequency of occurence.
 
-=head2 __PACKAGE__->getText(searchString,iterations,number,path_to_data_directory)
+=head3 __PACKAGE__->getText(searchString,iterations,number,path_to_data_directory)
 
 Purpose:Given a search string, this function will retreive the resulting 
 URLs from Google, follow those links, and retrieve the text from there.  The 
@@ -927,7 +949,7 @@ Boston, MA  02111-1307, USA.
 
 package WebService::GoogleHack;
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 use SOAP::Lite;
 use Set::Scalar;

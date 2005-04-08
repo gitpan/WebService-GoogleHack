@@ -153,7 +153,8 @@ I<string>.   The search string which can be a phrase or word
 
 Returns: Returns the object containing the relatedness measure. 
 
-=head2 __PACKAGE__->predictSemanticOrientation(infile,posInf, negInf,trace)
+=head2 __PACKAGE__->predictSemanticOrientation(review_file,positive_inference,
+                    negative_inference,trace_file)
 
 Purpose: this function tries to predict the semantic orientation of a paragraph of text.
 
@@ -164,130 +165,32 @@ Valid arguments are :
 
 =item *
 
-B<infile> 
+B<review_file> 
 
 I<string>. The location of the review file
 
 =item *
 
-B<posInf>. 
+B<positive_inference>. 
 
 I<string>.   Positive inference such as excellent 
 
 =item *
 
-B<negInf>.
+B<negative_inference>.
 
 I<string>.    Negative inference such a poor
 
 
 =item *
 
-B<trace>.
+B<trace_file>.
 
 I<string>.   The location of the trace file. If a file_name is given, the results are stored in this file
 
 =back
 
 Returns : the PMI measure and the prediction which is 0 or 1.
-
-=head3 __PACKAGE__->predictWordSentiment(infile,posInf,negInf,html,trace)
-
-Purpose:Given an file containing text, this function tries to find the positive and negative words.
-The formula used to calculate the sentiment of a word is based on 
-          the PMI-IR formula given in Peter Turneys paper.
-
-              (hits(word AND "excellent") hits (poor))
-
-         log2 ----------------------------------------
-
-              (hits(word AND "poor") hits (excellent))
-
-
-For more information refer the paper, "Thumbs Up or Thumbs Down? Semantic Orientation Applied to Unsupervised Classification of Reviews" By Peter Turney.
-
-
-=over 4
-
-=item *
-
-B<infile> 
-
-I<string>. The input file
-
-=item *
-
-B<posInf> 
-
-I<string>. A positive word such as "Excellent"
-
-=item *
-
-B<negInf>.
-
-I<string>. A negative word such as "Bad"
-
-=item *
-
-B<html>.
-
-I<string>. Set to "true" if you want the results to be HTML formatted
-
-B<trace>.
-
-I<string>. Set to a file if you want the results to be written to the given filename.
-
-=back
-
-returns : Returns an html or text version of the results.
-
-=head3 __PACKAGE__->predictPhraseSentiment(infile,,posInf,negInf,html,trace)
-
-Purpose:Given an file containing text, this function tries to find the positive and negative phrases. 
-The formula used to calculate the sentiment of a phrase is based on the PMI-IR formula given in Peter Turneys paper.
-
-              (hits(phrase AND "excellent") hits (poor))
-
-         log2 ------------------------------------------
-     
-              (hits(phrase AND "poor") hits (excellent))
-
-For more information refer the paper, "Thumbs Up or Thumbs Down? Semantic Orientation Applied to Unsupervised Classification 
-of Reviews" By Peter Turney.
-
-=over 4
-
-=item *
-
-B<infile> 
-
-I<string>. The input file
-
-=item *
-
-B<posInf> 
-
-I<string>. A positive word such as "Excellent"
-
-=item *
-
-B<negInf>.
-
-I<string>. A negative word such as "Bad"
-
-=item *
-
-B<html>.
-
-I<string>. Set to "true" if you want the results to be HTML formatted
-
-B<trace>.
-
-I<string>. Set to a file if you want the results to be written to the given filename.
-
-=back
-
-returns : Returns an html or text version of the results.
 
 =head1 AUTHOR
 
@@ -333,7 +236,7 @@ Boston, MA  02111-1307, USA.
 
 package WebService::GoogleHack::Rate;
 
-our $VERSION = '0.13';
+our $VERSION = '0.12';
 
 use strict;
 
