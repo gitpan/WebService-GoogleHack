@@ -17,13 +17,13 @@ The localport should be a number above 1024, and less than around 66,000. Make
 
 $LOCALPORT = XXXXX;
 
-The path to the GoogleHack/Temp directory eg, /home/username/WebService/GoogleHack/Temp/
+Next, change the the path to the GoogleHack/Temp directory eg, /home/username/WebService/GoogleHack/Temp/
 
-$ghackDir="";
+$ghackDir="/home/username/WebService/GoogleHack/Temp/";
 
-This would be the Google-Hack configuration file eg /home/username/WebService/GoogleHack/Datafiles/initconfig.txt
+Next, update the Google-Hack configuration file path, to eg /home/username/WebService/GoogleHack/Datafiles/initconfig.txt
 
-$configFile="";
+$configFile="/home/username/WebService/GoogleHack/Datafiles/initconfig.txt";
 
 
 2)If your ghack server is running behind a firewall, you will need to
@@ -79,12 +79,12 @@ my $LOCALPORT = 32983;
 # The path to the GoogleHack/Temp directory
 # /home/username/WebService/GoogleHack/Temp/
 
-my $ghackDir="";
+my $GHACKDIR="";
 
 # This would be the Google-Hack configuration file
 # /home/username/WebService/GoogleHack/Datafiles/initconfig.txt
 
-my $configFile="";
+my $CONFIGFILE="";
 
 
 my $lock_file = "ghack_server.lock";
@@ -139,8 +139,14 @@ print "SERVER started on port $LOCALPORT ";
 
 my $search = new WebService::GoogleHack;
 
-$search->initConfig("$configFile");
+$search->initConfig("$CONFIGFILE");
 $search->printConfig(); 
+
+#my @terms=();
+#push(@terms,"rachel");
+#push(@terms,"ross");
+#my $resultssss=$search->wordClusterInPage(\@terms,10,20,1,"results.txt","true");
+
 
 ACCEPT:
 while (my $client = $socket->accept) {
@@ -170,8 +176,25 @@ while (my $client = $socket->accept) {
 	print $type."\n";
 	print $query;
 	print "\n\n";
-       
-	if ($type eq 'c')
+
+	if ($type eq 'v') {
+	    # get version information
+# Configuration
+	    my $key   = "iROSyfxQFHKjtA1CLcVQ3aGawqQW2j2Q"; 
+
+# Initialise with local SOAP::Lite file
+	    my $service = SOAP::Lite-> service('http://www.d.umn.edu/~rave0029/GoogleSearch.wsdl');
+	    
+	    my $search_query1= "dulut";
+	    
+	    
+	    my $correction = $service->doSpellingSuggestion($key,$search_query1);
+	    
+	    print $client "Answer Here $search_query1, $correction\015\012";
+	    print $client "\015\012";
+	    goto EXIT_CHILD;
+	}
+	elsif ($type eq 'c')
 	{		   
 	    #print $client "$search->printConfig()";
 
@@ -198,6 +221,33 @@ while (my $client = $socket->accept) {
 	    print $client "$results";
 	    print $client "\015\012";
 	}
+	elsif ($type eq 'g')
+	{		   
+	    #print $client "$search->printConfig()";
+
+	    my ($dummy,$key,$searchString,$numResults,$cutOffs,$numIterations,$scoreType,$scoreCutOff)= split(/\t/, $query);
+	    my @terms=();
+	    
+	    print "\n Key is $key ";
+
+	    my @temp= split(/:/, $searchString);
+	    
+	    foreach my $word (@temp)
+	    {
+	       if($word ne "")
+	       {
+		   push(@terms,$word);
+	       }
+	   
+	    }
+	    print "$numResults,$cutOffs,$numIterations,$scoreType,$scoreCutOff";
+	    print $terms[0]."\n".$terms[1];;
+
+	    $search->{'Key'}="$key";
+	    my $results=$search->Algorithm2(\@terms,$numResults,$cutOffs,5,$numIterations,$scoreType,$scoreCutOff,"results.txt","true");	 
+	    print $client "$results";
+	    print $client "\015\012";
+	}
 	elsif ($type eq 'p')
 	{		   
 	    #print $client "$search->printConfig()";
@@ -217,7 +267,7 @@ while (my $client = $socket->accept) {
             #print $client "$search->printConfig()";
             my ($dummy,$key,$review,$positive,$negative)= split(/\t/, $query);
 	    $review=~s/\#+/ /g;
-	    my $filename=$ghackDir."temp.txt";
+	    my $filename=$GHACKDIR."temp.txt";
 	    open(DAT,">$filename") || die("Cannot Open $filename to write");
 	    print DAT $review;
 	    close(DAT);
@@ -233,7 +283,7 @@ while (my $client = $socket->accept) {
             #print $client "$search->printConfig()";
             my ($dummy,$key,$review,$positive,$negative)= split(/\t/, $query);
 	    $review=~s/\#+/ /g;
-	    my $filename=$ghackDir."temp.txt";
+	    my $filename=$GHACKDIR."temp.txt";
 	    open(DAT,">$filename") || die("Cannot Open $filename to write");
 	    print DAT $review;
 	    close(DAT);
@@ -249,7 +299,7 @@ while (my $client = $socket->accept) {
             #print $client "$search->printConfig()";
             my ($dummy,$key,$review,$positive,$negative)= split(/\t/, $query);
 	    $review=~s/\#+/ /g;
-	    my $filename=$ghackDir."temp.txt";
+	    my $filename=$GHACKDIR."temp.txt";
 	    open(DAT,">$filename") || die("Cannot Open $filename to write");
 	    print DAT $review;
 	    close(DAT);
@@ -312,10 +362,4 @@ sub releaselock ()
 }
 
 __END__
-
-
-
-
-
-
 

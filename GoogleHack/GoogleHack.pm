@@ -117,13 +117,13 @@ WebService::GoogleHack::Spelling -  GoogleHack uses this module to query Google 
 
 These are the GoogleHack functions that are common to all sort of operations. These functions are used to create and initialize GoogleHack objects.
 
-=head3 __PACKAGE__->new()
+=head3 __METHOD__->new()
 
 Purpose: This function creates an object of type GoogleHack and returns a blessed reference. 
 
 returns: A blessed reference to a GoogleHack object.
 
-=head3 __PACKAGE__->initConfig(configLocation)
+=head3 __METHOD__->initConfig(configLocation)
 
 Purpose:  This function is used to read the configuration file containing information such 
 as the Google-API key, the base directory path, and the path to the Brill Tagger. The configuration file is in the WebService/GoogleHack/Datafiles directory.
@@ -144,7 +144,7 @@ I<string>.  Location of the configuration file.
 
 returns : Returns an object which contains the parsed information.
 
-=head3 __PACKAGE__->printConfig()
+=head3 __METHOD__->printConfig()
 
 Purpose:  This function is used to print the information read from the configuration file 
 
@@ -154,7 +154,7 @@ No arguments.
 
 This set of functions deal with the problem of finding sets of related words by using the World Wide Web as a source of information.
 
-=head3 __PACKAGE__->measureSemanticRelatedness1(searchString1,searchString2)
+=head3 __METHOD__->measureSemanticRelatedness1(searchString1,searchString2)
 
 
 Purpose: This function is used to measure the relatedness between two words.
@@ -181,7 +181,7 @@ I<string>.   The search string which can be a phrase or word
 
 Returns: Returns the object containing the relatedness measure.
 
-=head3 __PACKAGE__->measureSemanticRelatedness2(searchString1,searchString2)
+=head3 __METHOD__->measureSemanticRelatedness2(searchString1,searchString2)
 
 Purpose: This function is used to measure the relatedness between two words.
 
@@ -207,7 +207,7 @@ I<string>.   The search string which can be a phrase or word
 
 Returns: Returns the object containing the relatedness measure.
 
-=head3 __PACKAGE__->measureSemanticRelatedness3(searchString1,searchString2)
+=head3 __METHOD__->measureSemanticRelatedness3(searchString1,searchString2)
 
 Purpose: This function is used to measure the relatedness between two words.
 
@@ -233,7 +233,7 @@ I<string>.   The search string which can be a phrase or word
 
 Returns: Returns the object containing the relatedness measure. 
 
-=head3 __PACKAGE__->Algorithm1(searchTerms,N,C,I,trace, html)
+=head3 __METHOD__->Algorithm1(searchTerms,N,C,I,trace, html)
 
 Purpose:Given two or more words, this function tries to find a set of related words. 
 This is the Google-Hack baseline algorithm 1. For example, given the two words gun and pistol, 
@@ -295,7 +295,7 @@ I<bool>. If set to "true" then the results returned by the algorithm is in HTML 
 
 returns : Returns an html or text version of the results.
 
-=head3 __PACKAGE__->Algorithm2(searchTerms,N,C,BC, I,S,SC,trace, html)
+=head3 __METHOD__->Algorithm2(searchTerms,N,C,BC, I,S,SC,trace, html)
 
 Purpose:Given two or more words, this function tries to find a set of related words. 
 This is the Google-Hack algorithm 2.
@@ -382,7 +382,7 @@ results are in plain text format.
 
 returns : Returns an html or text version of the results.
 
-=head3 __PACKAGE__->getWordsInPage(searchTerms,N,C,I, NT,BI,trace)
+=head3 __METHOD__->getWordsInPage(searchTerms,N,C,I, NT,BI,trace)
 
 Purpose:Given a set of search terms, this function will retreive the resulting 
 URLs from Google, it will then follow those links, and retrieve the text from there.  
@@ -445,7 +445,7 @@ returns : Returns nothing.
 
     This set of functions deal with sentiment classification. The functions include the PMI-IR, and some other similar functions that try to classify if a given word or phrase is positively or negatively oriented in its sentiment.
 
-=head3 __PACKAGE__->predictSemanticOrientation(rfile,posInf,negInf,trace)
+=head3 __METHOD__->predictSemanticOrientation(rfile,posInf,negInf,trace)
 
 Purpose: This function tries to predict the semantic orientation of a paragraph of text. The semantic orientation of a paragraph is calculated according to the paper "Thumbs Up or Thumbs Down? Semantic Orientation Applied to Unsupervised Classification of Reviews" By Peter Turney. The difference between Peter Turneys implementation of the PMI-IR algorithm and the implementation of the PMI-IR algorithm in Google Hack is small, but very important. 
 
@@ -483,7 +483,7 @@ I<string>.   The location of the trace file. If a file_name is given, the result
 
 Returns : the PMI measure and the prediction which is 0 or 1.
 
-=head3 __PACKAGE__->predictWordSentiment(infile,posInf,negInf,html,trace)
+=head3 __METHOD__->predictWordSentiment(infile,posInf,negInf,html,trace)
 
 Purpose:Given an file containing text, this function tries to find the positive and negative words.
 The formula used to calculate the sentiment of a word is based on 
@@ -533,7 +533,7 @@ I<string>. Set to a file if you want the results to be written to the given file
 
 returns : Returns an html or text version of the results.
 
-=head3 __PACKAGE__->predictPhraseSentiment(infile,,posInf,negInf,html,trace)
+=head3 __METHOD__->predictPhraseSentiment(infile,,posInf,negInf,html,trace)
 
 Purpose:Given an file containing text, this function tries to find the positive and negative phrases. 
 The formula used to calculate the sentiment of a phrase is based on the PMI-IR formula given in Peter Turneys paper.
@@ -584,7 +584,7 @@ returns : Returns an html or text version of the results.
 
 =head2 SPELLING SUGGESTION 
 
-=head3 __PACKAGE__->phraseSpelling(searchString)
+=head3 __METHOD__->phraseSpelling(searchString)
 
 Purpose: This is function is used to retrieve a spelling suggestion from Google
 
@@ -607,7 +607,7 @@ Returns: Returns suggested spelling if there is one, otherwise returns "No Spell
 
 Use this function to issue queries to Google.
 
-=head3 __PACKAGE__->Search(searchString,num_results)
+=head3 __METHOD__->Search(searchString,num_results)
 
 Purpose: This function is used to query googles 
 
@@ -636,7 +636,7 @@ Returns: Returns a GoogleHack object containing the search results.
 
 This set of functions deal with retrieving text from the World Wide Web. Basically, the user can use these functions to retrieve sentences, words, or phrases that occur in web pages (In snippets, cached web pages, links etc.
 
-=head3 __PACKAGE__->getSearchSnippetWords(searchString,numResults,trace_file)
+=head3 __METHOD__->getSearchSnippetWords(searchString,numResults,trace_file)
 
 Purpose:  Given a search word, this function tries to retreive the text 
 surrounding the search word in the retrieved snippets. 
@@ -674,7 +674,7 @@ yet
 
 returns : Returns an object which contains the parsed information
 
-=head3 __PACKAGE__->getCachedSurroundingWords(searchString,trace_file)
+=head3 __METHOD__->getCachedSurroundingWords(searchString,trace_file)
 
 Purpose:  Given a search word, this function tries to retreive the text 
 surrounding the search word in the retrieved CACHED Web pages. It basically 
@@ -701,7 +701,7 @@ I<string>.   The location of the trace file. If a file_name is given, the result
 
 returns : Returns a hash with the keys being the words and the values being the frequency of occurence.
 
-=head3 __PACKAGE__->getSearchSnippetSentences(searchString,trace_file)
+=head3 __METHOD__->getSearchSnippetSentences(searchString,trace_file)
 
 Purpose:  Given a search word, this function tries to retreive the 
 sentences in the snippet.It basically does the search and passes the 
@@ -728,7 +728,7 @@ I<string>.   The location of the trace file. If a file_name is given, the result
 
 returns : Returns an array of strings.
 
-=head3 __PACKAGE__->getCachedSurroundingSentences(searchString,trace_file)
+=head3 __METHOD__->getCachedSurroundingSentences(searchString,trace_file)
 
 Purpose:  Given a search word, this function tries to retreive the 
 sentences in the cached web page.
@@ -755,7 +755,7 @@ the results are stored in this file
 returns : Returns a hash which contains the parsed sentences as values and the
 key being the web URL.
 
-=head3 __PACKAGE__->getSearchCommonWords(searchString1,searchString2,trace_file,stemmer)
+=head3 __METHOD__->getSearchCommonWords(searchString1,searchString2,trace_file,stemmer)
 
 Purpose:Given two search words, this function tries to retreive the common 
 text/words surrounding the search strings in the retrieved snippets.
@@ -794,7 +794,7 @@ I<bool>. Porter Stemmer on or off.
 
 returns : Returns a hash which contains the intersecting words.
 
-=head3 __PACKAGE__->getWordClustersInSnippets(searchString1,iterations,number,trace_file)
+=head3 __METHOD__->getWordClustersInSnippets(searchString1,iterations,number,trace_file)
 
 Purpose:Given a search string, this function retreive the top frequency words
 , and does a search on those words, and builds a list of words that can be 
@@ -827,7 +827,7 @@ results are stored in this file
 
 returns : Returns a set of words as a hash.
 
-=head3 __PACKAGE__->getClustersInSnippets(searchString1,searchString2,iterations,number,trace_file)
+=head3 __METHOD__->getClustersInSnippets(searchString1,searchString2,iterations,number,trace_file)
 
 Purpose:Given two search strings, this function retreive the snippets for 
 each string, and then finds the intersection of words, and then repeats the 
@@ -869,7 +869,7 @@ results are stored in this file
 returns : Returns a hash which contains the intersecting words as keys and the
  values being the frequency of occurence.
 
-=head3 __PACKAGE__->getText(searchString,iterations,number,path_to_data_directory)
+=head3 __METHOD__->getText(searchString,iterations,number,path_to_data_directory)
 
 Purpose:Given a search string, this function will retreive the resulting 
 URLs from Google, follow those links, and retrieve the text from there.  The 

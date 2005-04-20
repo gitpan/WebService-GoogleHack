@@ -18,13 +18,13 @@ To install the interface please follow these steps:
 2) Next, copy the file named google_hack.cgi, which is given with the 
 distribution of the google-hack package into your cgi-bin/ghack/ directory.
 
-3) Open the google_hack.cgi file.
+3) Open the index.cgi file.
 
 *Note:
-The google_hack.cgi file is in the WebInterface directory of GoogleHack.
-For eg: WebService/GoogleHack/WebInterface.
+The index.cgi file is in the WebInterface directory of GoogleHack.
+For eg: WebService/GoogleHack/WebInterface/.
 
-4) Now, in the google_hack.cgi  file (which is also given in the  WebInterface directory of GoogleHack),
+4) Now, in the index.cgi  file (which is also given in the  WebInterface directory of GoogleHack),
 
 Set the remote_host, and remote_port variables to the correct values.
 
@@ -33,7 +33,7 @@ $remote_host = '';
 $remote_port = '';
 
 The remote host will be the IP address of the machine where the google_hack server will be running.
-The remote port needs to be the same as the $localport variable in ghack_server.pl
+The remote port needs to be the same as the $LOCALPORT variable in ghack_server.pl
 
 5) Set the defaultKey variable to your default Google-API key.
 
@@ -81,13 +81,13 @@ use strict;
 ##########################################################
 # Change to host ip address and port                     #
 ##########################################################
-my $remote_host = '';
-my $remote_port = '';
+my $remote_host = '111.111.11.111';
+my $remote_port = '32983';
 
 ##########################################################
 # Change to default API key                              #
 ##########################################################
-my $defaultKey="";
+my $defaultKey="W3EDt6dQFHIBN/qfbniXjwvaf7SFXh0U";
 
 use CGI;
 use Socket;
@@ -120,6 +120,8 @@ my $words;
 my $frequency;
 my $numPages;
 my $numIterations;
+my $scoreType;
+my $scoreCutOff;
 my $wordS1;
 my $wordS2;
 my $review;
@@ -143,6 +145,10 @@ if($action eq "Submit")
     {
 	
 	WordClusters();
+    }
+    if($type eq "wordcluster2")
+    {	
+	WordClusters2();
     }
     elsif($type eq "pmi")
     {
@@ -179,10 +185,36 @@ if($action eq "Generate")
     }
     else
     {
-	$key="";
+	$key="$defaultKey";
     }
 
     generateWordCluster();
+#$numIterations = $cgi->param ('apikey');;
+    
+}
+
+if($action eq "Generate2")
+{
+  
+  #  $words = $cgi->param ('words');;  print $words;
+    $words = $cgi->param ('searchString1').":".$cgi->param ('searchString2');
+    print $words;
+    $frequency = $cgi->param ('cutoff');;
+    $numPages = $cgi->param ('numres');;
+    $numIterations=$cgi->param ('numiters');;;
+    $scoreType=$cgi->param ('scoretype');
+    $scoreCutOff=$cgi->param ('scorecutoff');
+
+    if($cgi->param ('apikey') ne "")
+    {
+	$key=$cgi->param ('apikey'); 
+    }
+    else
+    {
+	$key="$defaultKey";
+    }
+
+    generateWordCluster2();
 #$numIterations = $cgi->param ('apikey');;
     
 }
@@ -289,24 +321,28 @@ sub showPageStart
 </head>
 <body>
 
-<B><br><font face="Arial" size="5" >p r o j e c t  &nbsp; </font> </B>
-&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <font size="6">&nbsp;</font><font size="4"><b>
-</b>&nbsp;</font><font size="4" > <font face="Arial">g o o g l e
-&nbsp;&nbsp; - h a c k&nbsp;&nbsp;</font></font>
+<br></font><font size="4"><b>
+</font><font size="4" > <font face="Arial">G O O G L E
+&nbsp; -&nbsp; H A C K&nbsp;&nbsp;</font></b></font>
 <br>
 <hr></hr>
 
-<form action="google_hack.cgi" method="get" id="queryform" onreset="formReset()">
- <h1> Use GoogleHack </h1> <br>
+<form action="index.cgi" method="get" id="queryform" onreset="formReset()">
+ <br>
    <label for="word1in" class="leftlabel">Which feature would you like to use?</label>
 
    <select name="opt">
-        <option value="wordcluster"> Word Cluster</option>
+        <option value="wordcluster"> Sets of Related Words -- Algorithm 1</option>   
+	<option value="wordcluster2"> Sets of Related Words -- Algorithm 2</option>
         <option value="pmi">PMI Measure</option> 
 	<option value="review"> Semantic Orientation of Review</option>	
 	<option value="words"> Semantic Orientation of Words</option>	
 	<option value="phrases"> Semantic Orientation of Phrases</option>
-                 </select><br />
+                 </select>
+
+ &nbsp; <a href="options.cgi">Learn more about each option</a>
+
+<br />
 
 <br><br>
   <label><b>Google API Key:</b></label>
@@ -317,7 +353,15 @@ sub showPageStart
  <br>
 
   <br> 
-      <input name="action" type="submit" value="Submit" />  <br>   <br> 
+      <input name="action" type="submit" value="Submit" />  <br>   
+
+
+<font color="black">
+<h3 align="left"><b>Project Information</b></h3>
+
+<a href="http://google-hack.sf.net"> Project Information
+</a>
+<br>
 <a name='Developers'>
 <font color="black">
 <h3 align="left"><b>Developers</b></h3>
@@ -335,18 +379,17 @@ Pratheepan Raveendranathan
 EOINTRO
 }
 
+
 sub WordClusters
 {
 print <<"Word_Clusters";
-<font face="Arial" size="4" color="darkblue">P r o j e c t  &nbsp; </font>
-
-
-<font size="4" > <font face="Arial"  color="darkblue">g o o g l e
-- h a c k&nbsp;&nbsp;</font></font>
+<br>
+<font size="4" > <font face="Arial" color="darkblue"><B>G O O G L E
+- H A C K&nbsp;&nbsp;</font></B></font>
 
 <hr></hr>
-<form action="google_hack.cgi" method="get" id="queryform" onreset="formReset()">
-<h2> Word Clusters --- Beta Version </h2>
+<form action="index.cgi" method="get" id="queryform" onreset="formReset()">
+<h2> Word Clusters --- Algorithm 1 - Baseline Approach </h2>
 (Baseline algorithm)
 <H2><b> Set Parameters</b> </H2>
 
@@ -412,6 +455,8 @@ for(my $i=1; $i <= 2; $i++)
     print <<"Word_Clusters3";
 <br>  <label><b>Example&nbsp;&nbsp;</b>&nbsp;&nbsp;(For example, type in "rachel" & "ross", and set the number of web pages to 10, and the frequency cut off to 20)</label>
 <br><br> 
+(Accepts ONLY single word as input)
+<br><br>
   <label><b>Word 1&nbsp;&nbsp;&nbsp;&nbsp;:</b></label>
 <input type="text" name="searchString1" value="" > (Enter a word like "toyota") 
 <br><br>
@@ -489,6 +534,188 @@ temp
 }
 
 
+sub WordClusters2
+{
+print <<"Word_Clusters";
+<br>
+<font size="4" > <font face="Arial" color="darkblue"><B>G O O G L E
+- H A C K&nbsp;&nbsp;</font></B></font>
+
+<hr></hr>
+<form action="index.cgi" method="get" id="queryform" onreset="formReset()">
+<h2> Word Clusters --- Algorithm 2 - Beta Version </h2>
+<H2><b> Set Parameters</b> </H2>
+
+
+<label><b>Top "N" web Pages:</b></label>
+Word_Clusters
+
+	print "<select name=\"numres\">\n";
+
+for(my $i=10; $i <= 30; $i=$i+10)
+{
+
+       	    print "<option value=\"$i\">";
+	    print $i;
+	    print "</option>\n";
+	
+}
+	print "</select> (This will be the number of web pages to parse, Defaults to 10, Maximum 50 )<br />\n";
+
+print "<input type=\"hidden\" name=\"apikey\" value=\"$key\">";
+print <<"Word_Clusters1";
+
+<br>
+<label><b>Frequency Cutoff &nbsp;&nbsp;&nbsp;: </b></label>
+
+Word_Clusters1
+
+	print "<select name=\"cutoff\">\n";
+
+for(my $i=5; $i <= 25; $i++)
+{
+if($i==5)
+{
+  print "<option select value=\"$i\">";
+     print $i;
+     print "</option>\n ";
+}
+ else
+{
+     print "<option value=\"$i\">";
+     print $i;
+     print "</option>\n";
+}
+	
+}
+	print "</select> (Words with frequency less than given would not be considered, Max 20)<br />\n";
+
+print <<"Word_Clusters1";
+
+<br>
+   <label for="word1in" class="leftlabel"><b>Relatedness Score&nbsp;&nbsp;&nbsp;: </b></label>
+
+   <select name="scoretype">
+        <option value="1"> Measure 1</option>   
+	<option value="2"> Measure 2</option>
+        <option value="3"> Measure 3</option> 
+                 </select>
+ <br>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<font color="darkblue"><b>Measure 1 : </b>log(hits(w1)) + log(hits(w2)) - log(hits(w1w2))<br>&nbsp;&nbsp;&nbsp;&nbsp;<b>Measure 2 : </b>log( hits(w1w2) / (hits(w1) + hits(w2)))<br>&nbsp;&nbsp;&nbsp;&nbsp;<b>Measure 3 : </b>log( hits(w1w2) / (hits(w1) * hits(w2)))</font>
+<br />
+
+<br>
+<label><b>Relatedness Score Cutoff &nbsp;&nbsp;&nbsp;: </b></label>
+
+Word_Clusters1
+
+	print "<select name=\"scorecutoff\">\n";
+
+for(my $i=60; $i >= 30; $i=$i-5)
+{
+
+     print "<option value=\"$i\">";
+     print $i;
+     print "</option>\n";
+}
+	print "</select> (Words with relatedness score greater than given would not be considered, Max 60)<br />\n";
+
+print <<"Word_Clusters2";
+<br><label><b>No of Iterations&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b></label>
+Word_Clusters2
+	print "<select name=\"numiters\">\n";
+
+for(my $i=1; $i <= 2; $i++)
+{
+
+       	    print "<option value=\"$i\">";
+	    print $i;
+	    print "</option>\n";
+	
+}
+	print "</select> (This will be the number of iterations)<br />\n";
+
+    print <<"Word_Clusters3";
+<br>  <label><b>Example&nbsp;&nbsp;</b>&nbsp;&nbsp;(For example, type in "rachel" & "ross", or "george bush" & "bill clinton" and set the number of web pages to 10, and the frequency cut off to 20)</label>
+<br><br> 
+(Accepts Uni-Grams or Bi-Grams as input)
+<br><br>
+  <label><b>Word 1&nbsp;&nbsp;&nbsp;&nbsp;:</b></label>
+<input type="text" name="searchString1" value="" > (Enter a word like "toyota") 
+<br><br>
+<label><b>Word 2&nbsp;&nbsp;&nbsp;&nbsp;:</b></label>
+<input type="text" name="searchString2" value=""> (Enter a word like "ford")<br><br>
+
+      <input name="action" type="submit" value="Generate2" />
+
+
+      <input name="action" type="submit" value="Back" />
+
+ </form> 
+Word_Clusters3
+
+}
+
+sub generateWordCluster2
+{
+ socket (Server, PF_INET, SOCK_STREAM, getprotobyname ('tcp'));
+
+    my $internet_addr = inet_aton ($remote_host)
+	or die "Could not convert $remote_host to an Internet addr: $!\n";
+    my $paddr = sockaddr_in ($remote_port, $internet_addr);
+
+    unless (connect (Server, $paddr)) {
+	print "<p>Cannot connect to server $remote_host:$remote_port</p>\n";
+	close Server;
+    }
+
+ select ((select (Server), $|=1)[0]);
+ 
+ #$words=~s/\s+/:/g;
+ print Server "g\t$key\t$words\t$numPages\t$frequency\t$numIterations\t$scoreType\t$scoreCutOff\t\015\012\015\012";
+ print <<"temp";
+<B><p><font face="Arial" size="5" >p r o j e c t  &nbsp; </font> </B>
+</p>
+<p>&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp; <font size="6">&nbsp;</font><font size="4"><b>
+</b>&nbsp;</font><font size="4" > <font face="Arial">g o o g l e
+&nbsp;&nbsp; - h a c k&nbsp;&nbsp;</font></font></p>
+
+<hr></hr>
+temp
+
+ print "\n<B>Google Hack Word Cluster Algorithm 2 Results for </B>";
+
+            my @terms=();
+	    my @temp= split(/:/, $words);
+	    
+	    foreach my $word (@temp)
+	    {
+	       if($word ne "")
+	       {
+		   print "<br>$word";
+	       }
+	   
+	    }
+
+ print "<br><br> Frequency Cutoff: $frequency <br># of Web Pages: $numPages <br># of Iterations: $numIterations<br>" ;
+
+ while (my $line = <Server>) {
+     last if $line eq "\015\012";
+     print "<br>$line";
+     
+ }
+ 
+ local $ENV{PATH} = "/usr/local/bin:/usr/bin:/bin:/ghack";
+ my $t_osinfo = `uname -a` || "Couldn't get system information: $!";
+ # $t_osinfo is tainted.  Use it in a pattern match and $1 will
+ # be untainted.
+ $t_osinfo =~ /(.*)/;
+#    print "<p>HTTP server: $ENV{HTTP_HOST} ($1)</p>\n";
+#    print "<p>Google server: $remote_host</p>\n";
+ print "<hr />";
+ close Server;
+}
+
 sub PMI
 {
 print <<"PMI";
@@ -499,7 +726,7 @@ print <<"PMI";
 &nbsp;&nbsp; - h a c k&nbsp;&nbsp;</font></font></p>
 
 <hr></hr>
-<form action="google_hack.cgi" method="get"  onreset="formReset()">
+<form action="index.cgi" method="get"  onreset="formReset()">
 <h2> PMI Measure </h2>
 (This feature allows you to find the Pointwise Mutual Information measure between two terms)<br><br>
   <label><b>Search String 1:</b></label>
@@ -635,7 +862,7 @@ sub Review()
 &nbsp;&nbsp; - h a c k&nbsp;&nbsp;</font></font></p>
 
 <hr></hr>
-<form action="google_hack.cgi" method="get"  onreset="formReset()">
+<form action="index.cgi" method="get"  onreset="formReset()">
 <h2> Semantic Orientation of Review </h2>
   <label><b>Positive Inference&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b></label>
 <input type="text" name="searchString1" value="" > 
@@ -672,7 +899,7 @@ sub SemanticWords()
 &nbsp;&nbsp; - h a c k&nbsp;&nbsp;</font></font></p>
 
 <hr></hr>
-<form action="google_hack.cgi" method="get"  onreset="formReset()">
+<form action="index.cgi" method="get"  onreset="formReset()">
 <h2> Semantic Orientation of Words </h2>
   <label><b>Positive Inference&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b></label>
 <input type="text" name="searchString1" value="" > 
@@ -707,7 +934,7 @@ sub SemanticPhrases()
 &nbsp;&nbsp; - h a c k&nbsp;&nbsp;</font></font></p>
 
 <hr></hr>
-<form action="google_hack.cgi" method="get"  onreset="formReset()">
+<form action="index.cgi" method="get"  onreset="formReset()">
 <h2> Semantic Orientation of Phrases </h2>
   <label><b>Positive Inference&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:</b></label>
 <input type="text" name="searchString1" value="" > 

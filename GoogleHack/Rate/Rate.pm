@@ -48,11 +48,11 @@ meaning, and negative measure means the opposite.
 
 =head1 PACKAGE METHODS
 
-=head2 __PACKAGE__->new()
+=head2 __METHOD__->new()
 
 Purpose: This function creates an object of type Rate and returns a blessed reference.
 
-=head2 __PACKAGE__->init(Params Given Below)
+=head2 __METHOD__->init(Params Given Below)
 
 Purpose: This this function can used to inititalize the member variables.
 
@@ -75,7 +75,7 @@ I<string>.  This the wsdl file name
 
 =back
 
-=head2 __PACKAGE__->measureSemanticRelatedness1(searchString1,searchString2)
+=head2 __METHOD__->measureSemanticRelatedness1(searchString1,searchString2)
 
 Purpose: This function is used to measure the relatedness between two words.
 
@@ -101,7 +101,7 @@ I<string>.   The search string which can be a phrase or word
 
 Returns: Returns the object containing the relatedness measure.
 
-=head2 __PACKAGE__->measureSemanticRelatedness2(searchString1,searchString2)
+=head2 __METHOD__->measureSemanticRelatedness2(searchString1,searchString2)
 
 Purpose: This function is used to measure the relatedness between two words.
 
@@ -127,7 +127,7 @@ I<string>.   The search string which can be a phrase or word
 
 Returns: Returns the object containing the relatedness measure.
 
-=head2 __PACKAGE__->measureSemanticRelatedness3(searchString1,searchString2)
+=head2 __METHOD__->measureSemanticRelatedness3(searchString1,searchString2)
 
 Purpose: This function is used to measure the relatedness between two words.
 
@@ -153,7 +153,7 @@ I<string>.   The search string which can be a phrase or word
 
 Returns: Returns the object containing the relatedness measure. 
 
-=head2 __PACKAGE__->predictSemanticOrientation(infile,posInf, negInf,trace)
+=head2 __METHOD__->predictSemanticOrientation(infile,posInf, negInf,trace)
 
 Purpose: this function tries to predict the semantic orientation of a paragraph of text.
 
@@ -191,7 +191,7 @@ I<string>.   The location of the trace file. If a file_name is given, the result
 
 Returns : the PMI measure and the prediction which is 0 or 1.
 
-=head3 __PACKAGE__->predictWordSentiment(infile,posInf,negInf,html,trace)
+=head3 __METHOD__->predictWordSentiment(infile,posInf,negInf,html,trace)
 
 Purpose:Given an file containing text, this function tries to find the positive and negative words.
 The formula used to calculate the sentiment of a word is based on 
@@ -241,7 +241,7 @@ I<string>. Set to a file if you want the results to be written to the given file
 
 returns : Returns an html or text version of the results.
 
-=head3 __PACKAGE__->predictPhraseSentiment(infile,,posInf,negInf,html,trace)
+=head3 __METHOD__->predictPhraseSentiment(infile,,posInf,negInf,html,trace)
 
 Purpose:Given an file containing text, this function tries to find the positive and negative phrases. 
 The formula used to calculate the sentiment of a phrase is based on the PMI-IR formula given in Peter Turneys paper.
@@ -333,7 +333,7 @@ Boston, MA  02111-1307, USA.
 
 package WebService::GoogleHack::Rate;
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 use strict;
 

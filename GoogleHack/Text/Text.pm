@@ -38,11 +38,11 @@ form n word sentences.
 
 =head1 PACKAGE METHODS
 
-=head2 __PACKAGE__->new()
+=head2 __METHOD__->new()
 
 Purpose: This function creates an object of type Text and returns a blessed reference.
 
-=head2 __PACKAGE__->init(Params Given Below)
+=head2 __METHOD__->init(Params Given Below)
 
 Purpose: This this function can used to inititalize the member variables.
 
@@ -77,7 +77,7 @@ I<string>. The location of the Brill Tagger
 
 =back
 
-=head2 __PACKAGE__->getSentences(file_name,sentence_length,trace_file)
+=head2 __METHOD__->getSentences(file_name,sentence_length,trace_file)
 
 Purpose:  Given a file of text or a variable containing text, this function tries to retrieve sentences from it.
 
@@ -109,7 +109,7 @@ Returns: Returns an array of strings.
 
 
 
-=head2 __PACKAGE__->getSentences(file_name,trace_file)
+=head2 __METHOD__->getSentences(file_name,trace_file)
 
 Purpose:Given a file of text this function tries to retrieve words from it.
 
@@ -134,7 +134,7 @@ I<string>.   The location of the trace file. If a file_name is given, the result
 Returns:  Returns a hash of words.
 
 
-=head2 __PACKAGE__->getSentences(text)
+=head2 __METHOD__->getSentences(text)
 
 Purpose: Remove XML tags. Package XML::TokeParser must be installed 
 
@@ -154,7 +154,7 @@ Returns:  Returns a XML less text.
 
 
 
-=head2 __PACKAGE__->getSentences(text)
+=head2 __METHOD__->getSentences(text)
 
 Purpose: Remove HTML tags. Package HTML::TokeParser must be installed 
 
@@ -173,7 +173,7 @@ I<string>. The text to be de-tagged.
 Returns:  Returns a HTML less text.
 
 
-=head2 __PACKAGE__->getSurroundingWords(filename,stemmer)
+=head2 __METHOD__->getSurroundingWords(filename,stemmer)
 
 Purpose:  this function is used to read a configuration file containing informaiton such as the Google-API key, the words list etc.
 
@@ -199,7 +199,7 @@ I<bool>. Porter Stemmer on or off.
 returns : Returns an object which contains the parsed information.
 
 
-=head2 __PACKAGE__->readConfig(filename)
+=head2 __METHOD__->readConfig(filename)
 
 Purpose:  this function is used to read a configuration file containing informaiton such as the Google-API key, the words list etc.
 
@@ -268,7 +268,7 @@ Boston, MA  02111-1307, USA.
 package WebService::GoogleHack::Text;
 
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 sub new
 {

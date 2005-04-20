@@ -30,12 +30,12 @@ This module provides a simple interface to the Google API. It is used by the Goo
 
 =head1 PACKAGE METHODS
 
-=head2 __PACKAGE__->new()
+=head2 _METHOD__->new()
 
 Purpose: This function creates an object of type Search and returns a blessed 
 reference.
 
-=head2 __PACKAGE__->init(key,wsdl_location)
+=head2 _METHOD__->init(key,wsdl_location)
 
 Purpose: This this function can used to inititalize the member variables.
 
@@ -57,7 +57,7 @@ I<string>.  This the wsdl file name
 
 =back
 
-=head2 __PACKAGE__->Search(searchString,num_results,integer)
+=head2 _METHOD__->Search(searchString,num_results,integer)
 
 Purpose: This function is used to query googles 
 
@@ -84,7 +84,7 @@ Maximum is 1000. Give in terms of multiples of ten.
 
 Returns: Returns a Search object containing the search results.
 
-=head2 __PACKAGE__->getEstimateNo()
+=head2 _METHOD__->getEstimateNo()
 
 Purpose: This function returns the number of results predicted by google for a specific search term.
 
@@ -97,7 +97,7 @@ No Valid arguments.
 
 Returns: Returns the total number of results for a search string..
 
-=head2 __PACKAGE__->IamFeelingLucky()
+=head2 _METHOD__->IamFeelingLucky()
 
 Purpose: This function imitates the "I am Feeling Lucky" search feature of 
 Google. It basically returns the URL of the first result of your search.
@@ -110,7 +110,7 @@ No Valid arguments.
 
 Returns: Returns the URL of the first result of your search.
 
-=head2 __PACKAGE__->getCachedPage()
+=head2 _METHOD__->getCachedPage()
 
 Purpose: This function retrieves a cached webpage, given the URL.
 
@@ -165,10 +165,8 @@ Boston, MA  02111-1307, USA.
 
 package WebService::GoogleHack::Search;
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 use SOAP::Lite;
-
-
 
 
 sub new
@@ -177,6 +175,7 @@ my $this = {};
 
 $this-> {'Key'} = undef;
 $this-> {'File_Location'} = undef;
+$this-> {'yahooid'}=undef;
 $this-> {'maxResults'} =10;
 $this-> {'StartPos'} =0;
 $this-> {'Filter'} ="false";
@@ -207,6 +206,7 @@ my $this = shift;
 
 $this->{'Key'} = shift;
 $this->{'File_Location'} = shift;
+$this-> {'yahooid'}= shift;
 $this-> {'maxResults'} =shift;
 $this-> {'StartPos'} =shift;
 $this-> {'Filter'} =shift;
@@ -458,6 +458,53 @@ sub getCachedPage
     
     
 }
+
+
+sub searchYahoo
+{
+    my $searchInfo=shift;
+    my $searchString=shift;
+    my $num_results=shift;
+    @snippet_array=();
+    @url_array=();
+    @title_array=();
+
+    $count1=0;
+    $count2=0;
+    $count3=0;
+
+    if(!defined($num_results))
+    {
+	$num_results=10;
+    }
+
+    print ".";
+    $id  = $searchInfo->{'yahooid'}; 
+
+    my @Results = Yahoo::Search->Results(Doc => "$searchString", AppId => "$id", Count => $num_results);
+
+  foreach my $temp (@Results) 
+  {       
+      if(defined($temp->URL))
+      {
+	  push(@url_array,$temp->URL);      
+      }
+      else
+      {
+	  push($url_array,"Undefined URL");	  
+      }
+    
+  }
+
+$this->{'NumResults'} = $result->{estimatedTotalResultsCount};
+$this->{'url'}=\@url_array;
+
+return $this;
+
+
+}
+
+
 # remember to end the module with this
 1;
 

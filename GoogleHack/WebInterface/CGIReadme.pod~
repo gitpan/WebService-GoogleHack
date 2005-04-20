@@ -9,7 +9,7 @@ DESCRIPTION
 
     The web interface for WebService::Google-Hack has been implemented such
     that, there needs to be a WebService::Google-Hack Server running in the
-    background, so that the client file index.cgi can connect to the
+    background, so that the client file google_hack.cgi can connect to the
     server on a specific port, and retrieve results.
 
 Installation Guide
@@ -18,16 +18,16 @@ Installation Guide
 
     /webspace/cgi-bin/ghack
 
-    2) Next, copy the file named index.cgi, which is given with the
+    2) Next, copy the file named google_hack.cgi, which is given with the
     distribution of the google-hack package into your cgi-bin/ghack/
     directory.
 
-    3) Open the index.cgi file, and change the lib path to the path
+    3) Open the google_hack.cgi file, and change the lib path to the path
     where WebService::GoogleHack has been installed on your machine.
 
     use lib "/home/lib/perl5/site_perl/";
 
-    *Note: The index.cgi file is in the WebInterface directory of
+    *Note: The google_hack.cgi file is in the WebInterface directory of
     GoogleHack. For eg: WebService/GoogleHack/WebInterface.
 
     4) Now, open the ghack_server.pl file (which is also given in the
@@ -48,7 +48,7 @@ Installation Guide
     $error_log = "$BASEDIR/error.log";
 
     Basedir should be the path to the cgi-bin directory in which
-    index.cgi resides.
+    google_hack.cgi resides.
 
     The localport should be a number above 1024, and less than around
     66,000. Make sure that localport number is the same on both the client
@@ -56,7 +56,7 @@ Installation Guide
 
     The lockfile & error_log variables will remain the same.
 
-    6) Now, open the index.cgi file (which is also given in the
+    6) Now, open the google_hack.cgi file (which is also given in the
     WebInterface directory of GoogleHack),
 
     Set the remotr_host, and remote_port variables to the correct values.

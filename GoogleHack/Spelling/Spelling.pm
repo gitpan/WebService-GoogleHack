@@ -31,12 +31,12 @@ This module interacts with Google to retrieve a spelling suggestion given a stri
 
 =head1 PACKAGE METHODS
 
-=head2 __PACKAGE__->new()
+=head2 __METHOD__->new()
 
 Purpose: This function creates an object of type Spelling and returns a 
 blessed reference.
 
-=head2 __PACKAGE__->init(Key,wsdl_location)
+=head2 __METHOD__->init(Key,wsdl_location)
 
 Purpose: This this function can used to inititalize the member variables.
 
@@ -59,7 +59,7 @@ I<string>.  This the wsdl file name
 =back
 
 
-=head2 __PACKAGE__->spellingSuggestion(searchString)
+=head2 __METHOD__->spellingSuggestion(searchString)
 
 Purpose: This is function is used to retrieve a spelling suggestion from Google
 
@@ -124,7 +124,7 @@ it under the same terms as Perl itself.
 
 package WebService::GoogleHack::Spelling;
 
-our $VERSION = '0.13';
+our $VERSION = '0.14';
 
 use SOAP::Lite;
 
