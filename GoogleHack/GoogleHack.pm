@@ -949,7 +949,7 @@ Boston, MA  02111-1307, USA.
 
 package WebService::GoogleHack;
 
-our $VERSION = '0.13';
+our $VERSION = '0.15';
 
 use SOAP::Lite;
 use Set::Scalar;
@@ -2120,7 +2120,7 @@ sub getWordsInPage
     {
 	for(my $i=0;$i< $size;$i++)
 	{	
-	    print "\n Pushing into permutations $searchStrings[$i]";
+	    print "\n Pushing into permutations here $searchStrings[$i]";
 	    push(@permutations,$searchStrings[$i]);
 
 	    my @tempTerms = split(/\s+/, $searchStrings[$i]);	

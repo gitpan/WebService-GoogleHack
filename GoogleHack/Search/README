@@ -2,7 +2,7 @@ NAME
     WebService::GoogleHack README
 
 VERSION
-    0.14
+    0.15
 
 SYNOPSIS
     GoogleHack is a set of Perl modules that does a variety of text

@@ -165,7 +165,7 @@ Boston, MA  02111-1307, USA.
 
 package WebService::GoogleHack::Search;
 
-our $VERSION = '0.14';
+our $VERSION = '0.15';
 use SOAP::Lite;
 
 
@@ -321,10 +321,11 @@ sub searchPhrase
     print ".";
     $key  = $searchInfo->{'Key'}; 
     $wsdl_path =$searchInfo->{'File_Location'}; 
+
     
-#    print "\n Key is $key";
-#    print "\n path is $wsdl_path";
-#    print "\n Search phrase is $searchString\n";
+    print "\n Key is $key";
+    print "\n path is $wsdl_path";
+    print "\n Search phrase is $searchString\n";
 #    print  $searchInfo-> {'StartPos'};
     
 # Initialise with local SOAP::Lite file
@@ -356,7 +357,8 @@ $result =  $service -> doGoogleSearch(
 		      );
 
 foreach $temp (@{$result->{resultElements}}) {
-   
+  
+ 
 
     if(defined($temp->{URL}))
     {
@@ -459,50 +461,6 @@ sub getCachedPage
     
 }
 
-
-sub searchYahoo
-{
-    my $searchInfo=shift;
-    my $searchString=shift;
-    my $num_results=shift;
-    @snippet_array=();
-    @url_array=();
-    @title_array=();
-
-    $count1=0;
-    $count2=0;
-    $count3=0;
-
-    if(!defined($num_results))
-    {
-	$num_results=10;
-    }
-
-    print ".";
-    $id  = $searchInfo->{'yahooid'}; 
-
-    my @Results = Yahoo::Search->Results(Doc => "$searchString", AppId => "$id", Count => $num_results);
-
-  foreach my $temp (@Results) 
-  {       
-      if(defined($temp->URL))
-      {
-	  push(@url_array,$temp->URL);      
-      }
-      else
-      {
-	  push($url_array,"Undefined URL");	  
-      }
-    
-  }
-
-$this->{'NumResults'} = $result->{estimatedTotalResultsCount};
-$this->{'url'}=\@url_array;
-
-return $this;
-
-
-}
 
 
 # remember to end the module with this
